@@ -1,0 +1,4335 @@
+{
+    "job_id": "e444f2cf-e31e-41bc-a237-bf151d8ba85c",
+    "status": "SUCCEEDED",
+    "progress": 100,
+    "result": {
+        "sections": [
+            {
+                "name": "General",
+                "items": [
+                    {
+                        "key": "Unit Count",
+                        "qty": 0,
+                        "qty_raw": 0.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source_classification": "Studio Unit Count",
+                        "confidence": 0.95
+                    }
+                ]
+            },
+            {
+                "name": "Corridors",
+                "items": [
+                    {
+                        "key": "Corridor Wall SF",
+                        "qty": 23109.75,
+                        "qty_raw": 23109.75,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source_classification": "Stucco Wall SF",
+                        "confidence": 0.95
+                    }
+                ]
+            },
+            {
+                "name": "Exterior",
+                "items": [
+                    {
+                        "key": "Stucco Wall SF",
+                        "qty": 23109.75,
+                        "qty_raw": 23109.75,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source_classification": "Stucco Wall SF",
+                        "confidence": 1.0
+                    },
+                    {
+                        "key": "Parapet LF",
+                        "qty": 315.62,
+                        "qty_raw": 315.62,
+                        "uom": "FT",
+                        "uom_raw": "LF",
+                        "source_classification": "Parapet LF",
+                        "confidence": 1.0
+                    },
+                    {
+                        "key": "Windows Count",
+                        "qty": 928,
+                        "qty_raw": 928.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source_classification": "Windows",
+                        "confidence": 1.0
+                    }
+                ]
+            },
+            {
+                "name": "Units",
+                "items": [
+                    {
+                        "key": "Unit Wall SF",
+                        "qty": 23109.75,
+                        "qty_raw": 23109.75,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source_classification": "Stucco Wall SF",
+                        "confidence": 0.95
+                    },
+                    {
+                        "key": "Unit Doors",
+                        "qty": 2393,
+                        "qty_raw": 2393.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source_classification": "Unit Doors",
+                        "confidence": 1.0
+                    }
+                ]
+            },
+            {
+                "name": "Common Areas",
+                "items": [
+                    {
+                        "key": "Common Area Wall SF",
+                        "qty": 23109.75,
+                        "qty_raw": 23109.75,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source_classification": "Stucco Wall SF",
+                        "confidence": 0.95
+                    }
+                ]
+            },
+            {
+                "name": "Bathrooms",
+                "items": [
+                    {
+                        "key": "Vanity Count",
+                        "qty": 5704,
+                        "qty_raw": 5704.17,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source_classification": "Amenities",
+                        "confidence": 0.82
+                    },
+                    {
+                        "key": "Toilet Count",
+                        "qty": 530,
+                        "qty_raw": 530.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source_classification": "WIC",
+                        "confidence": 0.8
+                    }
+                ]
+            }
+        ],
+        "unmapped": [
+            {
+                "classification": "1 Bed Room Count",
+                "measures": [
+                    {
+                        "value": 333,
+                        "value_raw": 333.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 3
+                }
+            },
+            {
+                "classification": "2 Bedroom Count",
+                "measures": [
+                    {
+                        "value": 134,
+                        "value_raw": 134.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 4
+                }
+            },
+            {
+                "classification": "3 Bed Room Count",
+                "measures": [
+                    {
+                        "value": 0,
+                        "value_raw": 0.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 5
+                }
+            },
+            {
+                "classification": "Total",
+                "measures": [
+                    {
+                        "value": 467,
+                        "value_raw": 467.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 6
+                }
+            },
+            {
+                "classification": "Total SF",
+                "measures": [
+                    {
+                        "value": 410064.0,
+                        "value_raw": 410064.0,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source": "C"
+                    },
+                    {
+                        "value": 878.08,
+                        "value_raw": 878.0813704496788,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source": "D"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 7
+                }
+            },
+            {
+                "classification": "Stucco Passthrough SF",
+                "measures": [
+                    {
+                        "value": 8126.93,
+                        "value_raw": 8126.93,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 14
+                }
+            },
+            {
+                "classification": "Cor. Lid SF",
+                "measures": [
+                    {
+                        "value": 82953.0,
+                        "value_raw": 82953.0,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 16
+                }
+            },
+            {
+                "classification": "Cor. Door Count",
+                "measures": [
+                    {
+                        "value": 367,
+                        "value_raw": 367.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 17
+                }
+            },
+            {
+                "classification": "IDF etc. Count",
+                "measures": [
+                    {
+                        "value": 47,
+                        "value_raw": 47.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 18
+                }
+            },
+            {
+                "classification": "IDF etc. SF",
+                "measures": [
+                    {
+                        "value": 7950.84,
+                        "value_raw": 7950.84,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 19
+                }
+            },
+            {
+                "classification": "Storage Count",
+                "measures": [
+                    {
+                        "value": 19,
+                        "value_raw": 19.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 20
+                }
+            },
+            {
+                "classification": "Storage SF",
+                "measures": [
+                    {
+                        "value": 3017.02,
+                        "value_raw": 3017.02,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 21
+                }
+            },
+            {
+                "classification": "Cor. Bumpouts count",
+                "measures": [
+                    {
+                        "value": 731,
+                        "value_raw": 731.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 22
+                }
+            },
+            {
+                "classification": "Trash Term Room Counr",
+                "measures": [
+                    {
+                        "value": 1,
+                        "value_raw": 1.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 23
+                }
+            },
+            {
+                "classification": "Cor Rail",
+                "measures": [
+                    {
+                        "value": 0,
+                        "value_raw": 0.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 24
+                }
+            },
+            {
+                "classification": "8 Landscape Retaining Wall LF",
+                "measures": [
+                    {
+                        "value": 392.97,
+                        "value_raw": 392.97,
+                        "uom": "FT",
+                        "uom_raw": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 32
+                }
+            },
+            {
+                "classification": "Ext. Door Count",
+                "measures": [
+                    {
+                        "value": 40,
+                        "value_raw": 40.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 33
+                }
+            },
+            {
+                "classification": "Foam Eave LF",
+                "measures": [
+                    {
+                        "value": 4496.11,
+                        "value_raw": 4496.11,
+                        "uom": "FT",
+                        "uom_raw": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 34
+                }
+            },
+            {
+                "classification": "Roof Stucco LF",
+                "measures": [
+                    {
+                        "value": 4455.83,
+                        "value_raw": 4455.83,
+                        "uom": "FT",
+                        "uom_raw": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 36
+                }
+            },
+            {
+                "classification": "Parapet facing garage LF",
+                "measures": [
+                    {
+                        "value": 998.29,
+                        "value_raw": 998.29,
+                        "uom": "FT",
+                        "uom_raw": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 37
+                }
+            },
+            {
+                "classification": "Window/Door Trim Count",
+                "measures": [
+                    {
+                        "value": 1449,
+                        "value_raw": 1449.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 38
+                }
+            },
+            {
+                "classification": "Trim LF",
+                "measures": [
+                    {
+                        "value": 7648.39,
+                        "value_raw": 7648.39,
+                        "uom": "FT",
+                        "uom_raw": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 39
+                }
+            },
+            {
+                "classification": "Foam Panel Count",
+                "measures": [
+                    {
+                        "value": 191,
+                        "value_raw": 191.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 40
+                }
+            },
+            {
+                "classification": "Wainscot LF",
+                "measures": [
+                    {
+                        "value": 420.75,
+                        "value_raw": 420.75,
+                        "uom": "FT",
+                        "uom_raw": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 41
+                }
+            },
+            {
+                "classification": "Balc. Rail LF",
+                "measures": [
+                    {
+                        "value": 3817.01,
+                        "value_raw": 3817.01,
+                        "uom": "FT",
+                        "uom_raw": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 42
+                }
+            },
+            {
+                "classification": "Balc. Rail Count",
+                "measures": [
+                    {
+                        "value": 501,
+                        "value_raw": 501.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 43
+                }
+            },
+            {
+                "classification": "Large Opening Trim  Count",
+                "measures": [
+                    {
+                        "value": 4,
+                        "value_raw": 4.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 44
+                }
+            },
+            {
+                "classification": "Louvers",
+                "measures": [
+                    {
+                        "value": 1,
+                        "value_raw": 1.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 45
+                }
+            },
+            {
+                "classification": "Gutter LF",
+                "measures": [
+                    {
+                        "value": 4496.0,
+                        "value_raw": 4496.0,
+                        "uom": "FT",
+                        "uom_raw": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 46
+                }
+            },
+            {
+                "classification": "Down Spouts",
+                "measures": [
+                    {
+                        "value": 113,
+                        "value_raw": 113.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 47
+                }
+            },
+            {
+                "classification": "Wardrobes",
+                "measures": [
+                    {
+                        "value": 176,
+                        "value_raw": 176.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 56
+                }
+            },
+            {
+                "classification": "W/D",
+                "measures": [
+                    {
+                        "value": 467,
+                        "value_raw": 467.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 57
+                }
+            },
+            {
+                "classification": "Balc",
+                "measures": [
+                    {
+                        "value": 141,
+                        "value_raw": 141.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 58
+                }
+            },
+            {
+                "classification": "Balc Storage",
+                "measures": [
+                    {
+                        "value": 221,
+                        "value_raw": 221.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 59
+                }
+            },
+            {
+                "classification": "Total SF",
+                "measures": [
+                    {
+                        "value": 7240.55,
+                        "value_raw": 7240.55,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 81
+                }
+            },
+            {
+                "classification": "Lobby",
+                "measures": [
+                    {
+                        "value": 536,
+                        "value_raw": 536.38,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 83
+                }
+            },
+            {
+                "classification": "Common Area Bathrooms",
+                "measures": [
+                    {
+                        "value": 1000,
+                        "value_raw": 1000.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 84
+                }
+            },
+            {
+                "classification": "Lounge",
+                "measures": [
+                    {
+                        "value": 3716,
+                        "value_raw": 3716.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 86
+                }
+            },
+            {
+                "classification": "Fitness",
+                "measures": [
+                    {
+                        "value": 3716,
+                        "value_raw": 3716.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 87
+                }
+            },
+            {
+                "classification": "Gaurdhouse",
+                "measures": [
+                    {
+                        "value": 310,
+                        "value_raw": 310.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 88
+                }
+            },
+            {
+                "classification": "Window/Door Trim Count",
+                "measures": [
+                    {
+                        "value": 32,
+                        "value_raw": 32.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 90
+                }
+            },
+            {
+                "classification": "Trim LF",
+                "measures": [
+                    {
+                        "value": 998.68,
+                        "value_raw": 998.6800000000001,
+                        "uom": "FT",
+                        "uom_raw": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 91
+                }
+            },
+            {
+                "classification": "Wainscot LF",
+                "measures": [
+                    {
+                        "value": 235.66,
+                        "value_raw": 235.66,
+                        "uom": "FT",
+                        "uom_raw": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 92
+                }
+            },
+            {
+                "classification": "Decorative Metal Grill Count",
+                "measures": [
+                    {
+                        "value": 1,
+                        "value_raw": 1.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 94
+                }
+            },
+            {
+                "classification": "Garage Lid SF",
+                "measures": [
+                    {
+                        "value": 212625.62,
+                        "value_raw": 212625.62,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 103
+                }
+            },
+            {
+                "classification": "Garage Storage Count",
+                "measures": [
+                    {
+                        "value": 40,
+                        "value_raw": 40.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 104
+                }
+            },
+            {
+                "classification": "Garage Storage SF",
+                "measures": [
+                    {
+                        "value": 5228.86,
+                        "value_raw": 5228.86,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 105
+                }
+            },
+            {
+                "classification": "Garage Mech Room gate",
+                "measures": [
+                    {
+                        "value": 12,
+                        "value_raw": 12.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 107
+                }
+            },
+            {
+                "classification": "Garage Vest Count",
+                "measures": [
+                    {
+                        "value": 17,
+                        "value_raw": 17.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 108
+                }
+            },
+            {
+                "classification": "Garage Vest SF",
+                "measures": [
+                    {
+                        "value": 3575.67,
+                        "value_raw": 3575.67,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 109
+                }
+            },
+            {
+                "classification": "Garage Column Count",
+                "measures": [
+                    {
+                        "value": 400,
+                        "value_raw": 400.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 110
+                }
+            },
+            {
+                "classification": "Garage Door Count",
+                "measures": [
+                    {
+                        "value": 119,
+                        "value_raw": 119.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 111
+                }
+            },
+            {
+                "classification": "Vehicle Entry Gate Count",
+                "measures": [
+                    {
+                        "value": 2,
+                        "value_raw": 2.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 112
+                }
+            },
+            {
+                "classification": "Garage Stairs SF",
+                "measures": [
+                    {
+                        "value": 2710.03,
+                        "value_raw": 2710.03,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 113
+                }
+            },
+            {
+                "classification": "Garage Trash Vest Count",
+                "measures": [
+                    {
+                        "value": 17,
+                        "value_raw": 17.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 114
+                }
+            },
+            {
+                "classification": "Garage Trash Vest SF",
+                "measures": [
+                    {
+                        "value": 824.72,
+                        "value_raw": 824.72,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 115
+                }
+            },
+            {
+                "classification": "Garage Trash Term Room Count",
+                "measures": [
+                    {
+                        "value": 4,
+                        "value_raw": 4.0,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 116
+                }
+            },
+            {
+                "classification": "Garage Trash Term Room SF",
+                "measures": [
+                    {
+                        "value": 3110.24,
+                        "value_raw": 3110.24,
+                        "uom": "SF",
+                        "uom_raw": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 117
+                }
+            },
+            {
+                "classification": "Garage Wall Subtract",
+                "measures": [
+                    {
+                        "value": 271,
+                        "value_raw": 271.47,
+                        "uom": "EA",
+                        "uom_raw": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 120
+                }
+            }
+        ],
+        "unmapped_summary": {
+            "total_unmapped": 59,
+            "unique_classifications": 55,
+            "top": [
+                {
+                    "classification": "Total SF",
+                    "count": 2,
+                    "example": {
+                        "classification": "Total SF",
+                        "measures": [
+                            {
+                                "value": 410064.0,
+                                "value_raw": 410064.0,
+                                "uom": "SF",
+                                "uom_raw": "SF",
+                                "source": "C"
+                            },
+                            {
+                                "value": 878.08,
+                                "value_raw": 878.0813704496788,
+                                "uom": "SF",
+                                "uom_raw": "SF",
+                                "source": "D"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 7
+                        }
+                    }
+                },
+                {
+                    "classification": "Window/Door Trim Count",
+                    "count": 2,
+                    "example": {
+                        "classification": "Window/Door Trim Count",
+                        "measures": [
+                            {
+                                "value": 1449,
+                                "value_raw": 1449.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 38
+                        }
+                    }
+                },
+                {
+                    "classification": "Trim LF",
+                    "count": 2,
+                    "example": {
+                        "classification": "Trim LF",
+                        "measures": [
+                            {
+                                "value": 7648.39,
+                                "value_raw": 7648.39,
+                                "uom": "FT",
+                                "uom_raw": "LF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 39
+                        }
+                    }
+                },
+                {
+                    "classification": "Wainscot LF",
+                    "count": 2,
+                    "example": {
+                        "classification": "Wainscot LF",
+                        "measures": [
+                            {
+                                "value": 420.75,
+                                "value_raw": 420.75,
+                                "uom": "FT",
+                                "uom_raw": "LF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 41
+                        }
+                    }
+                },
+                {
+                    "classification": "1 Bed Room Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "1 Bed Room Count",
+                        "measures": [
+                            {
+                                "value": 333,
+                                "value_raw": 333.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 3
+                        }
+                    }
+                },
+                {
+                    "classification": "2 Bedroom Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "2 Bedroom Count",
+                        "measures": [
+                            {
+                                "value": 134,
+                                "value_raw": 134.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 4
+                        }
+                    }
+                },
+                {
+                    "classification": "3 Bed Room Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "3 Bed Room Count",
+                        "measures": [
+                            {
+                                "value": 0,
+                                "value_raw": 0.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 5
+                        }
+                    }
+                },
+                {
+                    "classification": "Total",
+                    "count": 1,
+                    "example": {
+                        "classification": "Total",
+                        "measures": [
+                            {
+                                "value": 467,
+                                "value_raw": 467.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 6
+                        }
+                    }
+                },
+                {
+                    "classification": "Stucco Passthrough SF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Stucco Passthrough SF",
+                        "measures": [
+                            {
+                                "value": 8126.93,
+                                "value_raw": 8126.93,
+                                "uom": "SF",
+                                "uom_raw": "SF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 14
+                        }
+                    }
+                },
+                {
+                    "classification": "Cor. Lid SF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Cor. Lid SF",
+                        "measures": [
+                            {
+                                "value": 82953.0,
+                                "value_raw": 82953.0,
+                                "uom": "SF",
+                                "uom_raw": "SF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 16
+                        }
+                    }
+                },
+                {
+                    "classification": "Cor. Door Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Cor. Door Count",
+                        "measures": [
+                            {
+                                "value": 367,
+                                "value_raw": 367.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 17
+                        }
+                    }
+                },
+                {
+                    "classification": "IDF etc. Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "IDF etc. Count",
+                        "measures": [
+                            {
+                                "value": 47,
+                                "value_raw": 47.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 18
+                        }
+                    }
+                },
+                {
+                    "classification": "IDF etc. SF",
+                    "count": 1,
+                    "example": {
+                        "classification": "IDF etc. SF",
+                        "measures": [
+                            {
+                                "value": 7950.84,
+                                "value_raw": 7950.84,
+                                "uom": "SF",
+                                "uom_raw": "SF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 19
+                        }
+                    }
+                },
+                {
+                    "classification": "Storage Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Storage Count",
+                        "measures": [
+                            {
+                                "value": 19,
+                                "value_raw": 19.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 20
+                        }
+                    }
+                },
+                {
+                    "classification": "Storage SF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Storage SF",
+                        "measures": [
+                            {
+                                "value": 3017.02,
+                                "value_raw": 3017.02,
+                                "uom": "SF",
+                                "uom_raw": "SF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 21
+                        }
+                    }
+                },
+                {
+                    "classification": "Cor. Bumpouts count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Cor. Bumpouts count",
+                        "measures": [
+                            {
+                                "value": 731,
+                                "value_raw": 731.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 22
+                        }
+                    }
+                },
+                {
+                    "classification": "Trash Term Room Counr",
+                    "count": 1,
+                    "example": {
+                        "classification": "Trash Term Room Counr",
+                        "measures": [
+                            {
+                                "value": 1,
+                                "value_raw": 1.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 23
+                        }
+                    }
+                },
+                {
+                    "classification": "Cor Rail",
+                    "count": 1,
+                    "example": {
+                        "classification": "Cor Rail",
+                        "measures": [
+                            {
+                                "value": 0,
+                                "value_raw": 0.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 24
+                        }
+                    }
+                },
+                {
+                    "classification": "8 Landscape Retaining Wall LF",
+                    "count": 1,
+                    "example": {
+                        "classification": "8 Landscape Retaining Wall LF",
+                        "measures": [
+                            {
+                                "value": 392.97,
+                                "value_raw": 392.97,
+                                "uom": "FT",
+                                "uom_raw": "LF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 32
+                        }
+                    }
+                },
+                {
+                    "classification": "Ext. Door Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Ext. Door Count",
+                        "measures": [
+                            {
+                                "value": 40,
+                                "value_raw": 40.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 33
+                        }
+                    }
+                },
+                {
+                    "classification": "Foam Eave LF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Foam Eave LF",
+                        "measures": [
+                            {
+                                "value": 4496.11,
+                                "value_raw": 4496.11,
+                                "uom": "FT",
+                                "uom_raw": "LF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 34
+                        }
+                    }
+                },
+                {
+                    "classification": "Roof Stucco LF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Roof Stucco LF",
+                        "measures": [
+                            {
+                                "value": 4455.83,
+                                "value_raw": 4455.83,
+                                "uom": "FT",
+                                "uom_raw": "LF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 36
+                        }
+                    }
+                },
+                {
+                    "classification": "Parapet facing garage LF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Parapet facing garage LF",
+                        "measures": [
+                            {
+                                "value": 998.29,
+                                "value_raw": 998.29,
+                                "uom": "FT",
+                                "uom_raw": "LF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 37
+                        }
+                    }
+                },
+                {
+                    "classification": "Foam Panel Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Foam Panel Count",
+                        "measures": [
+                            {
+                                "value": 191,
+                                "value_raw": 191.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 40
+                        }
+                    }
+                },
+                {
+                    "classification": "Balc. Rail LF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Balc. Rail LF",
+                        "measures": [
+                            {
+                                "value": 3817.01,
+                                "value_raw": 3817.01,
+                                "uom": "FT",
+                                "uom_raw": "LF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 42
+                        }
+                    }
+                },
+                {
+                    "classification": "Balc. Rail Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Balc. Rail Count",
+                        "measures": [
+                            {
+                                "value": 501,
+                                "value_raw": 501.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 43
+                        }
+                    }
+                },
+                {
+                    "classification": "Large Opening Trim  Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Large Opening Trim  Count",
+                        "measures": [
+                            {
+                                "value": 4,
+                                "value_raw": 4.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 44
+                        }
+                    }
+                },
+                {
+                    "classification": "Louvers",
+                    "count": 1,
+                    "example": {
+                        "classification": "Louvers",
+                        "measures": [
+                            {
+                                "value": 1,
+                                "value_raw": 1.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 45
+                        }
+                    }
+                },
+                {
+                    "classification": "Gutter LF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Gutter LF",
+                        "measures": [
+                            {
+                                "value": 4496.0,
+                                "value_raw": 4496.0,
+                                "uom": "FT",
+                                "uom_raw": "LF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 46
+                        }
+                    }
+                },
+                {
+                    "classification": "Down Spouts",
+                    "count": 1,
+                    "example": {
+                        "classification": "Down Spouts",
+                        "measures": [
+                            {
+                                "value": 113,
+                                "value_raw": 113.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 47
+                        }
+                    }
+                },
+                {
+                    "classification": "Wardrobes",
+                    "count": 1,
+                    "example": {
+                        "classification": "Wardrobes",
+                        "measures": [
+                            {
+                                "value": 176,
+                                "value_raw": 176.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 56
+                        }
+                    }
+                },
+                {
+                    "classification": "W/D",
+                    "count": 1,
+                    "example": {
+                        "classification": "W/D",
+                        "measures": [
+                            {
+                                "value": 467,
+                                "value_raw": 467.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 57
+                        }
+                    }
+                },
+                {
+                    "classification": "Balc",
+                    "count": 1,
+                    "example": {
+                        "classification": "Balc",
+                        "measures": [
+                            {
+                                "value": 141,
+                                "value_raw": 141.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 58
+                        }
+                    }
+                },
+                {
+                    "classification": "Balc Storage",
+                    "count": 1,
+                    "example": {
+                        "classification": "Balc Storage",
+                        "measures": [
+                            {
+                                "value": 221,
+                                "value_raw": 221.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 59
+                        }
+                    }
+                },
+                {
+                    "classification": "Lobby",
+                    "count": 1,
+                    "example": {
+                        "classification": "Lobby",
+                        "measures": [
+                            {
+                                "value": 536,
+                                "value_raw": 536.38,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 83
+                        }
+                    }
+                },
+                {
+                    "classification": "Common Area Bathrooms",
+                    "count": 1,
+                    "example": {
+                        "classification": "Common Area Bathrooms",
+                        "measures": [
+                            {
+                                "value": 1000,
+                                "value_raw": 1000.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 84
+                        }
+                    }
+                },
+                {
+                    "classification": "Lounge",
+                    "count": 1,
+                    "example": {
+                        "classification": "Lounge",
+                        "measures": [
+                            {
+                                "value": 3716,
+                                "value_raw": 3716.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 86
+                        }
+                    }
+                },
+                {
+                    "classification": "Fitness",
+                    "count": 1,
+                    "example": {
+                        "classification": "Fitness",
+                        "measures": [
+                            {
+                                "value": 3716,
+                                "value_raw": 3716.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 87
+                        }
+                    }
+                },
+                {
+                    "classification": "Gaurdhouse",
+                    "count": 1,
+                    "example": {
+                        "classification": "Gaurdhouse",
+                        "measures": [
+                            {
+                                "value": 310,
+                                "value_raw": 310.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 88
+                        }
+                    }
+                },
+                {
+                    "classification": "Decorative Metal Grill Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Decorative Metal Grill Count",
+                        "measures": [
+                            {
+                                "value": 1,
+                                "value_raw": 1.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 94
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Lid SF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Lid SF",
+                        "measures": [
+                            {
+                                "value": 212625.62,
+                                "value_raw": 212625.62,
+                                "uom": "SF",
+                                "uom_raw": "SF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 103
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Storage Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Storage Count",
+                        "measures": [
+                            {
+                                "value": 40,
+                                "value_raw": 40.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 104
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Storage SF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Storage SF",
+                        "measures": [
+                            {
+                                "value": 5228.86,
+                                "value_raw": 5228.86,
+                                "uom": "SF",
+                                "uom_raw": "SF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 105
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Mech Room gate",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Mech Room gate",
+                        "measures": [
+                            {
+                                "value": 12,
+                                "value_raw": 12.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 107
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Vest Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Vest Count",
+                        "measures": [
+                            {
+                                "value": 17,
+                                "value_raw": 17.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 108
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Vest SF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Vest SF",
+                        "measures": [
+                            {
+                                "value": 3575.67,
+                                "value_raw": 3575.67,
+                                "uom": "SF",
+                                "uom_raw": "SF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 109
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Column Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Column Count",
+                        "measures": [
+                            {
+                                "value": 400,
+                                "value_raw": 400.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 110
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Door Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Door Count",
+                        "measures": [
+                            {
+                                "value": 119,
+                                "value_raw": 119.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 111
+                        }
+                    }
+                },
+                {
+                    "classification": "Vehicle Entry Gate Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Vehicle Entry Gate Count",
+                        "measures": [
+                            {
+                                "value": 2,
+                                "value_raw": 2.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 112
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Stairs SF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Stairs SF",
+                        "measures": [
+                            {
+                                "value": 2710.03,
+                                "value_raw": 2710.03,
+                                "uom": "SF",
+                                "uom_raw": "SF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 113
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Trash Vest Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Trash Vest Count",
+                        "measures": [
+                            {
+                                "value": 17,
+                                "value_raw": 17.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 114
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Trash Vest SF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Trash Vest SF",
+                        "measures": [
+                            {
+                                "value": 824.72,
+                                "value_raw": 824.72,
+                                "uom": "SF",
+                                "uom_raw": "SF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 115
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Trash Term Room Count",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Trash Term Room Count",
+                        "measures": [
+                            {
+                                "value": 4,
+                                "value_raw": 4.0,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 116
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Trash Term Room SF",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Trash Term Room SF",
+                        "measures": [
+                            {
+                                "value": 3110.24,
+                                "value_raw": 3110.24,
+                                "uom": "SF",
+                                "uom_raw": "SF",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 117
+                        }
+                    }
+                },
+                {
+                    "classification": "Garage Wall Subtract",
+                    "count": 1,
+                    "example": {
+                        "classification": "Garage Wall Subtract",
+                        "measures": [
+                            {
+                                "value": 271,
+                                "value_raw": 271.47,
+                                "uom": "EA",
+                                "uom_raw": "EA",
+                                "source": "C"
+                            }
+                        ],
+                        "provenance": {
+                            "sheet": "1 Bldg",
+                            "row": 120
+                        }
+                    }
+                }
+            ]
+        },
+        "raw_rows": [
+            {
+                "row": 1,
+                "A": "General",
+                "B": null,
+                "C": "Count",
+                "D": "Ave SF",
+                "E": null
+            },
+            {
+                "row": 2,
+                "A": null,
+                "B": "Studio Unit Count",
+                "C": 0,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 3,
+                "A": null,
+                "B": "1 Bed Room Count",
+                "C": 333,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 4,
+                "A": null,
+                "B": "2 Bedroom Count",
+                "C": 134,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 5,
+                "A": null,
+                "B": "3 Bed Room Count",
+                "C": 0,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 6,
+                "A": null,
+                "B": "Total",
+                "C": 467,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 7,
+                "A": null,
+                "B": "Total SF",
+                "C": 410064,
+                "D": 878.0813704496788,
+                "E": null
+            },
+            {
+                "row": 8,
+                "A": null,
+                "B": "Finish Schedule",
+                "C": "1-AS.30",
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 9,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 10,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 11,
+                "A": "Corridors",
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": "Corridor Notes"
+            },
+            {
+                "row": 12,
+                "A": null,
+                "B": "Sheet",
+                "C": "1-A0.10",
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 13,
+                "A": null,
+                "B": "Stucco Wall SF",
+                "C": 23109.75,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 14,
+                "A": null,
+                "B": "Stucco Passthrough SF ",
+                "C": 8126.93,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 15,
+                "A": null,
+                "B": "Cor. Wall SF",
+                "C": 245822.2,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 16,
+                "A": null,
+                "B": "Cor. Lid SF",
+                "C": 82953,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 17,
+                "A": null,
+                "B": "Cor. Door Count",
+                "C": 367,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 18,
+                "A": null,
+                "B": "IDF etc. Count",
+                "C": 47,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 19,
+                "A": null,
+                "B": "IDF etc. SF",
+                "C": 7950.84,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 20,
+                "A": null,
+                "B": "Storage Count",
+                "C": 19,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 21,
+                "A": null,
+                "B": "Storage SF",
+                "C": 3017.02,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 22,
+                "A": null,
+                "B": "Cor. Bumpouts count",
+                "C": 731,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 23,
+                "A": null,
+                "B": "Trash Term Room Counr",
+                "C": 1,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 24,
+                "A": null,
+                "B": "Cor Rail",
+                "C": 0,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 25,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 26,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 27,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 28,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 29,
+                "A": "Exterior",
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": "Exterior Notes"
+            },
+            {
+                "row": 30,
+                "A": null,
+                "B": "Sheet",
+                "C": "1-A2.00",
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 31,
+                "A": null,
+                "B": "Parapet LF",
+                "C": 315.62,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 32,
+                "A": null,
+                "B": "8 Landscape Retaining Wall LF",
+                "C": 392.97,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 33,
+                "A": null,
+                "B": "Ext. Door Count",
+                "C": 40,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 34,
+                "A": null,
+                "B": "Foam Eave LF",
+                "C": 4496.11,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 35,
+                "A": null,
+                "B": "Roof Stucco SF",
+                "C": 35646.62,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 36,
+                "A": null,
+                "B": "Roof Stucco LF",
+                "C": 4455.83,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 37,
+                "A": null,
+                "B": "Parapet facing garage LF",
+                "C": 998.29,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 38,
+                "A": null,
+                "B": "Window/Door Trim Count",
+                "C": 1449,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 39,
+                "A": null,
+                "B": "Trim LF ",
+                "C": 7648.39,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 40,
+                "A": null,
+                "B": "Foam Panel Count",
+                "C": 191,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 41,
+                "A": null,
+                "B": "Wainscot LF",
+                "C": 420.75,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 42,
+                "A": null,
+                "B": "Balc. Rail LF",
+                "C": 3817.01,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 43,
+                "A": null,
+                "B": "Balc. Rail Count",
+                "C": 501,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 44,
+                "A": null,
+                "B": "Large Opening Trim  Count",
+                "C": 4,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 45,
+                "A": null,
+                "B": "Louvers",
+                "C": 1,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 46,
+                "A": null,
+                "B": "Gutter LF",
+                "C": 4496,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 47,
+                "A": null,
+                "B": "Down Spouts",
+                "C": 113,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 48,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 49,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 50,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 51,
+                "A": "Units",
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": "Unit Notes"
+            },
+            {
+                "row": 52,
+                "A": null,
+                "B": "Sheet",
+                "C": "1-A4.00",
+                "D": null,
+                "E": "Balc. door French door with glass - paint."
+            },
+            {
+                "row": 53,
+                "A": null,
+                "B": "Door Schedule",
+                "C": "1-AS.10",
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 54,
+                "A": null,
+                "B": "Unit Doors",
+                "C": 2393,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 55,
+                "A": null,
+                "B": "WIC",
+                "C": 530,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 56,
+                "A": null,
+                "B": "Wardrobes",
+                "C": 176,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 57,
+                "A": null,
+                "B": "W/D",
+                "C": 467,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 58,
+                "A": null,
+                "B": "Balc",
+                "C": 141,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 59,
+                "A": null,
+                "B": "Balc Storage",
+                "C": 221,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 60,
+                "A": null,
+                "B": "Windows",
+                "C": 928,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 61,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 62,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 63,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 64,
+                "A": "Stairs",
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": "Stair Notes"
+            },
+            {
+                "row": 65,
+                "A": null,
+                "B": "Section Sheet",
+                "C": "1-A5.11",
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 66,
+                "A": null,
+                "B": "Detail Sheet",
+                "C": "AD7.21",
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 67,
+                "A": null,
+                "B": "Stair 5",
+                "C": "6 lvls",
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 68,
+                "A": null,
+                "B": "Stair 6",
+                "C": "5 lvls",
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 69,
+                "A": null,
+                "B": "Stair 7",
+                "C": "6 lvls",
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 70,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 71,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 72,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 73,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 74,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 75,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 76,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 77,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 78,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 79,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 80,
+                "A": "Amenity ",
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": "Amenity Notes"
+            },
+            {
+                "row": 81,
+                "A": null,
+                "B": "Total SF",
+                "C": 7240.55,
+                "D": null,
+                "E": "lounge, guardhouse, fitness all sepporate buildings"
+            },
+            {
+                "row": 82,
+                "A": null,
+                "B": "Amenities",
+                "C": 5704.17,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 83,
+                "A": null,
+                "B": "Lobby",
+                "C": 536.38,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 84,
+                "A": null,
+                "B": "Common Area Bathrooms",
+                "C": 1000,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 85,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 86,
+                "A": null,
+                "B": "Lounge",
+                "C": 3716,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 87,
+                "A": null,
+                "B": "Fitness",
+                "C": 3716,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 88,
+                "A": null,
+                "B": "Gaurdhouse",
+                "C": 310,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 89,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 90,
+                "A": null,
+                "B": "Window/Door Trim Count",
+                "C": 32,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 91,
+                "A": null,
+                "B": "Trim LF ",
+                "C": 998.6800000000001,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 92,
+                "A": null,
+                "B": "Wainscot LF",
+                "C": 235.66,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 93,
+                "A": null,
+                "B": "Smooth Stucco SF",
+                "C": 1624.1499999999999,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 94,
+                "A": null,
+                "B": "Decorative Metal Grill Count",
+                "C": 1,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 95,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 96,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 97,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 98,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 99,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 100,
+                "A": "Garage",
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": "Garage Notes"
+            },
+            {
+                "row": 101,
+                "A": null,
+                "B": "Sheet",
+                "C": "1-AG1.01",
+                "D": null,
+                "E": "Bike, Golf Cart and motorcyle room counted in garage storage "
+            },
+            {
+                "row": 102,
+                "A": null,
+                "B": "Garage Wall SF",
+                "C": 81000,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 103,
+                "A": null,
+                "B": "Garage Lid SF",
+                "C": 212625.62,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 104,
+                "A": null,
+                "B": "Garage Storage Count",
+                "C": 40,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 105,
+                "A": null,
+                "B": "Garage Storage SF",
+                "C": 5228.86,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 106,
+                "A": null,
+                "B": "Garage Storage Wall SF",
+                "C": 11780,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 107,
+                "A": null,
+                "B": "Garage Mech Room gate",
+                "C": 12,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 108,
+                "A": null,
+                "B": "Garage Vest Count",
+                "C": 17,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 109,
+                "A": null,
+                "B": "Garage Vest SF",
+                "C": 3575.67,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 110,
+                "A": null,
+                "B": "Garage Column Count",
+                "C": 400,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 111,
+                "A": null,
+                "B": "Garage Door Count",
+                "C": 119,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 112,
+                "A": null,
+                "B": "Vehicle Entry Gate Count",
+                "C": 2,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 113,
+                "A": null,
+                "B": "Garage Stairs SF",
+                "C": 2710.03,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 114,
+                "A": null,
+                "B": "Garage Trash Vest Count",
+                "C": 17,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 115,
+                "A": null,
+                "B": "Garage Trash Vest SF",
+                "C": 824.72,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 116,
+                "A": null,
+                "B": "Garage Trash Term Room Count",
+                "C": 4,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 117,
+                "A": null,
+                "B": "Garage Trash Term Room SF",
+                "C": 3110.24,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 118,
+                "A": null,
+                "B": "Garage Parapet LF",
+                "C": 1634.38,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 119,
+                "A": null,
+                "B": "Garage Roof Wall SF",
+                "C": 2390.32,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 120,
+                "A": null,
+                "B": "Garage Wall Subtract",
+                "C": 271.47,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 121,
+                "A": null,
+                "B": "Garage Stair 1",
+                "C": "6 lvls",
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 122,
+                "A": null,
+                "B": "Garage Stair 2",
+                "C": "5 lvls",
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 123,
+                "A": null,
+                "B": "Garage Stair 3",
+                "C": "6 lvls",
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 124,
+                "A": null,
+                "B": "Garage Stair G5",
+                "C": "2 lvls",
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 125,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 126,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            },
+            {
+                "row": 127,
+                "A": null,
+                "B": null,
+                "C": null,
+                "D": null,
+                "E": null
+            }
+        ],
+        "raw_data": [
+            {
+                "section": "General",
+                "classification": "Studio Unit Count",
+                "measures": [
+                    {
+                        "value": 0.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 2
+                }
+            },
+            {
+                "section": "General",
+                "classification": "1 Bed Room Count",
+                "measures": [
+                    {
+                        "value": 333.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 3
+                }
+            },
+            {
+                "section": "General",
+                "classification": "2 Bedroom Count",
+                "measures": [
+                    {
+                        "value": 134.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 4
+                }
+            },
+            {
+                "section": "General",
+                "classification": "3 Bed Room Count",
+                "measures": [
+                    {
+                        "value": 0.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 5
+                }
+            },
+            {
+                "section": "General",
+                "classification": "Total",
+                "measures": [
+                    {
+                        "value": 467.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 6
+                }
+            },
+            {
+                "section": "General",
+                "classification": "Total SF",
+                "measures": [
+                    {
+                        "value": 410064.0,
+                        "uom": "SF",
+                        "source": "C"
+                    },
+                    {
+                        "value": 878.0813704496788,
+                        "uom": "SF",
+                        "source": "D"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 7
+                }
+            },
+            {
+                "section": "Corridors",
+                "classification": "Stucco Wall SF",
+                "measures": [
+                    {
+                        "value": 23109.75,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 13
+                }
+            },
+            {
+                "section": "Corridors",
+                "classification": "Stucco Passthrough SF",
+                "measures": [
+                    {
+                        "value": 8126.93,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 14
+                }
+            },
+            {
+                "section": "Corridors",
+                "classification": "Cor. Wall SF",
+                "measures": [
+                    {
+                        "value": 245822.2,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 15
+                }
+            },
+            {
+                "section": "Corridors",
+                "classification": "Cor. Lid SF",
+                "measures": [
+                    {
+                        "value": 82953.0,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 16
+                }
+            },
+            {
+                "section": "Corridors",
+                "classification": "Cor. Door Count",
+                "measures": [
+                    {
+                        "value": 367.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 17
+                }
+            },
+            {
+                "section": "Corridors",
+                "classification": "IDF etc. Count",
+                "measures": [
+                    {
+                        "value": 47.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 18
+                }
+            },
+            {
+                "section": "Corridors",
+                "classification": "IDF etc. SF",
+                "measures": [
+                    {
+                        "value": 7950.84,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 19
+                }
+            },
+            {
+                "section": "Corridors",
+                "classification": "Storage Count",
+                "measures": [
+                    {
+                        "value": 19.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 20
+                }
+            },
+            {
+                "section": "Corridors",
+                "classification": "Storage SF",
+                "measures": [
+                    {
+                        "value": 3017.02,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 21
+                }
+            },
+            {
+                "section": "Corridors",
+                "classification": "Cor. Bumpouts count",
+                "measures": [
+                    {
+                        "value": 731.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 22
+                }
+            },
+            {
+                "section": "Corridors",
+                "classification": "Trash Term Room Counr",
+                "measures": [
+                    {
+                        "value": 1.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 23
+                }
+            },
+            {
+                "section": "Corridors",
+                "classification": "Cor Rail",
+                "measures": [
+                    {
+                        "value": 0.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 24
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Parapet LF",
+                "measures": [
+                    {
+                        "value": 315.62,
+                        "uom": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 31
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "8 Landscape Retaining Wall LF",
+                "measures": [
+                    {
+                        "value": 392.97,
+                        "uom": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 32
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Ext. Door Count",
+                "measures": [
+                    {
+                        "value": 40.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 33
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Foam Eave LF",
+                "measures": [
+                    {
+                        "value": 4496.11,
+                        "uom": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 34
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Roof Stucco SF",
+                "measures": [
+                    {
+                        "value": 35646.62,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 35
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Roof Stucco LF",
+                "measures": [
+                    {
+                        "value": 4455.83,
+                        "uom": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 36
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Parapet facing garage LF",
+                "measures": [
+                    {
+                        "value": 998.29,
+                        "uom": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 37
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Window/Door Trim Count",
+                "measures": [
+                    {
+                        "value": 1449.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 38
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Trim LF",
+                "measures": [
+                    {
+                        "value": 7648.39,
+                        "uom": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 39
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Foam Panel Count",
+                "measures": [
+                    {
+                        "value": 191.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 40
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Wainscot LF",
+                "measures": [
+                    {
+                        "value": 420.75,
+                        "uom": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 41
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Balc. Rail LF",
+                "measures": [
+                    {
+                        "value": 3817.01,
+                        "uom": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 42
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Balc. Rail Count",
+                "measures": [
+                    {
+                        "value": 501.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 43
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Large Opening Trim  Count",
+                "measures": [
+                    {
+                        "value": 4.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 44
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Louvers",
+                "measures": [
+                    {
+                        "value": 1.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 45
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Gutter LF",
+                "measures": [
+                    {
+                        "value": 4496.0,
+                        "uom": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 46
+                }
+            },
+            {
+                "section": "Exterior",
+                "classification": "Down Spouts",
+                "measures": [
+                    {
+                        "value": 113.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 47
+                }
+            },
+            {
+                "section": "Units",
+                "classification": "Unit Doors",
+                "measures": [
+                    {
+                        "value": 2393.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 54
+                }
+            },
+            {
+                "section": "Units",
+                "classification": "WIC",
+                "measures": [
+                    {
+                        "value": 530.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 55
+                }
+            },
+            {
+                "section": "Units",
+                "classification": "Wardrobes",
+                "measures": [
+                    {
+                        "value": 176.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 56
+                }
+            },
+            {
+                "section": "Units",
+                "classification": "W/D",
+                "measures": [
+                    {
+                        "value": 467.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 57
+                }
+            },
+            {
+                "section": "Units",
+                "classification": "Balc",
+                "measures": [
+                    {
+                        "value": 141.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 58
+                }
+            },
+            {
+                "section": "Units",
+                "classification": "Balc Storage",
+                "measures": [
+                    {
+                        "value": 221.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 59
+                }
+            },
+            {
+                "section": "Units",
+                "classification": "Windows",
+                "measures": [
+                    {
+                        "value": 928.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 60
+                }
+            },
+            {
+                "section": "Amenity",
+                "classification": "Total SF",
+                "measures": [
+                    {
+                        "value": 7240.55,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 81
+                },
+                "notes": "lounge, guardhouse, fitness all sepporate buildings"
+            },
+            {
+                "section": "Amenity",
+                "classification": "Amenities",
+                "measures": [
+                    {
+                        "value": 5704.17,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 82
+                }
+            },
+            {
+                "section": "Amenity",
+                "classification": "Lobby",
+                "measures": [
+                    {
+                        "value": 536.38,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 83
+                }
+            },
+            {
+                "section": "Amenity",
+                "classification": "Common Area Bathrooms",
+                "measures": [
+                    {
+                        "value": 1000.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 84
+                }
+            },
+            {
+                "section": "Amenity",
+                "classification": "Lounge",
+                "measures": [
+                    {
+                        "value": 3716.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 86
+                }
+            },
+            {
+                "section": "Amenity",
+                "classification": "Fitness",
+                "measures": [
+                    {
+                        "value": 3716.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 87
+                }
+            },
+            {
+                "section": "Amenity",
+                "classification": "Gaurdhouse",
+                "measures": [
+                    {
+                        "value": 310.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 88
+                }
+            },
+            {
+                "section": "Amenity",
+                "classification": "Window/Door Trim Count",
+                "measures": [
+                    {
+                        "value": 32.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 90
+                }
+            },
+            {
+                "section": "Amenity",
+                "classification": "Trim LF",
+                "measures": [
+                    {
+                        "value": 998.6800000000001,
+                        "uom": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 91
+                }
+            },
+            {
+                "section": "Amenity",
+                "classification": "Wainscot LF",
+                "measures": [
+                    {
+                        "value": 235.66,
+                        "uom": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 92
+                }
+            },
+            {
+                "section": "Amenity",
+                "classification": "Smooth Stucco SF",
+                "measures": [
+                    {
+                        "value": 1624.1499999999999,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 93
+                }
+            },
+            {
+                "section": "Amenity",
+                "classification": "Decorative Metal Grill Count",
+                "measures": [
+                    {
+                        "value": 1.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 94
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Wall SF",
+                "measures": [
+                    {
+                        "value": 81000.0,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 102
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Lid SF",
+                "measures": [
+                    {
+                        "value": 212625.62,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 103
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Storage Count",
+                "measures": [
+                    {
+                        "value": 40.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 104
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Storage SF",
+                "measures": [
+                    {
+                        "value": 5228.86,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 105
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Storage Wall SF",
+                "measures": [
+                    {
+                        "value": 11780.0,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 106
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Mech Room gate",
+                "measures": [
+                    {
+                        "value": 12.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 107
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Vest Count",
+                "measures": [
+                    {
+                        "value": 17.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 108
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Vest SF",
+                "measures": [
+                    {
+                        "value": 3575.67,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 109
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Column Count",
+                "measures": [
+                    {
+                        "value": 400.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 110
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Door Count",
+                "measures": [
+                    {
+                        "value": 119.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 111
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Vehicle Entry Gate Count",
+                "measures": [
+                    {
+                        "value": 2.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 112
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Stairs SF",
+                "measures": [
+                    {
+                        "value": 2710.03,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 113
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Trash Vest Count",
+                "measures": [
+                    {
+                        "value": 17.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 114
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Trash Vest SF",
+                "measures": [
+                    {
+                        "value": 824.72,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 115
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Trash Term Room Count",
+                "measures": [
+                    {
+                        "value": 4.0,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 116
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Trash Term Room SF",
+                "measures": [
+                    {
+                        "value": 3110.24,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 117
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Parapet LF",
+                "measures": [
+                    {
+                        "value": 1634.38,
+                        "uom": "LF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 118
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Roof Wall SF",
+                "measures": [
+                    {
+                        "value": 2390.32,
+                        "uom": "SF",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 119
+                }
+            },
+            {
+                "section": "Garage",
+                "classification": "Garage Wall Subtract",
+                "measures": [
+                    {
+                        "value": 271.47,
+                        "uom": "EA",
+                        "source": "C"
+                    }
+                ],
+                "provenance": {
+                    "sheet": "1 Bldg",
+                    "row": 120
+                }
+            }
+        ]
+    },
+    "qa": {
+        "warnings": [],
+        "confidence": 0.61,
+        "stats": {
+            "rows_total": 127,
+            "rows_with_measures": 73,
+            "items_mapped": 8,
+            "items_missing": 20,
+            "items_unmapped": 59,
+            "ambiguous_matches": 0,
+            "rows_extracted": 73,
+            "rows_ignored": 54,
+            "ignored_section_header": 7,
+            "ignored_no_quantity": 15,
+            "ignored_empty": 32,
+            "ignored_reasons_total": 54
+        }
+    },
+    "error": null
+}

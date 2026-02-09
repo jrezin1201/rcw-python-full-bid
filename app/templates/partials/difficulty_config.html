@@ -1,0 +1,49 @@
+<div class="bg-white rounded-lg shadow-sm border border-gray-100">
+    <div class="px-4 py-3 border-b border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-900">Per-Line Difficulty Adders</h3>
+        <p class="text-sm text-gray-600">Absolute dollars added per {{ "unit/SF/LF" }} at each difficulty level.</p>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-[1200px] w-full text-sm">
+            <thead class="bg-gray-50 text-gray-600">
+                <tr>
+                    <th class="px-3 py-2 text-left">Section</th>
+                    <th class="px-3 py-2 text-left">Item</th>
+                    <th class="px-3 py-2 text-center">UOM</th>
+                    <th class="px-3 py-2 text-right">Base $/UOM</th>
+                    <th class="px-3 py-2 text-right">L1 Add</th>
+                    <th class="px-3 py-2 text-right">L2 Add</th>
+                    <th class="px-3 py-2 text-right">L3 Add</th>
+                    <th class="px-3 py-2 text-right">L4 Add</th>
+                    <th class="px-3 py-2 text-right">L5 Add</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for item in bid_state.items %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-3 py-2">{{ item.section }}</td>
+                    <td class="px-3 py-2">{{ item.name }}</td>
+                    <td class="px-3 py-2 text-center">{{ item.uom }}</td>
+                    <td class="px-3 py-2 text-right">${{ format_currency_input(item.unit_price_base) }}</td>
+                    {% for d in [1, 2, 3, 4, 5] %}
+                    <td class="px-3 py-2 text-right">
+                        <div class="flex items-center justify-end">
+                            <span class="mr-1 text-gray-600">$</span>
+                            <input type="text"
+                                   name="amount"
+                                   value="{{ format_currency_input(item.difficulty_adders.get(d, 0)) }}"
+                                   class="w-20 px-2 py-1 border border-gray-300 rounded text-right bg-white"
+                                   hx-post="/bid/item/{{ item.id }}/difficulty-add"
+                                   hx-vals='{"level": {{ d }}}'
+                                   hx-trigger="change"
+                                   hx-swap="none"
+                                   hx-on::after-request="htmx.trigger('body', 'totals-updated')">
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

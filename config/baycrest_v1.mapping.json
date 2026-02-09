@@ -1,0 +1,464 @@
+{
+  "sections": {
+    "General": {
+      "Gross Building SF": {
+        "uom": "SF",
+        "match": ["Gross Building SF", "Total Building SF", "Gross SF", "Total SF", "Total Square Feet"],
+        "description": "Total building square footage"
+      },
+      "Ave Unit SF": {
+        "uom": "SF",
+        "match": ["Ave SF", "Average SF", "Ave Unit SF", "Average Unit SF"],
+        "description": "Average unit square footage"
+      },
+      "Unit Count": {
+        "uom": "EA",
+        "match": ["Unit Count", "Units Count", "Total Units", "Number of Units", "Total", "Studio Unit Count"],
+        "description": "Total number of units"
+      },
+      "1 Bedroom Count": {
+        "uom": "EA",
+        "match": ["1 Bed Room Count", "1 Bedroom Count", "One Bedroom", "1BR Count"],
+        "description": "Number of 1 bedroom units"
+      },
+      "2 Bedroom Count": {
+        "uom": "EA",
+        "match": ["2 Bedroom Count", "2 Bed Room Count", "Two Bedroom", "2BR Count"],
+        "description": "Number of 2 bedroom units"
+      },
+      "3 Bedroom Count": {
+        "uom": "EA",
+        "match": ["3 Bed Room Count", "3 Bedroom Count", "Three Bedroom", "3BR Count"],
+        "description": "Number of 3 bedroom units"
+      }
+    },
+    "Corridors": {
+      "Corridor Flooring SF": {
+        "uom": "SF",
+        "match": ["Flooring SF", "Corridor Flooring SF", "Hall Flooring SF", "Cor. Lid SF", "Corridor Lid SF"],
+        "description": "Corridor flooring square footage"
+      },
+      "Corridor Wall SF": {
+        "uom": "SF",
+        "match": ["Wall SF", "Corridor Wall SF", "Hall Wall SF", "Stucco Wall SF"],
+        "description": "Corridor wall square footage"
+      },
+      "Corridor Ceiling SF": {
+        "uom": "SF",
+        "match": ["Ceiling SF", "Corridor Ceiling SF", "Hall Ceiling SF"],
+        "description": "Corridor ceiling square footage"
+      },
+      "Corridor Base LF": {
+        "uom": "LF",
+        "match": ["Base LF", "Corridor Base LF", "Baseboard LF"],
+        "description": "Corridor baseboard linear footage"
+      },
+      "Corridor Doors": {
+        "uom": "EA",
+        "match": ["Cor. Door Count", "Corridor Door Count", "Corridor Doors", "Hall Doors"],
+        "description": "Number of corridor doors"
+      },
+      "Corridor Bumpouts": {
+        "uom": "EA",
+        "match": ["Cor. Bumpouts count", "Corridor Bumpouts", "Bumpout Count", "Cor Bumpouts"],
+        "description": "Number of corridor bumpouts"
+      },
+      "Corridor Rail": {
+        "uom": "EA",
+        "match": ["Cor Rail", "Corridor Rail", "Corridor Railing", "Hall Rail"],
+        "description": "Corridor railing"
+      }
+    },
+    "Exterior": {
+      "Stucco Wall SF": {
+        "uom": "SF",
+        "match": ["Stucco Wall SF", "Stucco SF", "Exterior Stucco", "Stucco Passthrough SF"],
+        "description": "Exterior stucco wall square footage"
+      },
+      "Parapet LF": {
+        "uom": "LF",
+        "match": ["Parapet LF", "Parapet Linear Feet", "Roof Parapet", "Parapet facing garage LF"],
+        "description": "Parapet linear footage"
+      },
+      "Exterior Doors": {
+        "uom": "EA",
+        "match": ["Exterior Doors", "Ext Doors", "Outside Doors", "Ext. Door Count"],
+        "description": "Number of exterior doors"
+      },
+      "Windows Count": {
+        "uom": "EA",
+        "match": ["Windows", "Window Count", "Number of Windows"],
+        "description": "Number of windows"
+      },
+      "Window/Door Trim": {
+        "uom": "EA",
+        "match": ["Window/Door Trim Count", "Window Trim", "Door Trim"],
+        "description": "Window and door trim count"
+      },
+      "Trim LF": {
+        "uom": "LF",
+        "match": ["Trim LF", "Exterior Trim", "Trim Linear Feet"],
+        "description": "Exterior trim linear footage"
+      },
+      "Wainscot LF": {
+        "uom": "LF",
+        "match": ["Wainscot LF", "Wainscoting", "Wainscot Linear Feet"],
+        "description": "Wainscot linear footage"
+      },
+      "Foam Eave LF": {
+        "uom": "LF",
+        "match": ["Foam Eave LF", "Eave Linear Feet", "Foam Eave"],
+        "description": "Foam eave linear footage"
+      },
+      "Roof Stucco LF": {
+        "uom": "LF",
+        "match": ["Roof Stucco LF", "Roof Stucco Linear"],
+        "description": "Roof stucco linear footage"
+      },
+      "Foam Panel Count": {
+        "uom": "EA",
+        "match": ["Foam Panel Count", "Foam Panels", "Foam Panel"],
+        "description": "Number of foam panels"
+      },
+      "Gutter LF": {
+        "uom": "LF",
+        "match": ["Gutter LF", "Gutters", "Gutter Linear Feet"],
+        "description": "Gutter linear footage"
+      },
+      "Down Spouts": {
+        "uom": "EA",
+        "match": ["Down Spouts", "Downspouts", "Down Spout Count"],
+        "description": "Number of down spouts"
+      },
+      "Large Opening Trim": {
+        "uom": "EA",
+        "match": ["Large Opening Trim Count", "Large Opening", "Large Trim"],
+        "description": "Large opening trim count"
+      },
+      "Louvers": {
+        "uom": "EA",
+        "match": ["Louvers", "Louver Count", "Vents"],
+        "description": "Number of louvers"
+      },
+      "Retaining Wall LF": {
+        "uom": "LF",
+        "match": ["8 Landscape Retaining Wall LF", "Retaining Wall", "Landscape Wall"],
+        "description": "Retaining wall linear footage"
+      }
+    },
+    "Units": {
+      "Unit Flooring SF": {
+        "uom": "SF",
+        "match": ["Flooring SF", "Unit Flooring SF", "Apartment Flooring"],
+        "description": "Unit flooring square footage"
+      },
+      "Unit Wall SF": {
+        "uom": "SF",
+        "match": ["Wall SF", "Unit Wall SF", "Apartment Wall SF", "Stucco Wall SF"],
+        "description": "Unit wall square footage"
+      },
+      "Unit Ceiling SF": {
+        "uom": "SF",
+        "match": ["Ceiling SF", "Unit Ceiling SF", "Apartment Ceiling"],
+        "description": "Unit ceiling square footage"
+      },
+      "Unit Doors": {
+        "uom": "EA",
+        "match": ["Unit Doors", "Interior Doors", "Apartment Doors"],
+        "description": "Number of unit doors"
+      },
+      "Kitchen Cabinets LF": {
+        "uom": "LF",
+        "match": ["Kitchen Cabinet LF", "Kitchen Cabinets", "Cabinets LF"],
+        "description": "Kitchen cabinet linear footage"
+      },
+      "Kitchen Countertop SF": {
+        "uom": "SF",
+        "match": ["Countertop SF", "Kitchen Countertop", "Counter SF"],
+        "description": "Kitchen countertop square footage"
+      },
+      "Wardrobes": {
+        "uom": "EA",
+        "match": ["Wardrobes", "Wardrobe Count", "Closets"],
+        "description": "Number of wardrobes"
+      },
+      "Washer/Dryer": {
+        "uom": "EA",
+        "match": ["W/D", "Washer Dryer", "Washer/Dryer", "Laundry"],
+        "description": "Number of washer/dryer units"
+      }
+    },
+    "Balconies": {
+      "Balcony Count": {
+        "uom": "EA",
+        "match": ["Balc", "Balcony", "Balconies", "Patio"],
+        "description": "Number of balconies"
+      },
+      "Balcony Rail LF": {
+        "uom": "LF",
+        "match": ["Balc. Rail LF", "Balcony Rail", "Balcony Railing"],
+        "description": "Balcony railing linear footage"
+      },
+      "Balcony Rail Count": {
+        "uom": "EA",
+        "match": ["Balc. Rail Count", "Balcony Rail Count", "Rail Sections"],
+        "description": "Number of balcony rail sections"
+      },
+      "Balcony Storage": {
+        "uom": "EA",
+        "match": ["Balc Storage", "Balcony Storage", "Patio Storage"],
+        "description": "Number of balcony storage units"
+      }
+    },
+    "Storage": {
+      "Storage Count": {
+        "uom": "EA",
+        "match": ["Storage Count", "Storage Units", "Storage Rooms"],
+        "description": "Number of storage units"
+      },
+      "Storage SF": {
+        "uom": "SF",
+        "match": ["Storage SF", "Storage Square Feet", "Storage Area"],
+        "description": "Storage square footage"
+      }
+    },
+    "Mechanical": {
+      "IDF Room Count": {
+        "uom": "EA",
+        "match": ["IDF etc. Count", "IDF Room Count", "IDF Rooms"],
+        "description": "Number of IDF/mechanical rooms"
+      },
+      "IDF Room SF": {
+        "uom": "SF",
+        "match": ["IDF etc. SF", "IDF Room SF", "Mechanical Room SF"],
+        "description": "IDF/mechanical room square footage"
+      },
+      "Trash Room Count": {
+        "uom": "EA",
+        "match": ["Trash Term Room Count", "Trash Term Room Counr", "Trash Room Count", "Garbage Room"],
+        "description": "Number of trash rooms"
+      },
+      "Trash Room SF": {
+        "uom": "SF",
+        "match": ["Trash Term Room SF", "Trash Room SF", "Garbage Room SF"],
+        "description": "Trash room square footage"
+      },
+      "Decorative Grill": {
+        "uom": "EA",
+        "match": ["Decorative Metal Grill Count", "Metal Grill", "Decorative Grill"],
+        "description": "Number of decorative grills"
+      }
+    },
+    "Common Areas": {
+      "Common Area Flooring SF": {
+        "uom": "SF",
+        "match": ["Flooring SF", "Common Flooring", "Common Area Floor", "Stucco Wall SF", "Amenities"],
+        "description": "Common area flooring square footage"
+      },
+      "Common Area Wall SF": {
+        "uom": "SF",
+        "match": ["Wall SF", "Common Wall", "Common Area Wall", "Stucco Wall SF"],
+        "description": "Common area wall square footage"
+      },
+      "Common Area Ceiling SF": {
+        "uom": "SF",
+        "match": ["Ceiling SF", "Common Ceiling", "Common Area Ceiling"],
+        "description": "Common area ceiling square footage"
+      },
+      "Lobby": {
+        "uom": "SF",
+        "match": ["Lobby", "Entry", "Main Entrance"],
+        "description": "Lobby/entrance area"
+      },
+      "Common Area Bathrooms": {
+        "uom": "EA",
+        "match": ["Common Area Bathrooms", "Public Restrooms", "Common Bathrooms"],
+        "description": "Common area bathrooms"
+      },
+      "Lounge": {
+        "uom": "SF",
+        "match": ["Lounge", "Community Room", "Social Room"],
+        "description": "Lounge/community room"
+      },
+      "Fitness": {
+        "uom": "SF",
+        "match": ["Fitness", "Gym", "Exercise Room", "Fitness Center"],
+        "description": "Fitness center"
+      },
+      "Guardhouse": {
+        "uom": "SF",
+        "match": ["Gaurdhouse", "Guardhouse", "Security", "Gate House"],
+        "description": "Guardhouse/security"
+      }
+    },
+    "Garage": {
+      "Garage Ceiling SF": {
+        "uom": "SF",
+        "match": ["Garage Lid SF", "Garage Ceiling", "Parking Ceiling"],
+        "description": "Garage ceiling square footage"
+      },
+      "Garage Storage Count": {
+        "uom": "EA",
+        "match": ["Garage Storage Count", "Parking Storage"],
+        "description": "Number of garage storage units"
+      },
+      "Garage Storage SF": {
+        "uom": "SF",
+        "match": ["Garage Storage SF", "Parking Storage SF"],
+        "description": "Garage storage square footage"
+      },
+      "Garage Mech Room Gate": {
+        "uom": "EA",
+        "match": ["Garage Mech Room gate", "Mechanical Gate"],
+        "description": "Garage mechanical room gates"
+      },
+      "Garage Vestibule Count": {
+        "uom": "EA",
+        "match": ["Garage Vest Count", "Garage Vestibule"],
+        "description": "Number of garage vestibules"
+      },
+      "Garage Vestibule SF": {
+        "uom": "SF",
+        "match": ["Garage Vest SF", "Garage Vestibule SF"],
+        "description": "Garage vestibule square footage"
+      },
+      "Garage Column Count": {
+        "uom": "EA",
+        "match": ["Garage Column Count", "Parking Columns"],
+        "description": "Number of garage columns"
+      },
+      "Garage Door Count": {
+        "uom": "EA",
+        "match": ["Garage Door Count", "Parking Doors"],
+        "description": "Number of garage doors"
+      },
+      "Vehicle Entry Gate": {
+        "uom": "EA",
+        "match": ["Vehicle Entry Gate Count", "Entry Gates"],
+        "description": "Vehicle entry gates"
+      },
+      "Garage Stairs SF": {
+        "uom": "SF",
+        "match": ["Garage Stairs SF", "Parking Stairs"],
+        "description": "Garage stairs square footage"
+      },
+      "Garage Trash Vestibule Count": {
+        "uom": "EA",
+        "match": ["Garage Trash Vest Count", "Trash Vestibule"],
+        "description": "Garage trash vestibule count"
+      },
+      "Garage Trash Vestibule SF": {
+        "uom": "SF",
+        "match": ["Garage Trash Vest SF", "Trash Vestibule SF"],
+        "description": "Garage trash vestibule square footage"
+      },
+      "Garage Trash Room Count": {
+        "uom": "EA",
+        "match": ["Garage Trash Term Room Count", "Garage Trash Room"],
+        "description": "Garage trash room count"
+      },
+      "Garage Trash Room SF": {
+        "uom": "SF",
+        "match": ["Garage Trash Term Room SF", "Garage Trash Room SF"],
+        "description": "Garage trash room square footage"
+      },
+      "Garage Wall Subtract": {
+        "uom": "SF",
+        "match": ["Garage Wall Subtract"],
+        "description": "Garage wall subtract"
+      }
+    },
+    "Bathrooms": {
+      "Vanity Count": {
+        "uom": "EA",
+        "match": ["Vanity", "Vanities", "Bathroom Vanity"],
+        "description": "Number of vanities"
+      },
+      "Toilet Count": {
+        "uom": "EA",
+        "match": ["Toilet", "Toilets", "WC", "Water Closet"],
+        "description": "Number of toilets"
+      },
+      "Tub/Shower Count": {
+        "uom": "EA",
+        "match": ["Tub", "Shower", "Bathtub", "Tub/Shower"],
+        "description": "Number of tubs/showers"
+      },
+      "Bathroom Floor SF": {
+        "uom": "SF",
+        "match": ["Bath Floor", "Bathroom Floor", "Restroom Floor"],
+        "description": "Bathroom floor square footage"
+      }
+    },
+    "Finishes": {
+      "Paint SF": {
+        "uom": "SF",
+        "match": ["Paint", "Painting", "Paint SF", "Painted Surface"],
+        "description": "Total painted surface area"
+      },
+      "Carpet SF": {
+        "uom": "SF",
+        "match": ["Carpet", "Carpeting", "Carpet SF"],
+        "description": "Carpet square footage"
+      },
+      "Tile SF": {
+        "uom": "SF",
+        "match": ["Tile", "Tile SF", "Ceramic Tile", "Floor Tile"],
+        "description": "Tile square footage"
+      },
+      "LVT/LVP SF": {
+        "uom": "SF",
+        "match": ["LVT", "LVP", "Luxury Vinyl", "Vinyl Plank", "Vinyl Tile"],
+        "description": "Luxury vinyl square footage"
+      }
+    }
+  },
+  "section_order": [
+    "General",
+    "Corridors",
+    "Exterior",
+    "Units",
+    "Balconies",
+    "Storage",
+    "Mechanical",
+    "Common Areas",
+    "Garage",
+    "Bathrooms",
+    "Finishes"
+  ],
+  "mapping_config": {
+    "fuzzy_threshold": 0.85,
+    "strict_unmapped_threshold": 0.75,
+    "case_sensitive": false,
+    "prefer_largest_measure": true,
+    "uom_mappings": {
+      "FT": "LF",
+      "FEET": "LF",
+      "LINEAR FEET": "LF",
+      "LINEAR FT": "LF",
+      "LIN FT": "LF",
+      "SQFT": "SF",
+      "SQ FT": "SF",
+      "SQ.FT.": "SF",
+      "SQUARE FEET": "SF",
+      "EACH": "EA",
+      "PCS": "EA",
+      "COUNT": "EA"
+    },
+    "qty_formatting": {
+      "EA": "integer",
+      "SF": "decimal",
+      "LF": "decimal",
+      "FT": "decimal"
+    },
+    "uom_canonicalization": {
+      "LF": "FT",
+      "LINEAR FEET": "FT",
+      "LINEAR FT": "FT",
+      "LIN FT": "FT",
+      "L.F.": "FT",
+      "SF": "SF",
+      "EA": "EA"
+    }
+  }
+}

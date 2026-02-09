@@ -1,0 +1,215 @@
+<tbody id="row-{{ item.id }}" x-data="{ notesOpen: {{ 'true' if item.notes else 'false' }} }" x-init="$watch('notesOpen', () => $el.querySelector('.notes-row').style.display = notesOpen ? '' : 'none')">
+<tr class="border-b border-gray-200 hover:bg-gray-50">
+    <!-- Row Number -->
+    <td class="px-1 py-2 text-center text-xs text-gray-400 font-mono">
+        {{ row_num | default('?') }}
+    </td>
+
+    <!-- Expand/Collapse Notes -->
+    <td class="px-1 py-2 text-center">
+        <button type="button"
+                @click="notesOpen = !notesOpen"
+                class="w-6 h-6 rounded flex items-center justify-center text-sm transition-colors
+                       {% if item.notes %}bg-blue-100 text-blue-600 hover:bg-blue-200{% else %}bg-gray-100 text-gray-500 hover:bg-gray-200{% endif %}"
+                :class="notesOpen ? 'bg-blue-100 text-blue-600' : ''">
+            <span x-show="!notesOpen" class="text-lg leading-none">+</span>
+            <span x-show="notesOpen" class="text-lg leading-none">&minus;</span>
+        </button>
+    </td>
+
+    <!-- Checkbox -->
+    <td class="px-2 py-2 text-center">
+        <input type="checkbox" class="rounded text-blue-600" checked>
+    </td>
+
+    <!-- Item Name -->
+    <td class="px-3 py-2">
+        <div class="flex items-center">
+            <span class="font-semibold text-gray-900">{{ item.name }}</span>
+            {% if item.is_alternate %}
+            <span class="ml-2 px-1.5 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded">ALT</span>
+            {% endif %}
+            {% if item.notes %}
+            <svg class="w-4 h-4 ml-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd"/>
+            </svg>
+            {% endif %}
+        </div>
+    </td>
+
+    <!-- Quantity -->
+    <td class="px-2 py-2 text-center">
+        <input type="text"
+               name="qty"
+               value="{{ format_number(item.qty) }}"
+               class="w-20 px-2 py-1.5 text-center border border-gray-300 rounded bg-gray-50 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white"
+               hx-post="/bid/item/{{ item.id }}/qty"
+               hx-trigger="change"
+               hx-target="#row-{{ item.id }}"
+               hx-swap="outerHTML">
+    </td>
+
+    <!-- UOM -->
+    <td class="px-2 py-2 text-center text-sm text-gray-600">
+        {{ item.uom }}
+    </td>
+
+    <!-- Unit Price -->
+    <td class="px-2 py-2 text-center">
+        <div class="flex items-center justify-center">
+            <span class="mr-1 text-gray-600">$</span>
+            <input type="text"
+                   name="unit_price"
+                   value="{{ format_currency_input(item.unit_price_base) }}"
+                   class="w-20 px-2 py-1.5 text-center border border-gray-300 rounded bg-gray-50 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white"
+                   hx-post="/bid/item/{{ item.id }}/price"
+                   hx-trigger="change"
+                   hx-target="#row-{{ item.id }}"
+                   hx-swap="outerHTML">
+        </div>
+    </td>
+
+    <!-- Difficulty Buttons with Absolute Add-Ons -->
+    <td class="px-2 py-2">
+        <div class="flex justify-center space-x-1">
+            {% for d in [1, 2, 3, 4, 5] %}
+            {% set add_at_level = item.difficulty_adders.get(d, 0) %}
+            {% set price_at_level = item.unit_price_base + add_at_level %}
+            <button type="button"
+                    class="px-2 py-1 text-xs rounded border min-w-[45px]
+                           {% if item.difficulty == d %}
+                           bg-yellow-400 text-gray-900 border-yellow-500 font-semibold
+                           {% else %}
+                           bg-white text-gray-600 border-gray-300 hover:bg-gray-100
+                           {% endif %}"
+                    hx-post="/bid/item/{{ item.id }}/difficulty"
+                    hx-vals='{"difficulty": {{ d }}}'
+                    hx-target="#row-{{ item.id }}"
+                    hx-swap="outerHTML">
+                ${{ "%.0f"|format(price_at_level) }}
+            </button>
+            {% endfor %}
+        </div>
+    </td>
+
+    <!-- Toggle Buttons -->
+    <td class="px-2 py-2">
+        <div class="flex justify-center space-x-1">
+            <!-- Tax Toggle -->
+            <button type="button"
+                    title="Tax"
+                    class="w-8 h-8 rounded flex items-center justify-center text-sm
+                           {% if item.toggle_mask.tax %}bg-gray-200 text-gray-700{% else %}bg-gray-100 text-gray-400{% endif %}"
+                    hx-post="/bid/item/{{ item.id }}/toggle"
+                    hx-vals='{"toggle_name": "tax"}'
+                    hx-target="#row-{{ item.id }}"
+                    hx-swap="outerHTML">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/></svg>
+            </button>
+
+            <!-- Labor Toggle -->
+            <button type="button"
+                    title="Labor"
+                    class="w-8 h-8 rounded flex items-center justify-center text-sm
+                           {% if item.toggle_mask.labor %}bg-gray-200 text-gray-700{% else %}bg-gray-100 text-gray-400{% endif %}"
+                    hx-post="/bid/item/{{ item.id }}/toggle"
+                    hx-vals='{"toggle_name": "labor"}'
+                    hx-target="#row-{{ item.id }}"
+                    hx-swap="outerHTML">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 3a1 1 0 011-1h.01a1 1 0 010 2H7a1 1 0 01-1-1zm2 3a1 1 0 00-2 0v1a2 2 0 00-2 2v1a2 2 0 00-2 2v.683a3.7 3.7 0 011.055.485 1.704 1.704 0 001.89 0 3.704 3.704 0 014.11 0 1.704 1.704 0 001.89 0 3.704 3.704 0 014.11 0 1.704 1.704 0 001.89 0A3.7 3.7 0 0118 12.683V12a2 2 0 00-2-2V9a2 2 0 00-2-2V6a1 1 0 10-2 0v1h-1V6a1 1 0 10-2 0v1H8V6zm10 8.868a3.704 3.704 0 01-4.055-.036 1.704 1.704 0 00-1.89 0 3.704 3.704 0 01-4.11 0 1.704 1.704 0 00-1.89 0A3.704 3.704 0 012 14.868V17a1 1 0 001 1h14a1 1 0 001-1v-2.132z" clip-rule="evenodd"/></svg>
+            </button>
+
+            <!-- Materials Toggle -->
+            <button type="button"
+                    title="Materials"
+                    class="w-8 h-8 rounded flex items-center justify-center text-sm
+                           {% if item.toggle_mask.materials %}bg-gray-200 text-gray-700{% else %}bg-gray-100 text-gray-400{% endif %}"
+                    hx-post="/bid/item/{{ item.id }}/toggle"
+                    hx-vals='{"toggle_name": "materials"}'
+                    hx-target="#row-{{ item.id }}"
+                    hx-swap="outerHTML">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/></svg>
+            </button>
+
+            <!-- Equipment Toggle -->
+            <button type="button"
+                    title="Equipment"
+                    class="w-8 h-8 rounded flex items-center justify-center text-sm
+                           {% if item.toggle_mask.equipment %}bg-gray-200 text-gray-700{% else %}bg-gray-100 text-gray-400{% endif %}"
+                    hx-post="/bid/item/{{ item.id }}/toggle"
+                    hx-vals='{"toggle_name": "equipment"}'
+                    hx-target="#row-{{ item.id }}"
+                    hx-swap="outerHTML">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-5h3v5a1 1 0 001 1h.05a2.5 2.5 0 014.9 0H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1V5a1 1 0 00-1-1H3z"/></svg>
+            </button>
+        </div>
+    </td>
+
+    <!-- Multiplier -->
+    <td class="px-2 py-2 text-center">
+        <div class="flex items-center justify-center">
+            <input type="text"
+                   name="mult"
+                   value="{{ format_number(item.mult) }}"
+                   min="0"
+                   class="w-14 px-1 py-1.5 text-center border border-gray-300 rounded bg-gray-50 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white"
+                   hx-post="/bid/item/{{ item.id }}/mult"
+                   hx-trigger="change"
+                   hx-target="#row-{{ item.id }}"
+                   hx-swap="outerHTML">
+            <span class="text-gray-500 text-sm ml-0.5">x</span>
+        </div>
+    </td>
+
+    <!-- Row Total -->
+    <td class="px-3 py-2 text-right font-bold text-gray-900">
+        {{ format_currency(item.row_total) }}
+    </td>
+</tr>
+
+<!-- Notes Row (expandable) -->
+<tr class="notes-row bg-blue-50 border-b border-gray-200" style="{% if not item.notes %}display: none;{% endif %}">
+    <td colspan="11" class="px-4 py-3">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-blue-500 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd"/>
+            </svg>
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Notes for {{ item.name }}</label>
+                <textarea name="notes"
+                          rows="2"
+                          placeholder="Add notes about this line item..."
+                          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                          hx-post="/bid/item/{{ item.id }}/notes"
+                          hx-trigger="change"
+                          hx-target="#row-{{ item.id }}"
+                          hx-swap="outerHTML">{{ item.notes or '' }}</textarea>
+
+                <div class="mt-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Difficulty Add ($ per {{ item.uom }})</label>
+                    <div class="grid grid-cols-5 gap-2">
+                        {% for d in [1, 2, 3, 4, 5] %}
+                        <div>
+                            <div class="text-xs text-gray-500 mb-1">L{{ d }}</div>
+                            <div class="flex items-center">
+                            <span class="mr-1 text-gray-600">$</span>
+                            <input type="text"
+                                   name="amount"
+                                   value="{{ format_currency_input(item.difficulty_adders.get(d, 0)) }}"
+                                   min="0"
+                                   class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded bg-white"
+                                   hx-post="/bid/item/{{ item.id }}/difficulty-add"
+                                   hx-vals='{"level": {{ d }}}'
+                                   hx-trigger="change"
+                                   hx-target="#row-{{ item.id }}"
+                                   hx-swap="outerHTML">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </td>
+</tr>
+</tbody>

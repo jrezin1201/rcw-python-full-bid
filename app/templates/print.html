@@ -1,0 +1,323 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    @media print {
+        body {
+            font-size: 9pt;
+            background: white;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .no-print { display: none !important; }
+        .print-page {
+            max-width: 100%;
+            margin: 0;
+            padding: 0.25in;
+            box-shadow: none;
+            border: none;
+        }
+        .page-break { page-break-before: always; }
+        .avoid-break { page-break-inside: avoid; }
+        table { font-size: 8pt; }
+        .section-scope { page-break-inside: avoid; }
+    }
+    @media screen {
+        .print-page {
+            max-width: 8.5in;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+    }
+    .proposal-table td, .proposal-table th {
+        padding: 4px 8px;
+        border: 1px solid #d1d5db;
+    }
+    .scope-section {
+        margin-bottom: 12px;
+    }
+    .scope-title {
+        font-weight: bold;
+        font-size: 11pt;
+        background: #1f2937;
+        color: white;
+        padding: 4px 8px;
+        margin-bottom: 4px;
+    }
+    .scope-description {
+        font-size: 9pt;
+        padding-left: 8px;
+    }
+    .scope-exclusion {
+        font-size: 8pt;
+        color: #4b5563;
+        padding-left: 8px;
+    }
+</style>
+
+<div class="print-page p-6" id="print-content">
+    <!-- HEADER SECTION -->
+    <div class="avoid-break mb-4">
+        <table class="w-full text-sm" style="border-collapse: collapse;">
+            <tr>
+                <td class="align-top" style="width: 50%;">
+                    <table class="text-sm">
+                        <tr><td class="font-semibold pr-2">Developer:</td><td>{{ project_info.developer or '[Developer Name]' }}</td></tr>
+                        <tr><td class="font-semibold pr-2">Address:</td><td>{{ project_info.address or '[Address]' }}</td></tr>
+                        <tr><td class="font-semibold pr-2">City:</td><td>{{ project_info.city or '[City, State ZIP]' }}</td></tr>
+                    </table>
+                </td>
+                <td class="align-top" style="width: 50%;">
+                    <table class="text-sm">
+                        <tr><td class="font-semibold pr-2">Date:</td><td>{{ today_date }}</td></tr>
+                        <tr><td class="font-semibold pr-2">Contact:</td><td>{{ project_info.contact or '[Contact Name]' }}</td></tr>
+                        <tr><td class="font-semibold pr-2">Phone:</td><td>{{ project_info.phone or '[Phone]' }}</td></tr>
+                        <tr><td class="font-semibold pr-2">Email:</td><td>{{ project_info.email or '[Email]' }}</td></tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- PROJECT INFO -->
+    <div class="avoid-break mb-4 border border-gray-300">
+        <table class="w-full text-sm" style="border-collapse: collapse;">
+            <tr class="border-b border-gray-300">
+                <td class="font-bold p-2 bg-gray-100 w-20">PROJECT</td>
+                <td class="p-2">{{ bid_state.project_name }}</td>
+                <td class="font-bold p-2 bg-gray-100 w-32">PLANS</td>
+                <td class="p-2"></td>
+                <td class="font-bold p-2 bg-gray-100">DATED</td>
+            </tr>
+            <tr class="border-b border-gray-300">
+                <td class="font-bold p-2 bg-gray-100">UNITS</td>
+                <td class="p-2">{{ unit_count }} Residential Units</td>
+                <td class="font-bold p-2 bg-gray-100">ARCHITECTURAL</td>
+                <td class="p-2"></td>
+                <td class="p-2">{{ project_info.arch_date or '' }}</td>
+            </tr>
+            <tr class="border-b border-gray-300">
+                <td class="font-bold p-2 bg-gray-100">CITY</td>
+                <td class="p-2">{{ project_info.project_city or '' }}</td>
+                <td class="font-bold p-2 bg-gray-100">LANDSCAPE</td>
+                <td class="p-2"></td>
+                <td class="p-2">{{ project_info.landscape_date or 'Excluded' }}</td>
+            </tr>
+            <tr>
+                <td class="font-bold p-2 bg-gray-100">SF</td>
+                <td class="p-2">{{ "%.2f"|format(total_sf) if total_sf else '' }}</td>
+                <td class="font-bold p-2 bg-gray-100">9900 SPEC</td>
+                <td class="p-2"></td>
+                <td class="p-2">N/A</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- SCOPE SECTIONS -->
+    {% for section_name in sections %}
+    <div class="section-scope avoid-break mb-3">
+        <div class="scope-title">{{ section_name|upper }}</div>
+        <div class="scope-description">
+            {% if section_name == 'Units' or section_name == 'units' %}
+            <p>Drywall Level 3 Orange Peel</p>
+            <p>Walls & Ceilings: Flat - White</p>
+            <p>Doors, Base & Casings: Semi Gloss Same Color As Walls</p>
+            <p>Wardrobe & WIC: Walls, Ceilings, Shelving: ALL Same Color As Walls Semi Gloss Finish</p>
+            <p>Bathroom Walls and Ceilings: Semi Gloss Same Color As Living</p>
+            {% elif section_name == 'Corridors' or section_name == 'corridors' %}
+            <p>Drywall Finish: Level 3 Orange Peel</p>
+            <p>Walls & Ceilings Flat</p>
+            <p>Entry Doors, Casing & Base: Semi Gloss</p>
+            <p>Common Area Doors: Semi Gloss</p>
+            {% elif section_name == 'Stairs' or section_name == 'stairs' %}
+            <p>Walls: Flat</p>
+            <p>Hand Rail: Semi Gloss</p>
+            {% elif section_name == 'Amenity' or section_name == 'amenity' %}
+            <p>Drywall Finish: Level 3 Orange Peel</p>
+            <p>Walls & Ceilings Flat</p>
+            <p>Doors & Baseboards: Semi Gloss</p>
+            {% elif section_name == 'Exterior' or section_name == 'exterior' %}
+            <p>Man Doors</p>
+            <p>Wood Window Trim</p>
+            <p>Balc Rails (To Be Shop Coated)</p>
+            <p>Wood Verticals</p>
+            <p>Parapet Cap Primed & Painted</p>
+            {% elif section_name == 'Garage' or section_name == 'garage' %}
+            <p>Bike Room Walls</p>
+            <p>Trash Room Walls</p>
+            <p>Doors</p>
+            {% else %}
+            <p>Per plans and specifications</p>
+            {% endif %}
+        </div>
+        <div class="scope-exclusion mt-1">
+            {% if section_name == 'Units' or section_name == 'units' %}
+            <p>Excludes Masking Hinges</p>
+            <p>Excludes Two Tone In Living Area</p>
+            <p>Excludes Cased Windows</p>
+            <p>Excludes Base Over Flooring (See Add Alts)</p>
+            <p>Excludes Accent Walls At Living Area</p>
+            <p>Excludes Prime Coat At Walls</p>
+            {% elif section_name == 'Corridors' or section_name == 'corridors' %}
+            <p>Excludes Two Tone</p>
+            <p>Excludes Accent Walls</p>
+            <p>Excludes Prep Coat</p>
+            <p>Excludes Chair Rail</p>
+            <p>Excludes Smooth Wall</p>
+            {% elif section_name == 'Stairs' or section_name == 'stairs' %}
+            <p>Excludes Accent Walls</p>
+            <p>Excludes Smooth Wall</p>
+            <p>Excludes Painting CMU Walls</p>
+            <p>Excludes Stand Pipes</p>
+            {% elif section_name == 'Exterior' or section_name == 'exterior' %}
+            <p>Excludes Balcony Doors</p>
+            <p>Excludes Stucco Body</p>
+            <p>Excludes Downspouts, Vents</p>
+            <p>Excludes Prime Coat At Stucco</p>
+            {% elif section_name == 'Garage' or section_name == 'garage' %}
+            <p>Excludes Walls & Ceilings</p>
+            <p>Excludes Columns</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- PRICING SECTION -->
+    <div class="avoid-break mb-4 mt-6">
+        <div class="scope-title">PRICING</div>
+        <table class="proposal-table w-full mt-2 text-sm">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="text-left p-2" style="width: 70%;">Section</th>
+                    <th class="text-right p-2">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for section in bid_state.section_totals %}
+                {% if section.total > 0 %}
+                <tr>
+                    <td class="p-2">{{ section.section_name }}</td>
+                    <td class="text-right p-2">{{ "${:,.0f}".format(section.total) }}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr class="font-bold bg-gray-200">
+                    <td class="p-2">Total</td>
+                    <td class="text-right p-2">{{ "${:,.0f}".format(bid_state.grand_total) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+        <p class="text-xs text-gray-600 mt-1">Pricing Net Wrap Liability Insurance</p>
+    </div>
+
+    <!-- EXCLUSIONS SECTION -->
+    <div class="avoid-break mb-4">
+        <div class="scope-title">EXCLUSIONS</div>
+        <div class="grid grid-cols-2 gap-4 mt-2 text-xs">
+            <div>
+                <p>9900 Specifications</p>
+                <p>0 VOC Paints & Systems</p>
+                <p>Scaffolding & Lifts</p>
+                <p>Saturday & Weekend Work</p>
+                <p>Water Proofing Membrane</p>
+                <p>ALL Exterior Caulking</p>
+                <p>Power & Pressure Washing</p>
+                <p>Signing Unmodified Scaffolding</p>
+            </div>
+            <div>
+                <p>Masked Hinges</p>
+                <p>ALL Stand Pipes</p>
+                <p>Wall Coverings</p>
+                <p>Paid Parking: Parking To Be Provided</p>
+                <p>Caulking Windows: By Window Installer</p>
+                <p>Not Responsible For Color Consistency</p>
+                <p>Payment & Performance Bond</p>
+                <p>Excess & Umbrella Coverage</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD ALTERNATES SECTION -->
+    {% if alternates|length > 0 %}
+    <div class="avoid-break mb-4">
+        <div class="scope-title">ADD ALTERNATES</div>
+        <table class="proposal-table w-full mt-2 text-sm">
+            <tbody>
+                {% for alt in alternates %}
+                <tr>
+                    <td class="p-2" style="width: 70%;">{{ alt.name }}</td>
+                    <td class="text-right p-2">{{ "${:,.0f}".format(alt.row_total) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- ADDITIONAL WORK RATES -->
+    <div class="avoid-break mb-4">
+        <div class="scope-title">ADDITIONAL WORK</div>
+        <table class="text-sm mt-2">
+            <tr><td class="pr-4">Regular Time:</td><td class="font-semibold">$73.00/HR</td></tr>
+            <tr><td class="pr-4">1/2 Time OT Work:</td><td class="font-semibold">$37.00/HR</td></tr>
+        </table>
+    </div>
+
+    <!-- MATERIALS SECTION -->
+    <div class="avoid-break mb-4">
+        <div class="scope-title">MATERIALS INCLUDED IN BID</div>
+        <table class="text-sm mt-2">
+            <tr class="font-semibold"><td colspan="2">Units</td></tr>
+            <tr><td class="pl-4 pr-8">Flat</td><td>Breezewall</td></tr>
+            <tr><td class="pl-4 pr-8">Enamel</td><td>V-Pro</td></tr>
+            <tr class="font-semibold"><td colspan="2">Common Area</td></tr>
+            <tr><td class="pl-4 pr-8">Flat</td><td>Breezewall</td></tr>
+            <tr><td class="pl-4 pr-8">Enamel</td><td>V-Pro</td></tr>
+            <tr class="font-semibold"><td colspan="2">Exterior</td></tr>
+            <tr><td class="pl-4 pr-8">Doors</td><td>Protec</td></tr>
+            <tr><td class="pl-4 pr-8">Balcony Rails</td><td>Protec</td></tr>
+            <tr><td class="pl-4 pr-8">Wood</td><td>Coverall</td></tr>
+        </table>
+    </div>
+
+    <!-- SIGNATURE SECTION -->
+    <div class="avoid-break mt-8 pt-4 border-t border-gray-300">
+        <p class="text-xs text-gray-600 mb-4">This proposal is valid for 30 days from the date above.</p>
+        <div class="grid grid-cols-2 gap-8">
+            <div>
+                <p class="text-xs text-gray-500 mb-1">Authorized Signature - RCW Painting</p>
+                <div class="border-b border-gray-400 h-8"></div>
+                <p class="text-xs text-gray-600 mt-1">Date: _____________</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 mb-1">Acceptance - Customer</p>
+                <div class="border-b border-gray-400 h-8"></div>
+                <p class="text-xs text-gray-600 mt-1">Date: _____________</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="mt-6 pt-2 border-t text-center text-xs text-gray-500">
+        <p>RCW Painting | Generated {{ today_date }}</p>
+    </div>
+</div>
+
+<!-- Print Controls (hidden when printing) -->
+<div class="fixed bottom-8 right-8 no-print flex gap-2">
+    <button onclick="window.print()"
+            class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+        </svg>
+        Print Proposal
+    </button>
+    <a href="/bid" class="px-6 py-3 bg-gray-600 text-white rounded-lg shadow-lg hover:bg-gray-700 transition inline-flex items-center">
+        Back to Bid Form
+    </a>
+</div>
+{% endblock %}

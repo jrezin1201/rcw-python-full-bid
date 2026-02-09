@@ -1,0 +1,244 @@
+{
+  "sections": {
+    "General": {
+      "Units Count": {
+        "uom": "EA",
+        "match": ["Unit Count", "Units Count", "Unit Counts", "Total Units"],
+        "description": "Total number of units"
+      },
+      "Total SF": {
+        "uom": "SF",
+        "match": ["Total SF", "Total Square Feet", "Total Sq Ft", "Gross SF"],
+        "description": "Total square footage"
+      },
+      "Total LF": {
+        "uom": "LF",
+        "match": ["Total LF", "Total Linear Feet", "Total Lin Ft"],
+        "description": "Total linear footage"
+      }
+    },
+    "Corridors": {
+      "Ceiling SF": {
+        "uom": "SF",
+        "match": ["Cor. Lid", "Corridor Lid", "Corridor Ceiling", "Hallway Ceiling"],
+        "description": "Corridor ceiling square footage"
+      },
+      "Wall SF": {
+        "uom": "SF",
+        "match": ["Cor. Wall", "Corridor Wall", "Hallway Wall"],
+        "description": "Corridor wall square footage"
+      },
+      "Floor SF": {
+        "uom": "SF",
+        "match": ["Cor. Floor", "Corridor Floor", "Hallway Floor"],
+        "description": "Corridor floor square footage"
+      },
+      "Base LF": {
+        "uom": "LF",
+        "match": ["Cor. Base", "Corridor Base", "Hallway Base", "Corridor Baseboard"],
+        "description": "Corridor baseboard linear footage"
+      }
+    },
+    "Units": {
+      "Ceiling SF": {
+        "uom": "SF",
+        "match": ["Unit Lid", "Unit Ceiling", "Apartment Ceiling", "Apt Ceiling"],
+        "description": "Unit ceiling square footage"
+      },
+      "Wall SF": {
+        "uom": "SF",
+        "match": ["Unit Wall", "Apartment Wall", "Apt Wall"],
+        "description": "Unit wall square footage"
+      },
+      "Floor SF": {
+        "uom": "SF",
+        "match": ["Unit Floor", "Apartment Floor", "Apt Floor"],
+        "description": "Unit floor square footage"
+      },
+      "Kitchen Cabinet LF": {
+        "uom": "LF",
+        "match": ["Kitchen Cabinet", "Kitchen Cabinets", "Kit Cabinet", "Kitchen Cab"],
+        "description": "Kitchen cabinet linear footage"
+      },
+      "Countertop SF": {
+        "uom": "SF",
+        "match": ["Countertop", "Counter Top", "Kitchen Counter", "Counter"],
+        "description": "Countertop square footage"
+      }
+    },
+    "Bathrooms": {
+      "Vanity Count": {
+        "uom": "EA",
+        "match": ["Vanity", "Vanities", "Bathroom Vanity", "Bath Vanity"],
+        "description": "Number of vanities"
+      },
+      "Toilet Count": {
+        "uom": "EA",
+        "match": ["Toilet", "Toilets", "WC", "Water Closet"],
+        "description": "Number of toilets"
+      },
+      "Tub/Shower Count": {
+        "uom": "EA",
+        "match": ["Tub", "Shower", "Bathtub", "Tub/Shower", "Shower/Tub"],
+        "description": "Number of tubs/showers"
+      },
+      "Bathroom Floor SF": {
+        "uom": "SF",
+        "match": ["Bath Floor", "Bathroom Floor", "Restroom Floor"],
+        "description": "Bathroom floor square footage"
+      }
+    },
+    "Doors": {
+      "Interior Doors": {
+        "uom": "EA",
+        "match": ["Interior Door", "Int Door", "Inside Door", "Unit Door"],
+        "description": "Number of interior doors"
+      },
+      "Exterior Doors": {
+        "uom": "EA",
+        "match": ["Exterior Door", "Ext Door", "Outside Door", "Entry Door"],
+        "description": "Number of exterior doors"
+      },
+      "Fire Doors": {
+        "uom": "EA",
+        "match": ["Fire Door", "Fire Rated Door", "FR Door"],
+        "description": "Number of fire-rated doors"
+      }
+    },
+    "Windows": {
+      "Windows Count": {
+        "uom": "EA",
+        "match": ["Window", "Windows", "Window Count", "Window Units"],
+        "description": "Number of windows"
+      },
+      "Window SF": {
+        "uom": "SF",
+        "match": ["Window SF", "Window Square Feet", "Glazing SF"],
+        "description": "Total window square footage"
+      },
+      "Window Sill LF": {
+        "uom": "LF",
+        "match": ["Window Sill", "Sill", "Window Sills"],
+        "description": "Window sill linear footage"
+      }
+    },
+    "Finishes": {
+      "Paint SF": {
+        "uom": "SF",
+        "match": ["Paint", "Painting", "Paint SF", "Painted Surface"],
+        "description": "Total painted surface area"
+      },
+      "Carpet SF": {
+        "uom": "SF",
+        "match": ["Carpet", "Carpeting", "Carpet SF"],
+        "description": "Carpet square footage"
+      },
+      "Tile SF": {
+        "uom": "SF",
+        "match": ["Tile", "Tile SF", "Ceramic Tile", "Floor Tile"],
+        "description": "Tile square footage"
+      },
+      "LVT/LVP SF": {
+        "uom": "SF",
+        "match": ["LVT", "LVP", "Luxury Vinyl", "Vinyl Plank", "Vinyl Tile"],
+        "description": "Luxury vinyl square footage"
+      }
+    },
+    "Mechanical": {
+      "HVAC Units": {
+        "uom": "EA",
+        "match": ["HVAC", "HVAC Unit", "Air Handler", "AC Unit"],
+        "description": "Number of HVAC units"
+      },
+      "Ductwork LF": {
+        "uom": "LF",
+        "match": ["Duct", "Ductwork", "Duct LF", "Air Duct"],
+        "description": "Ductwork linear footage"
+      },
+      "Diffusers Count": {
+        "uom": "EA",
+        "match": ["Diffuser", "Diffusers", "Air Diffuser", "Supply Diffuser"],
+        "description": "Number of diffusers"
+      }
+    },
+    "Electrical": {
+      "Outlets Count": {
+        "uom": "EA",
+        "match": ["Outlet", "Outlets", "Receptacle", "Electrical Outlet"],
+        "description": "Number of electrical outlets"
+      },
+      "Switches Count": {
+        "uom": "EA",
+        "match": ["Switch", "Switches", "Light Switch", "Electrical Switch"],
+        "description": "Number of switches"
+      },
+      "Light Fixtures": {
+        "uom": "EA",
+        "match": ["Light Fixture", "Fixture", "Light", "Lighting Fixture"],
+        "description": "Number of light fixtures"
+      },
+      "Wire LF": {
+        "uom": "LF",
+        "match": ["Wire", "Wiring", "Electrical Wire", "Cable"],
+        "description": "Wire/cable linear footage"
+      }
+    },
+    "Plumbing": {
+      "Fixtures Count": {
+        "uom": "EA",
+        "match": ["Plumbing Fixture", "Fixture", "Plumbing Fixtures"],
+        "description": "Number of plumbing fixtures"
+      },
+      "Pipe LF": {
+        "uom": "LF",
+        "match": ["Pipe", "Piping", "Water Pipe", "Plumbing Pipe"],
+        "description": "Pipe linear footage"
+      },
+      "Water Heaters": {
+        "uom": "EA",
+        "match": ["Water Heater", "Hot Water Heater", "HWH"],
+        "description": "Number of water heaters"
+      }
+    }
+  },
+  "section_order": [
+    "General",
+    "Corridors",
+    "Units",
+    "Stairs",
+    "Windows",
+    "Finishes"
+  ],
+  "mapping_config": {
+    "fuzzy_threshold": 0.85,
+    "strict_unmapped_threshold": 0.75,
+    "case_sensitive": false,
+    "prefer_largest_measure": true,
+    "uom_mappings": {
+      "FT": "LF",
+      "SQFT": "SF",
+      "SQ FT": "SF",
+      "SQ.FT.": "SF",
+      "LIN FT": "LF",
+      "LINEAR FT": "LF",
+      "EACH": "EA",
+      "PCS": "EA",
+      "PIECES": "EA"
+    },
+    "qty_formatting": {
+      "EA": "integer",
+      "SF": "decimal",
+      "LF": "decimal",
+      "FT": "decimal"
+    },
+    "uom_canonicalization": {
+      "LF": "FT",
+      "LINEAR FEET": "FT",
+      "LINEAR FT": "FT",
+      "LIN FT": "FT",
+      "L.F.": "FT",
+      "SF": "SF",
+      "EA": "EA"
+    }
+  }
+}

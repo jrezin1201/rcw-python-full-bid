@@ -1,0 +1,137 @@
+{% extends "layout.html" %}
+
+{% block title %}Logic - {{ bid_state.project_name }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Pricing Logic</h2>
+                <p class="text-sm text-gray-600 mt-1">This page explains exactly how each line item total is calculated.</p>
+            </div>
+            <a href="/bid" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Back to Bid Form</a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Single Source Formula</h3>
+        <div class="bg-gray-900 text-white rounded-lg p-4 font-mono text-sm overflow-x-auto">
+            row_total = qty * ((base_price + difficulty_add[level]) * toggle_multiplier * manual_multiplier)
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-sm">
+            <div class="bg-gray-50 rounded-lg p-4">
+                <p class="font-semibold text-gray-800 mb-2">Meaning</p>
+                <p class="text-gray-700">`difficulty_add[level]` is an absolute dollar add per UOM (not a percent).</p>
+                <p class="text-gray-700">Example: +$3.00 at level 2 and qty 50 adds $150.00 to that row before toggles/multiplier.</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+                <p class="font-semibold text-gray-800 mb-2">Grand Total</p>
+                <p class="text-gray-700">`grand_total = sum(row_total for all line items)`</p>
+                <p class="text-xl font-bold text-gray-900 mt-2">{{ format_currency(grand_total) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Toggle Multiplier Rules</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[700px] text-sm">
+                <thead class="bg-gray-50 text-gray-600">
+                    <tr>
+                        <th class="px-3 py-2 text-left">Toggle</th>
+                        <th class="px-3 py-2 text-center">If ON</th>
+                        <th class="px-3 py-2 text-center">If OFF</th>
+                        <th class="px-3 py-2 text-left">Note</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for rule in toggle_rules %}
+                    <tr>
+                        <td class="px-3 py-2 font-medium text-gray-900">{{ rule.name }}</td>
+                        <td class="px-3 py-2 text-center">{{ rule.on_effect }}</td>
+                        <td class="px-3 py-2 text-center">{{ rule.off_effect }}</td>
+                        <td class="px-3 py-2 text-gray-600">Applied in effective unit-price calculation.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Worked Examples (Live Data)</h3>
+        {% if logic_examples and logic_examples|length > 0 %}
+        <div class="space-y-4">
+            {% for ex in logic_examples %}
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                    <p class="font-semibold text-gray-900">{{ ex.section }} - {{ ex.name }}</p>
+                    <p class="text-sm text-gray-500">Qty: {{ format_number(ex.qty) }} {{ ex.uom }}</p>
+                </div>
+                <div class="mt-3 text-sm text-gray-700 font-mono overflow-x-auto">
+                    {{ format_number(ex.qty) }} * (({{ format_currency(ex.base_price) }} + {{ format_currency(ex.difficulty_add) }}) * {{ "%.4f"|format(ex.toggle_multiplier) }} * {{ format_number(ex.manual_multiplier) }})
+                    = {{ format_currency(ex.row_total) }}
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-3 text-sm">
+                    <div class="bg-gray-50 rounded p-2">
+                        <p class="text-gray-500">Base</p>
+                        <p class="font-semibold">{{ format_currency(ex.base_price) }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded p-2">
+                        <p class="text-gray-500">Difficulty</p>
+                        <p class="font-semibold">L{{ ex.difficulty_level }} (+{{ format_currency(ex.difficulty_add) }})</p>
+                    </div>
+                    <div class="bg-gray-50 rounded p-2">
+                        <p class="text-gray-500">Toggle Mult</p>
+                        <p class="font-semibold">{{ "%.4f"|format(ex.toggle_multiplier) }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded p-2">
+                        <p class="text-gray-500">Manual Mult</p>
+                        <p class="font-semibold">{{ format_number(ex.manual_multiplier) }}</p>
+                    </div>
+                    <div class="bg-blue-50 rounded p-2 border border-blue-100">
+                        <p class="text-blue-600">Row Total</p>
+                        <p class="font-semibold text-blue-900">{{ format_currency(ex.row_total) }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-600">No line items with quantity were found to build examples.</p>
+        {% endif %}
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Section Totals</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[600px] text-sm">
+                <thead class="bg-gray-50 text-gray-600">
+                    <tr>
+                        <th class="px-3 py-2 text-left">Section</th>
+                        <th class="px-3 py-2 text-right">Items</th>
+                        <th class="px-3 py-2 text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for s in section_totals %}
+                    <tr>
+                        <td class="px-3 py-2 font-medium text-gray-900">{{ s.section_name }}</td>
+                        <td class="px-3 py-2 text-right">{{ s.item_count }}</td>
+                        <td class="px-3 py-2 text-right font-semibold">{{ format_currency(s.total) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="bg-gray-900 text-white">
+                        <td class="px-3 py-2 font-semibold">Grand Total</td>
+                        <td class="px-3 py-2 text-right">{{ total_items }}</td>
+                        <td class="px-3 py-2 text-right font-semibold">{{ format_currency(grand_total) }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

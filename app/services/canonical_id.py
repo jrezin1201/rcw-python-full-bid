@@ -43,7 +43,7 @@ CLASSIFICATION_ALIASES = {
     "balcony storage": "balcony_storage",
 
     # Storage section
-    "storage": "storage_count",
+    "storage": "storage_sf",
     "storage count": "storage_count",
     "storage sf": "storage_sf",
 

@@ -281,7 +281,7 @@ class BaycrestNormalizer:
         if column == 'C':
             # Check if classification suggests square footage (room/area names)
             sf_keywords = ['lobby', 'lounge', 'fitness', 'guardhouse', 'gaurdhouse', 'clubhouse',
-                          'amenities', 'amenity', 'residence services', 'mail room', 'storage sf',
+                          'amenities', 'amenity', 'residence services', 'mail room', 'storage',
                           'flooring', 'ceiling', 'wall sf', 'deck', 'vestibule', 'vest sf',
                           'wall subtract', 'subtract', 'rec room', 'garage lid']
             if any(kw in classification_lower for kw in sf_keywords):

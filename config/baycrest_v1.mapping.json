@@ -35,7 +35,7 @@
     "Corridors": {
       "Corridor Flooring SF": {
         "uom": "SF",
-        "match": ["Flooring SF", "Corridor Flooring SF", "Hall Flooring SF", "Cor. Lid SF", "Corridor Lid SF"],
+        "match": ["Flooring SF", "Corridor Flooring SF", "Hall Flooring SF"],
         "description": "Corridor flooring square footage"
       },
       "Corridor Wall SF": {
@@ -45,7 +45,7 @@
       },
       "Corridor Ceiling SF": {
         "uom": "SF",
-        "match": ["Ceiling SF", "Corridor Ceiling SF", "Hall Ceiling SF"],
+        "match": ["Ceiling SF", "Corridor Ceiling SF", "Hall Ceiling SF", "Cor. Lid SF", "Corridor Lid SF"],
         "description": "Corridor ceiling square footage"
       },
       "Corridor Base LF": {
@@ -77,7 +77,7 @@
       },
       "Parapet LF": {
         "uom": "LF",
-        "match": ["Parapet LF", "Parapet Linear Feet", "Roof Parapet", "Parapet facing garage LF"],
+        "match": ["Parapet LF", "Parapet Linear Feet", "Roof Parapet", "Parapet facing garage LF", "Conc. Parapet LF", "Conc Parapet LF"],
         "description": "Parapet linear footage"
       },
       "Exterior Doors": {
@@ -87,7 +87,7 @@
       },
       "Windows Count": {
         "uom": "EA",
-        "match": ["Windows", "Window Count", "Number of Windows"],
+        "match": ["Windows", "Window", "Window Count", "Number of Windows"],
         "description": "Number of windows"
       },
       "Window/Door Trim": {
@@ -188,10 +188,37 @@
         "description": "Number of washer/dryer units"
       }
     },
+    "Stairs": {
+      "Stair Count": {
+        "uom": "LVL",
+        "match": ["Stair 1", "Stair 2", "Stair 3", "Stair Count", "Stairs"],
+        "description": "Stair level count"
+      },
+      "Stair Wall SF": {
+        "uom": "SF",
+        "match": ["Stair Wall SF", "Stairwell Wall"],
+        "description": "Stair wall square footage"
+      },
+      "Stair Ceiling SF": {
+        "uom": "SF",
+        "match": ["Stair Ceiling SF", "Stairwell Ceiling"],
+        "description": "Stair ceiling square footage"
+      },
+      "Stair Handrail LF": {
+        "uom": "LF",
+        "match": ["Stair Handrail LF", "Handrail LF", "Stair Rail"],
+        "description": "Stair handrail linear footage"
+      },
+      "Stair Stringers": {
+        "uom": "EA",
+        "match": ["Stair Stringers", "Stringers"],
+        "description": "Number of stair stringers"
+      }
+    },
     "Balconies": {
       "Balcony Count": {
         "uom": "EA",
-        "match": ["Balc", "Balcony", "Balconies", "Patio"],
+        "match": ["Balc", "Balc.", "Balcony", "Balconies", "Patio", "Accented stucco @ Balc. Count"],
         "description": "Number of balconies"
       },
       "Balcony Rail LF": {
@@ -208,6 +235,11 @@
         "uom": "EA",
         "match": ["Balc Storage", "Balcony Storage", "Patio Storage"],
         "description": "Number of balcony storage units"
+      },
+      "Balcony Ceiling SF": {
+        "uom": "SF",
+        "match": ["Balcony Ceiling SF", "Balc Ceiling", "Balcony Soffit"],
+        "description": "Balcony ceiling square footage"
       }
     },
     "Storage": {
@@ -292,9 +324,14 @@
       }
     },
     "Garage": {
+      "Garage Wall SF": {
+        "uom": "SF",
+        "match": ["Garage Wall SF", "Garage Wall", "Garage Roof Wall SF", "Parking Wall SF"],
+        "description": "Garage wall square footage"
+      },
       "Garage Ceiling SF": {
         "uom": "SF",
-        "match": ["Garage Lid SF", "Garage Ceiling", "Parking Ceiling"],
+        "match": ["Garage Lid SF", "Garage Ceiling", "Parking Ceiling", "Garage Lid"],
         "description": "Garage ceiling square footage"
       },
       "Garage Storage Count": {
@@ -354,12 +391,12 @@
       },
       "Garage Trash Room Count": {
         "uom": "EA",
-        "match": ["Garage Trash Term Room Count", "Garage Trash Room"],
+        "match": ["Garage Trash Term Room Count", "Garage Trash Room", "Garage Trash Room Count"],
         "description": "Garage trash room count"
       },
       "Garage Trash Room SF": {
         "uom": "SF",
-        "match": ["Garage Trash Term Room SF", "Garage Trash Room SF"],
+        "match": ["Garage Trash Term Room SF", "Garage Trash Room SF", "Garage Trash Room SF"],
         "description": "Garage trash room square footage"
       },
       "Garage Wall Subtract": {
@@ -418,6 +455,7 @@
     "Corridors",
     "Exterior",
     "Units",
+    "Stairs",
     "Balconies",
     "Storage",
     "Mechanical",

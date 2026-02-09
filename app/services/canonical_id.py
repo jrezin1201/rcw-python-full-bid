@@ -41,9 +41,16 @@ CLASSIFICATION_ALIASES = {
     "balc storage": "balcony_storage",
     "balc. storage": "balcony_storage",
     "balcony storage": "balcony_storage",
+    "balc wall": "balcony_wall_lf",
+    "balc. wall": "balcony_wall_lf",
+    "balc wall count": "balcony_wall_count",
+    "balc. wall count": "balcony_wall_count",
+    "accented stucco @ balc. count": "balcony_count",
+    "accented stucco @ balc count": "balcony_count",
+    "accented stucco at balc. count": "balcony_count",
 
     # Storage section
-    "storage": "storage_sf",
+    "storage": "storage_count",
     "storage count": "storage_count",
     "storage sf": "storage_sf",
 
@@ -88,6 +95,11 @@ CLASSIFICATION_ALIASES = {
     "ext door count": "exterior_doors",
     "ext doors": "exterior_doors",
     "parapet facing garage lf": "parapet_garage_lf",
+    "conc. parapet lf": "parapet_lf",
+    "conc parapet lf": "parapet_lf",
+    "concrete parapet lf": "parapet_lf",
+    "window": "windows_count",
+    "windows": "windows_count",
     "window/door trim count": "window_door_trim",
     "window door trim count": "window_door_trim",
     "large opening trim count": "large_opening_trim",
@@ -131,6 +143,12 @@ CLASSIFICATION_ALIASES = {
     "ave unit sf": "average_unit_sf",
     "ave. unit sf": "average_unit_sf",
 
+    # Stairs section
+    "stair 1": "stair_count",
+    "stair 2": "stair_count",
+    "stair 3": "stair_count",
+    "stair count": "stair_count",
+
     # Amenity section
     "lobby": "lobby",
     "common area bathrooms": "common_area_bathrooms",
@@ -143,6 +161,8 @@ CLASSIFICATION_ALIASES = {
     "amenities": "amenity_flooring_sf",
 
     # Garage section
+    "garage wall sf": "garage_wall_sf",
+    "garage lid": "garage_ceiling_sf",
     "garage lid sf": "garage_ceiling_sf",
     "garage parapet lf": "parapet_garage_lf",
     "garage roof wall sf": "garage_wall_sf",
@@ -160,7 +180,9 @@ CLASSIFICATION_ALIASES = {
     "garage trash vest count": "garage_trash_vest_count",
     "garage trash vest sf": "garage_trash_vest_sf",
     "garage trash term room count": "garage_trash_room_count",
+    "garage trash room count": "garage_trash_room_count",
     "garage trash term room sf": "garage_trash_room_sf",
+    "garage trash room sf": "garage_trash_room_sf",
     "garage wall subtract": "garage_wall_subtract",
     "ext stucco sf": "stucco_wall_sf",
     "ext foam trim lf": "trim_lf",

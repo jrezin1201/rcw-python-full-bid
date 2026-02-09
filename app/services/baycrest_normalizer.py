@@ -27,6 +27,7 @@ class BaycrestNormalizer:
     def __init__(self):
         self.current_section = None
         self.header_row = None
+        self._raw_c_value = None
 
     def _norm_sheet_name(self, name: str) -> str:
         """Normalize sheet name: lowercase, strip, collapse whitespace."""
@@ -164,6 +165,9 @@ class BaycrestNormalizer:
                 # Row will be extracted - build measures list
                 measures = []
 
+                # Store raw C value for UOM inference from text values like "6 lvls"
+                self._raw_c_value = row_data['C']
+
                 # Primary measure from column C
                 c_uom = self._infer_uom(classification, 'C')
                 measures.append({
@@ -241,6 +245,13 @@ class BaycrestNormalizer:
             try:
                 return float(clean)
             except ValueError:
+                # Try extracting leading number from strings like "27 LF", "6 lvls"
+                match = re.match(r'^([\d,.]+)', clean)
+                if match:
+                    try:
+                        return float(match.group(1).replace(',', ''))
+                    except ValueError:
+                        return None
                 return None
         return None
 
@@ -277,11 +288,21 @@ class BaycrestNormalizer:
         if " count" in classification_lower or classification_lower.endswith("count"):
             return "EA"
 
+        # Check if the cell value itself contains a UOM hint (e.g., "6 lvls", "27 LF")
+        if column == 'C' and isinstance(self._raw_c_value, str):
+            val_lower = self._raw_c_value.lower().strip()
+            if 'lvl' in val_lower:
+                return "LVL"
+            if 'lf' in val_lower:
+                return "LF"
+            if 'sf' in val_lower:
+                return "SF"
+
         # Column-specific defaults
         if column == 'C':
             # Check if classification suggests square footage (room/area names)
             sf_keywords = ['lobby', 'lounge', 'fitness', 'guardhouse', 'gaurdhouse', 'clubhouse',
-                          'amenities', 'amenity', 'residence services', 'mail room', 'storage',
+                          'amenities', 'amenity', 'residence services', 'mail room', 'storage sf',
                           'flooring', 'ceiling', 'wall sf', 'deck', 'vestibule', 'vest sf',
                           'wall subtract', 'subtract', 'rec room', 'garage lid']
             if any(kw in classification_lower for kw in sf_keywords):

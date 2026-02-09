@@ -7,12 +7,12 @@ import logging
 import sys
 from typing import Any
 
-from pythonjsonlogger.json import JsonFormatter
+from pythonjsonlogger import jsonlogger
 
 from app.core.config import settings
 
 
-class CustomJsonFormatter(JsonFormatter):
+class CustomJsonFormatter(jsonlogger.JsonFormatter):
     """Custom JSON formatter that adds application-specific fields."""
 
     def add_fields(

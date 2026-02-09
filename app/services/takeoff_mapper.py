@@ -264,6 +264,9 @@ class TakeoffMapper:
                             'uom_raw': required_uom,
                             'source_classification': classification,
                             'confidence': match_result['confidence'] / 100.0,
+                            'match_type': match_result['match_type'],
+                            'matched_rule': match_result.get('matched_rule', ''),
+                            'matched_value': match_result.get('matched_value', ''),
                             'provenance': row.get('provenance', {})
                         }
 
@@ -359,6 +362,8 @@ class TakeoffMapper:
                     }
 
         # Tier 2: Contains match (substring) on canonicalized text
+        # Only match when the match string is a substantial portion of the classification
+        # to avoid false positives like "balc" matching "balc wall"
         for item in items:
             for idx, match_string in enumerate(item['match_strings']):
                 # Skip regex patterns for contains matching
@@ -366,6 +371,11 @@ class TakeoffMapper:
                     continue
 
                 match_string_norm = canonicalize_classification(match_string)
+
+                # Skip single-word match strings for contains — they cause false positives
+                # (e.g., "balc" in "balc wall"). Single words should match via Tier 1 or Tier 4.
+                if match_string_norm and ' ' not in match_string_norm:
+                    continue
 
                 # Check if match_string is contained in classification
                 if match_string_norm and match_string_norm in classification_norm:
@@ -597,7 +607,10 @@ class TakeoffMapper:
                             'row': mapped.get('provenance', {}).get('row', 0),
                         },
                         'source_classification': source_classification,
-                        'confidence': mapped.get('confidence', 1.0)
+                        'confidence': mapped.get('confidence', 1.0),
+                        'match_type': mapped.get('match_type', 'unknown'),
+                        'matched_rule': mapped.get('matched_rule', ''),
+                        'matched_value': mapped.get('matched_value', '')
                     }
 
                     bid_items.append(bid_item)

@@ -1,0 +1,273 @@
+{% if debug_payload and debug_payload.mapping %}
+{% set mapping = debug_payload.mapping %}
+{% set extraction = debug_payload.extraction %}
+
+<div class="space-y-6">
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow-sm p-4 border border-green-200">
+            <div class="text-xs text-gray-500">Mapped</div>
+            <div class="text-2xl font-semibold text-green-700">
+                {{ mapping.bid_items|length if mapping.bid_items else 0 }}
+            </div>
+            <div class="text-xs text-gray-400 mt-1">Excel rows matched to catalog items</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-4 border border-red-200">
+            <div class="text-xs text-gray-500">Unmapped</div>
+            <div class="text-2xl font-semibold text-red-700">
+                {{ mapping.unmapped|length if mapping.unmapped else 0 }}
+            </div>
+            <div class="text-xs text-gray-400 mt-1">Excel rows with no catalog match</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-4 border border-yellow-200">
+            <div class="text-xs text-gray-500">Low Confidence</div>
+            <div class="text-2xl font-semibold text-yellow-700">
+                {% set low_conf = [] %}
+                {% if mapping.bid_items %}
+                    {% for item in mapping.bid_items %}
+                        {% if item.confidence < 0.85 %}
+                            {% set _ = low_conf.append(1) %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {{ low_conf|length }}
+            </div>
+            <div class="text-xs text-gray-400 mt-1">Matches below 85% confidence</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-4 border border-blue-200">
+            <div class="text-xs text-gray-500">QA Confidence</div>
+            <div class="text-2xl font-semibold text-blue-700">
+                {{ "%.0f"|format((mapping.qa.confidence if mapping.qa else 0) * 100) }}%
+            </div>
+            <div class="text-xs text-gray-400 mt-1">Overall mapping quality</div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-700 mb-2">Match Types</h3>
+        <div class="flex flex-wrap gap-3 text-xs">
+            <span class="inline-flex items-center gap-1">
+                <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                <strong>Exact</strong> &mdash; Classification matches a rule exactly (100%)
+            </span>
+            <span class="inline-flex items-center gap-1">
+                <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                <strong>Contains</strong> &mdash; Rule is a substring of the classification (95%)
+            </span>
+            <span class="inline-flex items-center gap-1">
+                <span class="w-3 h-3 rounded-full bg-purple-500"></span>
+                <strong>Regex</strong> &mdash; Classification matches a regex pattern (90%)
+            </span>
+            <span class="inline-flex items-center gap-1">
+                <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                <strong>Fuzzy</strong> &mdash; Best fuzzy match above threshold (75-100%)
+            </span>
+            <span class="inline-flex items-center gap-1">
+                <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                <strong>Unmapped</strong> &mdash; No match found
+            </span>
+        </div>
+    </div>
+
+    <!-- Mapped Items Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+        <div class="px-4 py-3 border-b border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-900">Input &rarr; Catalog Mapping</h3>
+            <p class="text-xs text-gray-500 mt-1">How each Excel row was matched to a catalog line item</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-[1200px] w-full text-sm">
+                <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
+                    <tr>
+                        <th class="px-3 py-2 text-left">Excel Source</th>
+                        <th class="px-3 py-2 text-center w-16">Row</th>
+                        <th class="px-3 py-2 text-center w-24">Match Type</th>
+                        <th class="px-3 py-2 text-left">Matched Rule</th>
+                        <th class="px-3 py-2 text-center w-20">&rarr;</th>
+                        <th class="px-3 py-2 text-left">Catalog Item</th>
+                        <th class="px-3 py-2 text-right w-16">Qty</th>
+                        <th class="px-3 py-2 text-center w-12">UOM</th>
+                        <th class="px-3 py-2 text-right w-20">Confidence</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% if mapping.bid_items %}
+                        {% for item in mapping.bid_items %}
+                        {% set conf_pct = (item.confidence * 100)|round|int %}
+                        <tr class="hover:bg-gray-50
+                            {% if conf_pct < 75 %}bg-red-50
+                            {% elif conf_pct < 85 %}bg-yellow-50
+                            {% endif %}">
+                            <!-- Excel Source Classification -->
+                            <td class="px-3 py-2">
+                                <span class="font-medium text-gray-900">{{ item.source_classification }}</span>
+                            </td>
+
+                            <!-- Row Number -->
+                            <td class="px-3 py-2 text-center text-xs text-gray-500 font-mono">
+                                {% if item.provenance %}{{ item.provenance.sheet }}:{{ item.provenance.row }}{% endif %}
+                            </td>
+
+                            <!-- Match Type Badge -->
+                            <td class="px-3 py-2 text-center">
+                                {% if item.match_type == 'exact' %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Exact</span>
+                                {% elif item.match_type == 'contains' %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Contains</span>
+                                {% elif item.match_type == 'regex' %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Regex</span>
+                                {% elif item.match_type == 'fuzzy' %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Fuzzy</span>
+                                {% elif item.match_type == 'fuzzy_low' %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">Fuzzy (Low)</span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ item.match_type }}</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Matched Rule/Value -->
+                            <td class="px-3 py-2 text-xs text-gray-600 font-mono">
+                                {{ item.matched_value }}
+                            </td>
+
+                            <!-- Arrow -->
+                            <td class="px-3 py-2 text-center text-gray-400 text-lg">&rarr;</td>
+
+                            <!-- Catalog Item -->
+                            <td class="px-3 py-2">
+                                <div class="font-medium text-gray-900">{{ item.label }}</div>
+                                <div class="text-xs text-gray-400 font-mono">{{ item.id }}</div>
+                            </td>
+
+                            <!-- Qty -->
+                            <td class="px-3 py-2 text-right font-mono">{{ item.qty }}</td>
+
+                            <!-- UOM -->
+                            <td class="px-3 py-2 text-center text-xs text-gray-600">{{ item.uom }}</td>
+
+                            <!-- Confidence -->
+                            <td class="px-3 py-2 text-right">
+                                <span class="font-mono text-xs
+                                    {% if conf_pct >= 95 %}text-green-700
+                                    {% elif conf_pct >= 85 %}text-blue-700
+                                    {% elif conf_pct >= 75 %}text-yellow-700
+                                    {% else %}text-red-700{% endif %}">
+                                    {{ conf_pct }}%
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="9" class="px-3 py-4 text-gray-500 text-center">No mapped items. Upload an Excel file to see mappings.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Unmapped Items Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-red-100">
+        <div class="px-4 py-3 border-b border-red-100 bg-red-50">
+            <h3 class="text-lg font-semibold text-red-900">Unmapped Items</h3>
+            <p class="text-xs text-red-600 mt-1">Excel rows that could not be matched to any catalog item</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-[900px] w-full text-sm">
+                <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
+                    <tr>
+                        <th class="px-3 py-2 text-left">Excel Classification</th>
+                        <th class="px-3 py-2 text-left">Measures</th>
+                        <th class="px-3 py-2 text-left">Provenance</th>
+                        <th class="px-3 py-2 text-left">Possible Reason</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% if mapping.unmapped %}
+                        {% for item in mapping.unmapped %}
+                        <tr class="hover:bg-red-50">
+                            <td class="px-3 py-2 font-medium text-gray-900">{{ item.classification }}</td>
+                            <td class="px-3 py-2 text-gray-600 text-xs">
+                                {% for m in item.measures %}
+                                    {{ m.value }} {{ m.uom }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                                {% if not item.measures %}
+                                    <span class="text-gray-400">No measures</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-3 py-2 text-xs text-gray-500 font-mono">
+                                {{ item.provenance.sheet }}:{{ item.provenance.row }}
+                            </td>
+                            <td class="px-3 py-2 text-xs text-gray-500">
+                                {% if not item.measures %}
+                                    No numeric value found
+                                {% else %}
+                                    No matching catalog item or UOM mismatch
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="4" class="px-3 py-4 text-gray-500 text-center">All items mapped successfully.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Raw Excel Rows (for reference) -->
+    <div x-data="{ showRaw: false }" class="bg-white rounded-lg shadow-sm border border-gray-100">
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between cursor-pointer" @click="showRaw = !showRaw">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">Raw Excel Rows</h3>
+                <p class="text-xs text-gray-500 mt-1">Original data from the uploaded spreadsheet</p>
+            </div>
+            <button class="text-gray-400 hover:text-gray-600">
+                <span x-show="!showRaw" class="text-lg">+</span>
+                <span x-show="showRaw" class="text-lg">&minus;</span>
+            </button>
+        </div>
+        <div x-show="showRaw" x-cloak class="overflow-x-auto">
+            <table class="min-w-[900px] w-full text-xs">
+                <thead class="bg-gray-50 text-gray-600">
+                    <tr>
+                        <th class="px-2 py-2 text-right w-12">Row</th>
+                        <th class="px-2 py-2 text-left">A (Section)</th>
+                        <th class="px-2 py-2 text-left">B (Classification)</th>
+                        <th class="px-2 py-2 text-right">C (Value)</th>
+                        <th class="px-2 py-2 text-right">D</th>
+                        <th class="px-2 py-2 text-left">E</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% if extraction and extraction.raw_rows %}
+                        {% for row in extraction.raw_rows[:200] %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-2 py-1 text-right text-gray-500 font-mono">{{ row.row }}</td>
+                            <td class="px-2 py-1">{{ row.A }}</td>
+                            <td class="px-2 py-1 font-medium">{{ row.B }}</td>
+                            <td class="px-2 py-1 text-right">{{ row.C }}</td>
+                            <td class="px-2 py-1 text-right">{{ row.D }}</td>
+                            <td class="px-2 py-1">{{ row.E }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="6" class="px-3 py-3 text-gray-500">No raw rows.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="bg-white rounded-lg shadow-sm p-6 text-gray-600">
+    <div class="text-center">
+        <svg class="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <p class="text-lg font-medium text-gray-700">No mapping data available</p>
+        <p class="text-sm text-gray-500 mt-1">Upload an Excel file to see how input rows map to catalog items.</p>
+    </div>
+</div>
+{% endif %}

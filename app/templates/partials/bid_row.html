@@ -1,5 +1,41 @@
-<tbody id="row-{{ item.id }}" x-data="{ notesOpen: {{ 'true' if item.notes else 'false' }} }" x-init="$watch('notesOpen', () => $el.querySelector('.notes-row').style.display = notesOpen ? '' : 'none')">
-<tr class="border-b border-gray-200 hover:bg-gray-50">
+<tbody id="row-{{ item.id }}" x-data="{ notesOpen: false, rowOpen: {{ 'false' if item.qty == 0 and not item.notes else 'true' }} }">
+
+<!-- Collapsed row (shown when rowOpen is false) -->
+<tr x-show="!rowOpen" class="border-b border-gray-100 bg-gray-50 text-gray-400 cursor-pointer hover:bg-gray-100" @click="rowOpen = true">
+    <!-- Row Number -->
+    <td class="px-1 py-1 text-center text-xs font-mono">
+        {{ row_num | default('?') }}
+    </td>
+
+    <!-- Expand Button -->
+    <td class="px-1 py-1 text-center">
+        <button type="button"
+                @click.stop="rowOpen = true"
+                class="w-5 h-5 rounded flex items-center justify-center text-xs bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600">
+            <span class="leading-none">+</span>
+        </button>
+    </td>
+
+    <!-- Spacer for checkbox -->
+    <td class="px-2 py-1"></td>
+
+    <!-- Item Name (dimmed) -->
+    <td class="px-3 py-1">
+        <span class="text-sm text-gray-400">{{ item.name }}</span>
+    </td>
+
+    <!-- Quantity -->
+    <td class="px-2 py-1 text-center text-xs">0</td>
+
+    <!-- UOM -->
+    <td class="px-2 py-1 text-center text-xs">{{ item.uom }}</td>
+
+    <!-- Remaining columns collapsed -->
+    <td colspan="5" class="px-2 py-1 text-right text-xs">&mdash;</td>
+</tr>
+
+<!-- Full row (shown when rowOpen is true) -->
+<tr x-show="rowOpen" class="border-b border-gray-200 hover:bg-gray-50">
     <!-- Row Number -->
     <td class="px-1 py-2 text-center text-xs text-gray-400 font-mono">
         {{ row_num | default('?') }}
@@ -7,6 +43,15 @@
 
     <!-- Expand/Collapse Notes -->
     <td class="px-1 py-2 text-center">
+        {% if item.qty == 0 and not item.notes %}
+        <!-- For empty rows: collapse button that hides the whole row -->
+        <button type="button"
+                @click="rowOpen = false; notesOpen = false"
+                class="w-6 h-6 rounded flex items-center justify-center text-sm bg-gray-100 text-gray-500 hover:bg-gray-200">
+            <span class="text-lg leading-none">&minus;</span>
+        </button>
+        {% else %}
+        <!-- For rows with data: toggle notes -->
         <button type="button"
                 @click="notesOpen = !notesOpen"
                 class="w-6 h-6 rounded flex items-center justify-center text-sm transition-colors
@@ -15,6 +60,7 @@
             <span x-show="!notesOpen" class="text-lg leading-none">+</span>
             <span x-show="notesOpen" class="text-lg leading-none">&minus;</span>
         </button>
+        {% endif %}
     </td>
 
     <!-- Checkbox -->
@@ -168,7 +214,7 @@
 </tr>
 
 <!-- Notes Row (expandable) -->
-<tr class="notes-row bg-blue-50 border-b border-gray-200" style="{% if not item.notes %}display: none;{% endif %}">
+<tr x-show="rowOpen && notesOpen" class="notes-row bg-blue-50 border-b border-gray-200">
     <td colspan="11" class="px-4 py-3">
         <div class="flex items-start gap-3">
             <svg class="w-5 h-5 text-blue-500 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">

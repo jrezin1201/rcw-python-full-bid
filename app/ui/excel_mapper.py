@@ -385,77 +385,35 @@ def map_excel_to_bid_form(file_path: str, template: str = "baycrest_v1") -> BidF
 
 def create_sample_bid_form() -> BidFormState:
     """
-    Create a sample bid form for testing without file upload.
+    Create a blank bid form from the catalog with all items at qty=0.
     """
-    items = [
-        LineItem(
-            section="Units",
-            name="Studio Unit Count",
-            qty=25,
-            uom="EA",
-            unit_price_base=1400.00,
-            difficulty=1
-        ),
-        LineItem(
-            section="Units",
-            name="1 Bed Room Count",
-            qty=400,
-            uom="EA",
-            unit_price_base=1500.00,
-            difficulty=1
-        ),
-        LineItem(
-            section="Units",
-            name="2 Bedroom Count",
-            qty=250,
-            uom="EA",
-            unit_price_base=1600.00,
-            difficulty=3
-        ),
-        LineItem(
-            section="Areas",
-            name="Total SF",
-            qty=525000,
-            uom="SF",
-            unit_price_base=8.50,
-            difficulty=1
-        ),
-        LineItem(
-            section="Interior Walls",
-            name="Eggshell Walls",
-            qty=45000,
-            uom="SF",
-            unit_price_base=200.00,
-            difficulty=1
-        ),
-        LineItem(
-            section="Prime Coat",
-            name="True Prime Coat",
-            qty=2500,
-            uom="SF",
-            unit_price_base=300.00,
-            difficulty=3
-        ),
-        LineItem(
-            section="Doors & Trim",
-            name="Metal Doors & Frames",
-            qty=150,
-            uom="EA",
-            unit_price_base=450.00,
-            difficulty=1
-        ),
-        LineItem(
-            section="Ceilings",
-            name="Flat Ceilings",
-            qty=35000,
-            uom="SF",
-            unit_price_base=150.00,
-            difficulty=1
-        ),
-    ]
+    catalog = BidCatalog()
+    items = []
+
+    for section in catalog.get_sections():
+        for catalog_item in section.items:
+            base_rate = catalog_item.get_rate(1)
+            difficulty_adders = {
+                level: max(0.0, catalog_item.get_rate(level) - base_rate)
+                for level in range(1, 6)
+            }
+
+            line_item = LineItem(
+                id=catalog_item.id.replace('.', '_'),
+                section=section.name,
+                name=catalog_item.label,
+                qty=0,
+                uom=catalog_item.uom,
+                unit_price_base=base_rate,
+                difficulty=1,
+                difficulty_adders=difficulty_adders,
+                toggle_mask=ToggleMask(),
+                mult=catalog_item.default_multiplier,
+            )
+            items.append(line_item)
 
     return BidFormState(
-        project_name="Sample Project",
+        project_name="New Project",
         items=items,
         created_at=datetime.now(timezone.utc).isoformat()
     )

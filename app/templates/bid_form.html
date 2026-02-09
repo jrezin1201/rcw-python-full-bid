@@ -49,6 +49,12 @@
                 Pricing
             </button>
             <button type="button"
+                    @click="activeTab = 'mapping'"
+                    :class="activeTab === 'mapping' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                    class="px-3 py-1.5 rounded-md text-sm font-medium transition">
+                Mapping
+            </button>
+            <button type="button"
                     @click="activeTab = 'debug'"
                     :class="activeTab === 'debug' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
                     class="px-3 py-1.5 rounded-md text-sm font-medium transition">
@@ -174,6 +180,11 @@
                       rows="4"
                       placeholder="Add any additional notes or comments here..."></textarea>
         </div>
+    </div>
+
+    <!-- Mapping Tab -->
+    <div x-show="activeTab === 'mapping'" x-cloak>
+        {% include "partials/mapping_debug.html" %}
     </div>
 
     <!-- Extracted Data Tab -->

@@ -144,6 +144,26 @@
         "uom": "LF",
         "match": ["8 Landscape Retaining Wall LF", "Retaining Wall", "Landscape Wall"],
         "description": "Retaining wall linear footage"
+      },
+      "Metal Panel Count": {
+        "uom": "EA",
+        "match": ["Metal Panel Count", "Metal Panel", "Metal Panels"],
+        "description": "Number of metal panels"
+      },
+      "Corbel Count": {
+        "uom": "EA",
+        "match": ["Corbel Count", "Corbels", "Corbel at Eve"],
+        "description": "Number of corbels"
+      },
+      "Roof Rail LF": {
+        "uom": "LF",
+        "match": ["Roof Rail LF", "Roof Railing"],
+        "description": "Roof rail linear footage"
+      },
+      "Window Wood Verticals Count": {
+        "uom": "EA",
+        "match": ["Window Wood Verticals Count", "Wood Verticals"],
+        "description": "Window wood vertical elements"
       }
     },
     "Units": {
@@ -218,7 +238,7 @@
     "Balconies": {
       "Balcony Count": {
         "uom": "EA",
-        "match": ["Balc", "Balc.", "Balcony", "Balconies", "Patio", "Accented stucco @ Balc. Count"],
+        "match": ["Balc", "Balc.", "Balcony", "Balconies", "Patio", "Balcony Count", "Accented stucco @ Balc. Count"],
         "description": "Number of balconies"
       },
       "Balcony Rail LF": {
@@ -245,7 +265,7 @@
     "Storage": {
       "Storage Count": {
         "uom": "EA",
-        "match": ["Storage Count", "Storage Units", "Storage Rooms"],
+        "match": ["Storage Count", "Storage Units", "Storage Rooms", "Storage"],
         "description": "Number of storage units"
       },
       "Storage SF": {

@@ -19,7 +19,7 @@ from app.core.logging import get_logger
 from app.ui.viewmodels import BidFormState, LineItem, ToggleMask, ProjectInfo
 from app.ui.state import get_current_state, set_state, has_current_bid, get_current_warnings, set_warnings, set_debug, get_current_debug
 from app.ui.catalog_service import BidCatalog
-from app.ui.excel_mapper import map_excel_to_bid_form, map_excel_with_catalog
+from app.ui.excel_mapper import map_excel_with_catalog
 from app.ui.constants import DIFFICULTY_LEVELS, SECTION_ORDER
 from app.services.baycrest_normalizer import BaycrestNormalizer
 from app.services.validators.baycrest_signature import validate_baycrest_workbook
@@ -87,6 +87,22 @@ def get_template_context(request: Request, **kwargs):
             context["source_file"] = state.source_file
 
     return context
+
+
+def _project_header_vars(state: BidFormState) -> dict:
+    """Compute derived values used by the project info header partial."""
+    unit_count = int(sum(
+        i.qty for i in state.raw_items
+        if not i.excluded and "unit" in i.name.lower() and "count" in i.name.lower()
+    ))
+    total_sf = sum(
+        i.qty for i in state.raw_items if not i.excluded and i.uom.upper() == "SF"
+    )
+    return {
+        "now_date": datetime.now(timezone.utc).date().isoformat(),
+        "unit_count": unit_count,
+        "total_sf": total_sf,
+    }
 
 
 # ========== Page Routes ==========
@@ -202,22 +218,10 @@ async def bid_form_page(request: Request):
         bid_state=state,
         raw_sections=raw_sections,
         difficulty_options=DIFFICULTY_LEVELS,
+        **_project_header_vars(state),
     )
 
     return templates.TemplateResponse("bid_form2.html", context)
-
-
-@router.get("/bid/difficulty-config", response_class=HTMLResponse)
-async def get_bid_difficulty_config(request: Request):
-    """Return the difficulty config partial for raw items (HTMX refresh)."""
-    state = get_current_state()
-    if not state:
-        raise HTTPException(status_code=404, detail="No active bid form")
-
-    raw_sections = state.get_raw_sections()
-    context = get_template_context(request, bid_state=state, raw_sections=raw_sections)
-    html = templates.get_template("partials/difficulty_config_raw.html").render(context)
-    return HTMLResponse(html)
 
 
 @router.post("/bid/section/add", response_class=HTMLResponse)
@@ -435,39 +439,6 @@ async def update_item_price(
 
     row_html = templates.get_template("partials/bid_row.html").render(context)
 
-    response = HTMLResponse(row_html)
-    response.headers["HX-Trigger"] = "totals-updated"
-    return response
-
-
-@router.post("/bid/item/{item_id}/mult", response_class=HTMLResponse)
-async def update_item_multiplier(
-    request: Request,
-    item_id: str,
-    mult: str = Form(...)
-):
-    """Update item multiplier and return updated row."""
-    state = get_current_state()
-    if not state:
-        raise HTTPException(status_code=404, detail="No active bid form")
-
-    # Update multiplier
-    parsed_mult = parse_numeric_input(mult, "multiplier")
-    if not state.update_item_mult(item_id, parsed_mult):
-        raise HTTPException(status_code=404, detail="Item not found")
-
-    item = state.get_item(item_id)
-
-    context = get_template_context(
-        request,
-        item=item,
-        bid_state=state,
-        difficulty_options=DIFFICULTY_LEVELS
-    )
-
-    row_html = templates.get_template("partials/bid_row.html").render(context)
-
-    # Return only the row HTML; use HX-Trigger header to refresh totals panel
     response = HTMLResponse(row_html)
     response.headers["HX-Trigger"] = "totals-updated"
     return response
@@ -786,16 +757,19 @@ async def update_project_info(
     contact: str = Form(default=""),
     phone: str = Form(default=""),
     email: str = Form(default=""),
+    project_name: str = Form(default=""),
     project_city: str = Form(default=""),
     arch_date: str = Form(default=""),
     landscape_date: str = Form(default=""),
 ):
-    """Update project info and return the updated form partial."""
+    """Update project info (saves silently, no re-render)."""
     state = get_current_state()
     if not state:
         raise HTTPException(status_code=404, detail="No active bid form")
 
-    # Update project info
+    if project_name.strip():
+        state.project_name = project_name.strip()
+
     state.project_info = ProjectInfo(
         developer=developer or None,
         address=address or None,
@@ -808,15 +782,24 @@ async def update_project_info(
         landscape_date=landscape_date or None,
     )
 
+    return HTMLResponse(status_code=204)
+
+
+@router.get("/bid/project-info-panel", response_class=HTMLResponse)
+async def get_project_info_panel(request: Request):
+    """Return the project info header partial for HTMX refresh."""
+    state = get_current_state()
+    if not state:
+        raise HTTPException(status_code=404, detail="No active bid form")
+
     context = get_template_context(
         request,
-        project_info=state.project_info
+        bid_state=state,
+        **_project_header_vars(state),
     )
 
-    form_html = templates.get_template("partials/project_info_form.html").render(context)
-    response = HTMLResponse(form_html)
-    response.headers["HX-Trigger"] = "project-info-updated"
-    return response
+    html = templates.get_template("partials/project_info_form.html").render(context)
+    return HTMLResponse(html)
 
 
 @router.get("/bid/export", response_class=HTMLResponse)

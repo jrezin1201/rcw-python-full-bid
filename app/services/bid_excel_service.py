@@ -14,7 +14,6 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from app.ui.viewmodels import BidFormState, LineItem, ToggleMask, ProjectInfo
 
 INTERNAL_MARKER = "__RCW_INTERNAL_BID_V1__"
-INTERNAL_TEMPLATE_PATH = Path("data/templates/internal_bid_template.xlsx")
 PROPOSAL_TEMPLATE_PATH = Path("data/templates/proposal_template.xlsx")
 
 

@@ -8,6 +8,7 @@ IMPORTANT: This module uses CATALOG-DRIVEN rendering.
 - UI renders catalog rows, not extracted items directly
 """
 
+import re
 import uuid
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timezone
@@ -250,16 +251,106 @@ def map_excel_with_catalog(
             )
         )
 
+    # ---- Build raw_items (Excel-order view with catalog pricing) ----
+    # Build pricing lookup: source_classification -> catalog item
+    pricing_lookup = {}
+    for bi in bid_items:
+        source_class = bi.get('source_classification', '')
+        catalog_id = bi.get('id', '')
+        resolved_id = catalog._resolve_item_id(catalog_id)
+        if resolved_id and resolved_id in catalog._items_by_id:
+            pricing_lookup[source_class] = catalog._items_by_id[resolved_id]
+
+    # Use raw Excel rows to build items in original order
+    raw_items = []
+    raw_rows = result.get('raw_rows', [])
+    current_section = "General"
+    section_keywords = ["General", "Corridors", "Exterior", "Units", "Stairs", "Amenity", "Garage", "Landscape"]
+
+    for row in raw_rows:
+        a_val = str(row.get('A', '') or '').strip()
+        b_val = str(row.get('B', '') or '').strip()
+        c_val = row.get('C')
+
+        # Track section from column A
+        if a_val:
+            for kw in section_keywords:
+                if kw.lower() in a_val.lower():
+                    current_section = kw
+                    break
+
+        # Skip rows without a name in column B
+        if not b_val:
+            continue
+
+        # Skip metadata rows (Sheet, Door Schedule, Finish Schedule, Section Sheet, Detail Sheet)
+        skip_names = {'sheet', 'door schedule', 'finish schedule', 'section sheet', 'detail sheet'}
+        if b_val.lower() in skip_names:
+            continue
+
+        # Parse quantity from column C
+        qty = 0.0
+        if c_val is not None:
+            if isinstance(c_val, (int, float)):
+                qty = float(c_val)
+            elif isinstance(c_val, str):
+                match = re.match(r'^([\d,.]+)', c_val.strip())
+                if match:
+                    qty = float(match.group(1).replace(',', ''))
+
+        # Infer UOM from the item name
+        name_lower = b_val.lower()
+        c_str = str(c_val or '').lower()
+        if 'sf' in name_lower or 'sf' in c_str:
+            uom = 'SF'
+        elif 'lf' in name_lower or 'lf' in c_str:
+            uom = 'LF'
+        elif 'lvl' in c_str or 'level' in c_str:
+            uom = 'LVL'
+        elif 'count' in name_lower or qty == int(qty):
+            uom = 'EA'
+        else:
+            uom = 'EA'
+
+        # Look up catalog pricing for this item
+        catalog_item = pricing_lookup.get(b_val)
+        if catalog_item:
+            base_rate = catalog_item.get_rate(1)
+            difficulty_adders = {
+                level: max(0.0, catalog_item.get_rate(level) - base_rate)
+                for level in range(1, 6)
+            }
+            item_uom = catalog_item.uom  # Use catalog UOM if matched
+        else:
+            base_rate = 0.0
+            difficulty_adders = {1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0}
+            item_uom = uom
+
+        raw_items.append(LineItem(
+            id=f"raw_{row.get('row', 0)}",
+            section=current_section,
+            name=b_val,
+            qty=qty,
+            uom=item_uom,
+            unit_price_base=base_rate,
+            difficulty=1,
+            difficulty_adders=difficulty_adders,
+            toggle_mask=ToggleMask(),
+            mult=1.0,
+            notes=str(row.get('E', '') or '').strip() or None,
+        ))
+
     project_name = file_path.split("/")[-1].replace(".xlsx", "").replace(".xls", "")
 
     bid_state = BidFormState(
         project_name=project_name,
         items=items,
+        raw_items=raw_items,
         created_at=datetime.now(timezone.utc).isoformat(),
         source_file=file_path
     )
 
-    logger.info(f"Created catalog-based bid form: {len(items)} items, {len(warnings)} warnings")
+    logger.info(f"Created catalog-based bid form: {len(items)} items, {len(raw_items)} raw items, {len(warnings)} warnings")
 
     debug_payload = {
         "extraction": {

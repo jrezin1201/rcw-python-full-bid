@@ -204,11 +204,15 @@ async def bid_form_page(request: Request):
 
     debug_payload = get_current_debug()
 
+    # Raw sections preserve Excel order
+    raw_sections = state.get_raw_sections()
+
     context = get_template_context(
         request,
         page="bid",
         bid_state=state,
         sections=sections,
+        raw_sections=raw_sections,
         difficulty_options=DIFFICULTY_LEVELS,
         qa_warnings=warnings,  # Include warnings for QA panel
         project_info=state.project_info,  # Include project info for form

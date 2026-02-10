@@ -49,6 +49,12 @@
                 Pricing
             </button>
             <button type="button"
+                    @click="activeTab = 'bidform2'"
+                    :class="activeTab === 'bidform2' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                    class="px-3 py-1.5 rounded-md text-sm font-medium transition">
+                Bid Form 2
+            </button>
+            <button type="button"
                     @click="activeTab = 'mapping'"
                     :class="activeTab === 'mapping' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
                     class="px-3 py-1.5 rounded-md text-sm font-medium transition">
@@ -180,6 +186,82 @@
                       rows="4"
                       placeholder="Add any additional notes or comments here..."></textarea>
         </div>
+    </div>
+
+    <!-- Bid Form 2 Tab (Raw Excel order with catalog pricing) -->
+    <div x-show="activeTab === 'bidform2'" x-cloak class="space-y-6">
+        <div class="bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center gap-4 text-sm font-mono">
+            <span class="text-gray-400">BID FORM 2:</span>
+            <span>Raw Line Items: <strong class="text-green-400">{{ bid_state.raw_items|length }}</strong></span>
+            <span class="text-gray-600">|</span>
+            <span>Sections: <strong class="text-blue-400">{{ raw_sections|length }}</strong></span>
+            <span class="text-gray-600">|</span>
+            <span>Grand Total: <strong class="text-yellow-400">{{ format_currency(bid_state.raw_grand_total) }}</strong></span>
+        </div>
+
+        {% if bid_state.raw_items %}
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full bid-table min-w-[1100px]">
+                    <thead>
+                        <tr class="bg-gray-800 text-white text-sm">
+                            <th class="px-1 py-3 text-center w-10 text-xs text-gray-400">#</th>
+                            <th class="px-1 py-3 text-center w-8"></th>
+                            <th class="px-2 py-3 text-center w-10">
+                                <input type="checkbox" class="rounded">
+                            </th>
+                            <th class="px-3 py-3 text-left">ITEM</th>
+                            <th class="px-2 py-3 text-center w-24">QTY</th>
+                            <th class="px-2 py-3 text-center w-16">UOM</th>
+                            <th class="px-2 py-3 text-center w-24">$/UNIT</th>
+                            <th class="px-2 py-3 text-center">
+                                <div>DIFFICULTY</div>
+                                <div class="text-xs font-normal text-gray-400">1 2 3 4 5</div>
+                            </th>
+                            <th class="px-2 py-3 text-center w-36">TOGGLES</th>
+                            <th class="px-2 py-3 text-center w-20">MULT</th>
+                            <th class="px-3 py-3 text-right w-28">TOTAL</th>
+                        </tr>
+                    </thead>
+                        {% set ns2 = namespace(row_num=0) %}
+                        {% for section in raw_sections %}
+                            {% set section_items = bid_state.get_raw_items_by_section(section) %}
+                            {% set section_total = section_items | map(attribute='row_total') | sum %}
+
+                            <!-- Section Header -->
+                            <tbody>
+                            <tr class="section-header">
+                                <td colspan="10" class="px-3 py-2 text-white font-semibold">
+                                    {{ section|upper }}
+                                    <span class="text-sm font-normal text-gray-300 ml-2">
+                                        ({{ section_items|length }} items)
+                                    </span>
+                                </td>
+                                <td class="px-3 py-2 text-white font-semibold text-right">
+                                    {{ format_currency(section_total) }}
+                                </td>
+                            </tr>
+                            </tbody>
+
+                            {% for item in section_items %}
+                                {% set ns2.row_num = ns2.row_num + 1 %}
+                                {% set row_num = ns2.row_num %}
+                                {% include "partials/bid_row.html" %}
+                            {% endfor %}
+
+                            <!-- Section spacer -->
+                            <tbody>
+                            <tr><td colspan="11" class="h-2 bg-gray-100"></td></tr>
+                            </tbody>
+                        {% endfor %}
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-white rounded-lg shadow-sm p-6 text-center text-gray-500">
+            No raw items available. Upload an Excel file to see the extracted line items.
+        </div>
+        {% endif %}
     </div>
 
     <!-- Mapping Tab -->

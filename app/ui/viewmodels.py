@@ -123,6 +123,7 @@ class BidFormState(BaseModel):
     project_name: str = "Untitled Project"
     project_id: Optional[str] = None
     items: List[LineItem] = Field(default_factory=list)
+    raw_items: List[LineItem] = Field(default_factory=list)
 
     # Metadata
     created_at: Optional[str] = None
@@ -168,11 +169,34 @@ class BidFormState(BaseModel):
         return len(self.items)
 
     def get_item(self, item_id: str) -> Optional[LineItem]:
-        """Get a specific item by ID."""
+        """Get a specific item by ID (searches both catalog and raw items)."""
         for item in self.items:
             if item.id == item_id:
                 return item
+        for item in self.raw_items:
+            if item.id == item_id:
+                return item
         return None
+
+    def get_raw_sections(self) -> List[str]:
+        """Get list of sections from raw items, preserving Excel order."""
+        seen = set()
+        ordered = []
+        for item in self.raw_items:
+            if item.section not in seen:
+                seen.add(item.section)
+                ordered.append(item.section)
+        return ordered
+
+    def get_raw_items_by_section(self, section: str) -> List[LineItem]:
+        """Get raw items in a specific section, preserving Excel order."""
+        return [item for item in self.raw_items if item.section == section]
+
+    @computed_field
+    @property
+    def raw_grand_total(self) -> float:
+        """Calculate grand total across raw items."""
+        return sum(item.row_total for item in self.raw_items)
 
     def update_item_qty(self, item_id: str, new_qty: float) -> bool:
         """Update quantity for a specific item."""

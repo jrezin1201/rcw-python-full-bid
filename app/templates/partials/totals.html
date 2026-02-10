@@ -11,7 +11,7 @@
         <div class="bg-gray-100 rounded-lg p-4">
             <p class="text-sm text-gray-600">Total/Unit</p>
             {% set unit_count = namespace(count=0) %}
-            {% for item in bid_state.items %}
+            {% for item in bid_state.raw_items %}
                 {% if 'unit' in item.name.lower() and 'count' in item.name.lower() %}
                     {% set unit_count.count = unit_count.count + item.qty|int %}
                 {% endif %}
@@ -32,7 +32,7 @@
         <div class="bg-gray-100 rounded-lg p-4">
             <p class="text-sm text-gray-600">$/SF</p>
             {% set total_sf = namespace(sf=0) %}
-            {% for item in bid_state.items %}
+            {% for item in bid_state.raw_items %}
                 {% if item.uom == 'SF' %}
                     {% set total_sf.sf = total_sf.sf + item.qty %}
                 {% endif %}

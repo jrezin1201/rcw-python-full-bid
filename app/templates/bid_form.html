@@ -114,7 +114,6 @@
                                 <div>DIFFICULTY</div>
                                 <div class="text-xs font-normal text-gray-400">1 2 3 4 5</div>
                             </th>
-                            <th class="px-2 py-3 text-center w-36">TOGGLES</th>
                             <th class="px-2 py-3 text-center w-20">MULT</th>
                             <th class="px-3 py-3 text-right w-28">TOTAL</th>
                         </tr>
@@ -131,7 +130,7 @@
                             <!-- Section Header -->
                             <tbody>
                             <tr class="section-header">
-                                <td colspan="10" class="px-3 py-2 text-white font-semibold">
+                                <td colspan="9" class="px-3 py-2 text-white font-semibold">
                                     {{ section|upper }}
                                     <span class="text-sm font-normal text-gray-300 ml-2">
                                         ({{ priced_items|length }} items)
@@ -154,7 +153,7 @@
                             {% if alt_items %}
                             <tbody>
                             <tr class="bg-yellow-100">
-                                <td colspan="11" class="px-3 py-1 text-sm font-medium text-yellow-800">
+                                <td colspan="10" class="px-3 py-1 text-sm font-medium text-yellow-800">
                                     Add Alts
                                 </td>
                             </tr>
@@ -169,7 +168,7 @@
                             <!-- Add Item Row -->
                             <tbody x-data="{ showAddForm: false }" @item-added="showAddForm = false">
                             <tr x-show="!showAddForm">
-                                <td colspan="11" class="px-3 py-1">
+                                <td colspan="10" class="px-3 py-1">
                                     <button type="button"
                                             @click="showAddForm = true"
                                             class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
@@ -181,7 +180,7 @@
                                 </td>
                             </tr>
                             <tr x-show="showAddForm" class="bg-blue-50 border-b border-gray-200">
-                                <td colspan="11" class="px-3 py-3">
+                                <td colspan="10" class="px-3 py-3">
                                     <form class="flex items-end gap-3 flex-wrap"
                                           hx-post="/bid/item/add"
                                           hx-target="closest tbody"
@@ -225,7 +224,7 @@
 
                             <!-- Section spacer -->
                             <tbody>
-                            <tr><td colspan="11" class="h-2 bg-gray-100"></td></tr>
+                            <tr><td colspan="10" class="h-2 bg-gray-100"></td></tr>
                             </tbody>
                         {% endfor %}
                 </table>

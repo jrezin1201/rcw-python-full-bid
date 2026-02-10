@@ -185,59 +185,20 @@ def sort_sections(sections: list) -> list:
 
 @router.get("/bid", response_class=HTMLResponse)
 async def bid_form_page(request: Request):
-    """Render the bid form page."""
+    """Render the bid form page (raw Excel line items)."""
     state = get_current_state()
-    warnings = []
 
     if not state:
-        # No bid form available, create a sample one for testing
         from app.ui.excel_mapper import create_sample_bid_form
         sample_state = create_sample_bid_form()
         set_state("sample", sample_state)
         state = sample_state
-    else:
-        # Get QA warnings for display
-        warnings = get_current_warnings()
 
-    # Sort sections to match proposal order
-    sections = sort_sections(state.get_sections())
-
-    debug_payload = get_current_debug()
-
-    # Raw sections preserve Excel order
     raw_sections = state.get_raw_sections()
 
     context = get_template_context(
         request,
         page="bid",
-        bid_state=state,
-        sections=sections,
-        raw_sections=raw_sections,
-        difficulty_options=DIFFICULTY_LEVELS,
-        qa_warnings=warnings,  # Include warnings for QA panel
-        project_info=state.project_info,  # Include project info for form
-        debug_payload=debug_payload
-    )
-
-    return templates.TemplateResponse("bid_form.html", context)
-
-
-@router.get("/bid2", response_class=HTMLResponse)
-async def bid_form2_page(request: Request):
-    """Render the Bid Form 2 page (raw Excel line items)."""
-    state = get_current_state()
-
-    if not state:
-        from app.ui.excel_mapper import create_sample_bid_form
-        sample_state = create_sample_bid_form()
-        set_state("sample", sample_state)
-        state = sample_state
-
-    raw_sections = state.get_raw_sections()
-
-    context = get_template_context(
-        request,
-        page="bid2",
         bid_state=state,
         raw_sections=raw_sections,
         difficulty_options=DIFFICULTY_LEVELS,
@@ -246,15 +207,58 @@ async def bid_form2_page(request: Request):
     return templates.TemplateResponse("bid_form2.html", context)
 
 
-@router.get("/bid2/difficulty-config", response_class=HTMLResponse)
-async def get_bid2_difficulty_config(request: Request):
+@router.get("/bid/difficulty-config", response_class=HTMLResponse)
+async def get_bid_difficulty_config(request: Request):
     """Return the difficulty config partial for raw items (HTMX refresh)."""
     state = get_current_state()
     if not state:
         raise HTTPException(status_code=404, detail="No active bid form")
 
-    context = get_template_context(request, bid_state=state)
+    raw_sections = state.get_raw_sections()
+    context = get_template_context(request, bid_state=state, raw_sections=raw_sections)
     html = templates.get_template("partials/difficulty_config_raw.html").render(context)
+    return HTMLResponse(html)
+
+
+@router.post("/bid/section/add", response_class=HTMLResponse)
+async def add_section(request: Request, name: str = Form(...)):
+    """Add a new empty section and return its HTML block."""
+    state = get_current_state()
+    if not state:
+        raise HTTPException(status_code=404, detail="No active bid form")
+
+    section = name.strip()
+    if not section:
+        raise HTTPException(status_code=400, detail="Section name is required")
+
+    context = get_template_context(
+        request,
+        section=section,
+        priced_count=0,
+        section_total=0,
+    )
+    html = templates.get_template("partials/new_section_block.html").render(context)
+    return HTMLResponse(html)
+
+
+@router.get("/bid/section-header", response_class=HTMLResponse)
+async def get_section_header(request: Request, section: str):
+    """Return a single section header row for HTMX refresh."""
+    state = get_current_state()
+    if not state:
+        raise HTTPException(status_code=404, detail="No active bid form")
+
+    items = state.get_raw_items_by_section(section)
+    active = [i for i in items if not i.excluded]
+    priced = [i for i in active if i.qty > 0]
+
+    context = get_template_context(
+        request,
+        section=section,
+        priced_count=len(priced),
+        section_total=sum(i.row_total for i in active),
+    )
+    html = templates.get_template("partials/section_header.html").render(context)
     return HTMLResponse(html)
 
 
@@ -497,6 +501,26 @@ async def toggle_item_excluded(
     return response
 
 
+@router.post("/bid/item/{item_id}/exclusion", response_class=HTMLResponse)
+async def toggle_item_exclusion(request: Request, item_id: str):
+    """Toggle whether an item shows as an exclusion on the print proposal."""
+    state = get_current_state()
+    if not state:
+        raise HTTPException(status_code=404, detail="No active bid form")
+
+    item = state.get_item(item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    item.is_exclusion = not item.is_exclusion
+
+    context = get_template_context(
+        request, item=item, bid_state=state, difficulty_options=DIFFICULTY_LEVELS
+    )
+    row_html = templates.get_template("partials/bid_row.html").render(context)
+    return HTMLResponse(row_html)
+
+
 @router.post("/bid/item/add", response_class=HTMLResponse)
 async def add_item(
     request: Request,
@@ -570,6 +594,70 @@ async def update_item_notes(
     return HTMLResponse(row_html)
 
 
+@router.post("/bid/item/{item_id}/name", response_class=HTMLResponse)
+async def update_item_name(
+    request: Request,
+    item_id: str,
+    name: str = Form(...)
+):
+    """Update item name and return updated row."""
+    state = get_current_state()
+    if not state:
+        raise HTTPException(status_code=404, detail="No active bid form")
+
+    item = state.get_item(item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    trimmed = name.strip()
+    if trimmed:
+        item.name = trimmed
+
+    context = get_template_context(
+        request,
+        item=item,
+        bid_state=state,
+        difficulty_options=DIFFICULTY_LEVELS
+    )
+
+    row_html = templates.get_template("partials/bid_row.html").render(context)
+    response = HTMLResponse(row_html)
+    response.headers["HX-Trigger"] = "totals-updated"
+    return response
+
+
+@router.post("/bid/item/{item_id}/uom", response_class=HTMLResponse)
+async def update_item_uom(
+    request: Request,
+    item_id: str,
+    uom: str = Form(...)
+):
+    """Update item unit of measure and return updated row."""
+    state = get_current_state()
+    if not state:
+        raise HTTPException(status_code=404, detail="No active bid form")
+
+    item = state.get_item(item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    trimmed = uom.strip()
+    if trimmed:
+        item.uom = trimmed
+
+    context = get_template_context(
+        request,
+        item=item,
+        bid_state=state,
+        difficulty_options=DIFFICULTY_LEVELS
+    )
+
+    row_html = templates.get_template("partials/bid_row.html").render(context)
+    response = HTMLResponse(row_html)
+    response.headers["HX-Trigger"] = "totals-updated"
+    return response
+
+
 # ========== Additional Routes ==========
 
 @router.get("/logic", response_class=HTMLResponse)
@@ -586,12 +674,12 @@ async def logic_page(request: Request):
 
     # Build sections dictionary with items grouped by section
     sections_dict = {}
-    for section_name in state.get_sections():
-        sections_dict[section_name] = state.get_items_by_section(section_name)
+    for section_name in state.get_raw_sections():
+        sections_dict[section_name] = state.get_raw_items_by_section(section_name)
 
     # Build concrete worked examples so logic is easy to validate.
     logic_examples = []
-    for item in [i for i in state.items if i.qty > 0][:5]:
+    for item in [i for i in state.raw_items if i.qty > 0 and not i.excluded][:5]:
         difficulty_add = item.difficulty_adders.get(item.difficulty, 0.0)
         toggle_mult = item.toggle_mask.get_multiplier()
         base_plus_difficulty = item.unit_price_base + difficulty_add
@@ -647,19 +735,19 @@ async def print_page(request: Request):
         from fastapi.responses import RedirectResponse
         return RedirectResponse(url="/", status_code=302)
 
-    # Sort sections to match proposal order
-    sections = sort_sections(state.get_sections())
+    # Use raw sections (Excel order)
+    sections = state.get_raw_sections()
 
     sections_data = {}
     for section_name in sections:
-        sections_data[section_name] = state.get_items_by_section(section_name)
+        sections_data[section_name] = state.get_raw_items_by_section(section_name)
 
-    # Calculate unit count and total SF from items
+    # Calculate unit count and total SF from raw items
     unit_count = 0
     total_sf = 0.0
     alternates = []
 
-    for item in state.items:
+    for item in state.raw_items:
         if item.excluded:
             continue
         # Count units (look for unit count items)

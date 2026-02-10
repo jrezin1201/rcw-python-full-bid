@@ -53,6 +53,7 @@ class LineItem(BaseModel):
     mult: float = Field(default=1.0, ge=0)  # Manual multiplier
     is_alternate: bool = False  # For ALT items
     excluded: bool = False  # Soft-delete: greyed out, excluded from totals
+    is_exclusion: bool = False  # Show as "Excludes X" on print proposal
     notes: Optional[str] = None
 
     @computed_field
@@ -137,17 +138,17 @@ class BidFormState(BaseModel):
     @computed_field
     @property
     def grand_total(self) -> float:
-        """Calculate grand total across all items."""
-        return sum(item.row_total for item in self.items if not item.excluded)
+        """Calculate grand total across all raw items."""
+        return sum(item.row_total for item in self.raw_items if not item.excluded)
 
     @computed_field
     @property
     def section_totals(self) -> List[SectionTotals]:
-        """Calculate totals per section."""
+        """Calculate totals per section from raw items."""
         sections: Dict[str, List[LineItem]] = {}
 
-        # Group items by section
-        for item in self.items:
+        # Group raw items by section
+        for item in self.raw_items:
             if item.section not in sections:
                 sections[item.section] = []
             sections[item.section].append(item)
@@ -168,7 +169,7 @@ class BidFormState(BaseModel):
     @property
     def total_items(self) -> int:
         """Total number of line items."""
-        return len(self.items)
+        return len(self.raw_items)
 
     def get_item(self, item_id: str) -> Optional[LineItem]:
         """Get a specific item by ID (searches both catalog and raw items)."""

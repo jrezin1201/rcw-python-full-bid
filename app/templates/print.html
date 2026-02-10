@@ -117,71 +117,28 @@
 
     <!-- SCOPE SECTIONS -->
     {% for section_name in sections %}
+    {% set all_section_items = sections_data[section_name] %}
+    {% set active_items = all_section_items | rejectattr('excluded') | selectattr('qty') | list %}
+    {% set exclusion_items = all_section_items | selectattr('is_exclusion') | list %}
+    {% if active_items or exclusion_items %}
     <div class="section-scope avoid-break mb-3">
         <div class="scope-title">{{ section_name|upper }}</div>
+        {% if active_items %}
         <div class="scope-description">
-            {% if section_name == 'Units' or section_name == 'units' %}
-            <p>Drywall Level 3 Orange Peel</p>
-            <p>Walls & Ceilings: Flat - White</p>
-            <p>Doors, Base & Casings: Semi Gloss Same Color As Walls</p>
-            <p>Wardrobe & WIC: Walls, Ceilings, Shelving: ALL Same Color As Walls Semi Gloss Finish</p>
-            <p>Bathroom Walls and Ceilings: Semi Gloss Same Color As Living</p>
-            {% elif section_name == 'Corridors' or section_name == 'corridors' %}
-            <p>Drywall Finish: Level 3 Orange Peel</p>
-            <p>Walls & Ceilings Flat</p>
-            <p>Entry Doors, Casing & Base: Semi Gloss</p>
-            <p>Common Area Doors: Semi Gloss</p>
-            {% elif section_name == 'Stairs' or section_name == 'stairs' %}
-            <p>Walls: Flat</p>
-            <p>Hand Rail: Semi Gloss</p>
-            {% elif section_name == 'Amenity' or section_name == 'amenity' %}
-            <p>Drywall Finish: Level 3 Orange Peel</p>
-            <p>Walls & Ceilings Flat</p>
-            <p>Doors & Baseboards: Semi Gloss</p>
-            {% elif section_name == 'Exterior' or section_name == 'exterior' %}
-            <p>Man Doors</p>
-            <p>Wood Window Trim</p>
-            <p>Balc Rails (To Be Shop Coated)</p>
-            <p>Wood Verticals</p>
-            <p>Parapet Cap Primed & Painted</p>
-            {% elif section_name == 'Garage' or section_name == 'garage' %}
-            <p>Bike Room Walls</p>
-            <p>Trash Room Walls</p>
-            <p>Doors</p>
-            {% else %}
-            <p>Per plans and specifications</p>
-            {% endif %}
+            {% for item in active_items %}
+            <p>{{ item.name }}</p>
+            {% endfor %}
         </div>
-        <div class="scope-exclusion mt-1">
-            {% if section_name == 'Units' or section_name == 'units' %}
-            <p>Excludes Masking Hinges</p>
-            <p>Excludes Two Tone In Living Area</p>
-            <p>Excludes Cased Windows</p>
-            <p>Excludes Base Over Flooring (See Add Alts)</p>
-            <p>Excludes Accent Walls At Living Area</p>
-            <p>Excludes Prime Coat At Walls</p>
-            {% elif section_name == 'Corridors' or section_name == 'corridors' %}
-            <p>Excludes Two Tone</p>
-            <p>Excludes Accent Walls</p>
-            <p>Excludes Prep Coat</p>
-            <p>Excludes Chair Rail</p>
-            <p>Excludes Smooth Wall</p>
-            {% elif section_name == 'Stairs' or section_name == 'stairs' %}
-            <p>Excludes Accent Walls</p>
-            <p>Excludes Smooth Wall</p>
-            <p>Excludes Painting CMU Walls</p>
-            <p>Excludes Stand Pipes</p>
-            {% elif section_name == 'Exterior' or section_name == 'exterior' %}
-            <p>Excludes Balcony Doors</p>
-            <p>Excludes Stucco Body</p>
-            <p>Excludes Downspouts, Vents</p>
-            <p>Excludes Prime Coat At Stucco</p>
-            {% elif section_name == 'Garage' or section_name == 'garage' %}
-            <p>Excludes Walls & Ceilings</p>
-            <p>Excludes Columns</p>
-            {% endif %}
+        {% endif %}
+        {% if exclusion_items %}
+        <div class="mt-1" style="color: #991b1b;">
+            {% for item in exclusion_items %}
+            <p style="font-style: italic;">Excludes {{ item.name }}</p>
+            {% endfor %}
         </div>
+        {% endif %}
     </div>
+    {% endif %}
     {% endfor %}
 
     <!-- PRICING SECTION -->

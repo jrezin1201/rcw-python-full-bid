@@ -1,0 +1,68 @@
+<!-- Section Header -->
+<tbody hx-get="/bid/section-header?section={{ section|urlencode }}"
+       hx-trigger="totals-updated from:body"
+       hx-swap="innerHTML">
+{% include "partials/section_header.html" with context %}
+</tbody>
+
+<!-- Add Item Row -->
+<tbody x-data="{ showAddForm: true }" @item-added="showAddForm = false">
+<tr x-show="!showAddForm">
+    <td colspan="9" class="px-3 py-1">
+        <button type="button"
+                @click="showAddForm = true"
+                class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add Item to {{ section }}
+        </button>
+    </td>
+</tr>
+<tr x-show="showAddForm" class="bg-blue-50 border-b border-gray-200">
+    <td colspan="9" class="px-3 py-3">
+        <form class="flex items-end gap-3 flex-wrap"
+              hx-post="/bid/item/add"
+              hx-target="closest tbody"
+              hx-swap="beforebegin"
+              hx-on::after-request="this.reset(); this.dispatchEvent(new CustomEvent('item-added', {bubbles:true}))">
+            <input type="hidden" name="section" value="{{ section }}">
+            <input type="hidden" name="target" value="raw_items">
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Name</label>
+                <input type="text" name="name" required placeholder="Item name"
+                       class="px-2 py-1.5 text-sm border border-gray-300 rounded w-48 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Qty</label>
+                <input type="text" name="qty" value="0" placeholder="0"
+                       class="px-2 py-1.5 text-sm border border-gray-300 rounded w-20 text-center focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">UOM</label>
+                <input type="text" name="uom" value="EA" placeholder="EA"
+                       class="px-2 py-1.5 text-sm border border-gray-300 rounded w-16 text-center focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">$/Unit</label>
+                <input type="text" name="unit_price" value="0" placeholder="0.00"
+                       class="px-2 py-1.5 text-sm border border-gray-300 rounded w-24 text-center focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button type="submit"
+                    class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                Add
+            </button>
+            <button type="button"
+                    @click="showAddForm = false"
+                    class="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300">
+                Cancel
+            </button>
+        </form>
+    </td>
+</tr>
+</tbody>
+
+<!-- Section spacer -->
+<tbody>
+<tr><td colspan="9" class="h-2 bg-gray-100"></td></tr>
+</tbody>

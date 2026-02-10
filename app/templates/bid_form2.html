@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 
-{% block title %}Bid Form 2 - {{ bid_state.project_name }}{% endblock %}
-{% block page_title %}Bid Form 2{% endblock %}
+{% block title %}Bid Form - {{ bid_state.project_name }}{% endblock %}
+{% block page_title %}Bid Form{% endblock %}
 
 {% block header %}
 <div class="flex justify-between items-center">
     <div>
-        <h2 class="text-2xl font-bold text-gray-900">Bid Form 2</h2>
-        <p class="text-sm text-gray-600 mt-1">{{ bid_state.project_name }} &mdash; Raw Excel Line Items</p>
+        <h2 class="text-2xl font-bold text-gray-900">Bid Form</h2>
+        <p class="text-sm text-gray-600 mt-1">{{ bid_state.project_name }}</p>
     </div>
     <div class="flex gap-2">
         <a href="/bid/export?format=internal_xlsx"
@@ -23,34 +23,15 @@
 {% endblock %}
 
 {% block content %}
-<div x-data="{ activeTab: 'pricing' }" class="space-y-6">
-    <!-- Tabs -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100">
-        <div class="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
-            <button type="button"
-                    @click="activeTab = 'pricing'"
-                    :class="activeTab === 'pricing' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-                    class="px-3 py-1.5 rounded-md text-sm font-medium transition">
-                Pricing
-            </button>
-            <button type="button"
-                    @click="activeTab = 'difficulty'"
-                    :class="activeTab === 'difficulty' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-                    class="px-3 py-1.5 rounded-md text-sm font-medium transition">
-                Difficulty Config
-            </button>
-        </div>
-    </div>
-
-    <!-- Pricing Tab -->
-    <div x-show="activeTab === 'pricing'" x-cloak class="space-y-6">
+<div class="space-y-6">
+    <div class="space-y-6">
         <div class="bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center gap-4 text-sm font-mono">
-            <span class="text-gray-400">BID FORM 2:</span>
-            <span>Raw Line Items: <strong class="text-green-400">{{ bid_state.raw_items|length }}</strong></span>
+            <span class="text-gray-400">BID FORM:</span>
+            <span>Line Items: <strong class="text-green-400">{{ bid_state.raw_items|length }}</strong></span>
             <span class="text-gray-600">|</span>
             <span>Sections: <strong class="text-blue-400">{{ raw_sections|length }}</strong></span>
             <span class="text-gray-600">|</span>
-            <span>Grand Total: <strong class="text-yellow-400">{{ format_currency(bid_state.raw_grand_total) }}</strong></span>
+            <span>Grand Total: <strong class="text-yellow-400">{{ format_currency(bid_state.grand_total) }}</strong></span>
         </div>
 
         <!-- Totals Panel -->
@@ -69,9 +50,7 @@
                         <tr class="bg-gray-800 text-white text-sm">
                             <th class="px-1 py-3 text-center w-10 text-xs text-gray-400">#</th>
                             <th class="px-1 py-3 text-center w-8"></th>
-                            <th class="px-2 py-3 text-center w-10">
-                                <input type="checkbox" class="rounded">
-                            </th>
+                            <th class="px-2 py-3 text-center w-10"></th>
                             <th class="px-3 py-3 text-left">ITEM</th>
                             <th class="px-2 py-3 text-center w-24">QTY</th>
                             <th class="px-2 py-3 text-center w-16">UOM</th>
@@ -80,8 +59,6 @@
                                 <div>DIFFICULTY</div>
                                 <div class="text-xs font-normal text-gray-400">1 2 3 4 5</div>
                             </th>
-                            <th class="px-2 py-3 text-center w-36">TOGGLES</th>
-                            <th class="px-2 py-3 text-center w-20">MULT</th>
                             <th class="px-3 py-3 text-right w-28">TOTAL</th>
                         </tr>
                     </thead>
@@ -89,22 +66,14 @@
                         {% for section in raw_sections %}
                             {% set section_items = bid_state.get_raw_items_by_section(section) %}
                             {% set active_raw_items = section_items | rejectattr('excluded') | list %}
-                            {% set priced_raw_items = active_raw_items | selectattr('qty') | list %}
+                            {% set priced_count = active_raw_items | selectattr('qty') | list | length %}
                             {% set section_total = active_raw_items | map(attribute='row_total') | sum %}
 
                             <!-- Section Header -->
-                            <tbody>
-                            <tr class="section-header">
-                                <td colspan="10" class="px-3 py-2 text-white font-semibold">
-                                    {{ section|upper }}
-                                    <span class="text-sm font-normal text-gray-300 ml-2">
-                                        ({{ priced_raw_items|length }} items)
-                                    </span>
-                                </td>
-                                <td class="px-3 py-2 text-white font-semibold text-right">
-                                    {{ format_currency(section_total) }}
-                                </td>
-                            </tr>
+                            <tbody hx-get="/bid/section-header?section={{ section|urlencode }}"
+                                   hx-trigger="totals-updated from:body"
+                                   hx-swap="innerHTML">
+                            {% include "partials/section_header.html" with context %}
                             </tbody>
 
                             {% for item in section_items %}
@@ -116,7 +85,7 @@
                             <!-- Add Item Row (raw) -->
                             <tbody x-data="{ showAddForm: false }" @item-added="showAddForm = false">
                             <tr x-show="!showAddForm">
-                                <td colspan="11" class="px-3 py-1">
+                                <td colspan="9" class="px-3 py-1">
                                     <button type="button"
                                             @click="showAddForm = true"
                                             class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
@@ -128,7 +97,7 @@
                                 </td>
                             </tr>
                             <tr x-show="showAddForm" class="bg-blue-50 border-b border-gray-200">
-                                <td colspan="11" class="px-3 py-3">
+                                <td colspan="9" class="px-3 py-3">
                                     <form class="flex items-end gap-3 flex-wrap"
                                           hx-post="/bid/item/add"
                                           hx-target="closest tbody"
@@ -172,9 +141,49 @@
 
                             <!-- Section spacer -->
                             <tbody>
-                            <tr><td colspan="11" class="h-2 bg-gray-100"></td></tr>
+                            <tr><td colspan="9" class="h-2 bg-gray-100"></td></tr>
                             </tbody>
                         {% endfor %}
+
+                            <!-- Add Section -->
+                            <tbody x-data="{ showAddSection: false }" @section-added="showAddSection = false">
+                            <tr x-show="!showAddSection">
+                                <td colspan="9" class="px-3 py-2">
+                                    <button type="button"
+                                            @click="showAddSection = true"
+                                            class="text-sm text-green-600 hover:text-green-800 font-medium flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                        </svg>
+                                        Add Section
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr x-show="showAddSection" class="bg-green-50 border-b border-gray-200">
+                                <td colspan="9" class="px-3 py-3">
+                                    <form class="flex items-end gap-3"
+                                          hx-post="/bid/section/add"
+                                          hx-target="closest tbody"
+                                          hx-swap="beforebegin"
+                                          hx-on::after-request="this.reset(); this.dispatchEvent(new CustomEvent('section-added', {bubbles:true}))">
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-600 mb-1">Section Name</label>
+                                            <input type="text" name="name" required placeholder="e.g. Garage"
+                                                   class="px-2 py-1.5 text-sm border border-gray-300 rounded w-48 focus:ring-2 focus:ring-green-500">
+                                        </div>
+                                        <button type="submit"
+                                                class="px-3 py-1.5 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                                            Add Section
+                                        </button>
+                                        <button type="button"
+                                                @click="showAddSection = false"
+                                                class="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
                 </table>
             </div>
         </div>
@@ -183,16 +192,6 @@
             No raw items available. Upload an Excel file to see the extracted line items.
         </div>
         {% endif %}
-    </div>
-
-    <!-- Difficulty Config Tab -->
-    <div x-show="activeTab === 'difficulty'" x-cloak>
-        <div id="difficulty-config-panel"
-             hx-get="/bid2/difficulty-config"
-             hx-trigger="totals-updated from:body"
-             hx-swap="innerHTML">
-            {% include "partials/difficulty_config_raw.html" %}
-        </div>
     </div>
 </div>
 {% endblock %}

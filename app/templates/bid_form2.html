@@ -1,23 +1,15 @@
 {% extends "layout.html" %}
 
-{% block title %}Bid Form - {{ bid_state.project_name }}{% endblock %}
-{% block page_title %}Bid Form{% endblock %}
+{% block title %}Bid Form 2 - {{ bid_state.project_name }}{% endblock %}
+{% block page_title %}Bid Form 2{% endblock %}
 
 {% block header %}
 <div class="flex justify-between items-center">
     <div>
-        <h2 class="text-2xl font-bold text-gray-900">Bid Form</h2>
-        <p class="text-sm text-gray-600 mt-1">{{ bid_state.project_name }}</p>
+        <h2 class="text-2xl font-bold text-gray-900">Bid Form 2</h2>
+        <p class="text-sm text-gray-600 mt-1">{{ bid_state.project_name }} &mdash; Raw Excel Line Items</p>
     </div>
     <div class="flex gap-2">
-        <button onclick="window.print()"
-                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
-            Print
-        </button>
-        <a href="/bid/export?format=json" download="{{ bid_state.project_name }}.json"
-           class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-            Export JSON
-        </a>
         <a href="/bid/export?format=internal_xlsx"
            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
             Export Internal XLSX
@@ -26,13 +18,6 @@
            class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition">
             Export Proposal XLSX
         </a>
-        <form action="/bid/clear" method="POST" class="inline">
-            <button type="submit"
-                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                    onclick="return confirm('Are you sure you want to clear the current bid?')">
-                Clear Bid
-            </button>
-        </form>
     </div>
 </div>
 {% endblock %}
@@ -49,18 +34,6 @@
                 Pricing
             </button>
             <button type="button"
-                    @click="activeTab = 'mapping'"
-                    :class="activeTab === 'mapping' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-                    class="px-3 py-1.5 rounded-md text-sm font-medium transition">
-                Mapping
-            </button>
-            <button type="button"
-                    @click="activeTab = 'debug'"
-                    :class="activeTab === 'debug' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-                    class="px-3 py-1.5 rounded-md text-sm font-medium transition">
-                Extracted Data
-            </button>
-            <button type="button"
                     @click="activeTab = 'difficulty'"
                     :class="activeTab === 'difficulty' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
                     class="px-3 py-1.5 rounded-md text-sm font-medium transition">
@@ -71,21 +44,14 @@
 
     <!-- Pricing Tab -->
     <div x-show="activeTab === 'pricing'" x-cloak class="space-y-6">
-        <!-- Debug Info Bar -->
         <div class="bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center gap-4 text-sm font-mono">
-            <span class="text-gray-400">DEBUG:</span>
-            <span>Total Line Items: <strong class="text-green-400">{{ bid_state.total_items }}</strong></span>
+            <span class="text-gray-400">BID FORM 2:</span>
+            <span>Raw Line Items: <strong class="text-green-400">{{ bid_state.raw_items|length }}</strong></span>
             <span class="text-gray-600">|</span>
-            <span>Sections: <strong class="text-blue-400">{{ sections|length }}</strong></span>
+            <span>Sections: <strong class="text-blue-400">{{ raw_sections|length }}</strong></span>
             <span class="text-gray-600">|</span>
-            <span>Grand Total: <strong class="text-yellow-400">{{ format_currency(bid_state.grand_total) }}</strong></span>
+            <span>Grand Total: <strong class="text-yellow-400">{{ format_currency(bid_state.raw_grand_total) }}</strong></span>
         </div>
-
-        <!-- QA Warnings Panel -->
-        {% include "partials/qa_warnings.html" %}
-
-        <!-- Project Info Panel -->
-        {% include "partials/project_info_form.html" %}
 
         <!-- Totals Panel -->
         <div id="totals-panel"
@@ -95,7 +61,7 @@
             {% include "partials/totals.html" %}
         </div>
 
-        <!-- Bid Table -->
+        {% if bid_state.raw_items %}
         <div class="bg-white rounded-lg shadow-sm">
             <div class="overflow-x-auto">
                 <table class="w-full bid-table min-w-[1100px]">
@@ -104,7 +70,7 @@
                             <th class="px-1 py-3 text-center w-10 text-xs text-gray-400">#</th>
                             <th class="px-1 py-3 text-center w-8"></th>
                             <th class="px-2 py-3 text-center w-10">
-                                <input type="checkbox" class="rounded" id="select-all">
+                                <input type="checkbox" class="rounded">
                             </th>
                             <th class="px-3 py-3 text-left">ITEM</th>
                             <th class="px-2 py-3 text-center w-24">QTY</th>
@@ -119,14 +85,12 @@
                             <th class="px-3 py-3 text-right w-28">TOTAL</th>
                         </tr>
                     </thead>
-                        {% set ns = namespace(row_num=0) %}
-                        {% for section in sections %}
-                            {% set section_items = bid_state.get_items_by_section(section) %}
-                            {% set active_items = section_items | rejectattr('excluded') | list %}
-                            {% set priced_items = active_items | selectattr('qty') | list %}
-                            {% set regular_items = section_items | selectattr('is_alternate', 'equalto', false) | list %}
-                            {% set alt_items = section_items | selectattr('is_alternate', 'equalto', true) | list %}
-                            {% set section_total = active_items | map(attribute='row_total') | sum %}
+                        {% set ns2 = namespace(row_num=0) %}
+                        {% for section in raw_sections %}
+                            {% set section_items = bid_state.get_raw_items_by_section(section) %}
+                            {% set active_raw_items = section_items | rejectattr('excluded') | list %}
+                            {% set priced_raw_items = active_raw_items | selectattr('qty') | list %}
+                            {% set section_total = active_raw_items | map(attribute='row_total') | sum %}
 
                             <!-- Section Header -->
                             <tbody>
@@ -134,7 +98,7 @@
                                 <td colspan="10" class="px-3 py-2 text-white font-semibold">
                                     {{ section|upper }}
                                     <span class="text-sm font-normal text-gray-300 ml-2">
-                                        ({{ priced_items|length }} items)
+                                        ({{ priced_raw_items|length }} items)
                                     </span>
                                 </td>
                                 <td class="px-3 py-2 text-white font-semibold text-right">
@@ -143,30 +107,13 @@
                             </tr>
                             </tbody>
 
-                            <!-- Regular Items -->
-                            {% for item in regular_items %}
-                                {% set ns.row_num = ns.row_num + 1 %}
-                                {% set row_num = ns.row_num %}
+                            {% for item in section_items %}
+                                {% set ns2.row_num = ns2.row_num + 1 %}
+                                {% set row_num = ns2.row_num %}
                                 {% include "partials/bid_row.html" %}
                             {% endfor %}
 
-                            <!-- Add Alts Subsection -->
-                            {% if alt_items %}
-                            <tbody>
-                            <tr class="bg-yellow-100">
-                                <td colspan="11" class="px-3 py-1 text-sm font-medium text-yellow-800">
-                                    Add Alts
-                                </td>
-                            </tr>
-                            </tbody>
-                            {% for item in alt_items %}
-                                {% set ns.row_num = ns.row_num + 1 %}
-                                {% set row_num = ns.row_num %}
-                                {% include "partials/bid_row.html" %}
-                            {% endfor %}
-                            {% endif %}
-
-                            <!-- Add Item Row -->
+                            <!-- Add Item Row (raw) -->
                             <tbody x-data="{ showAddForm: false }" @item-added="showAddForm = false">
                             <tr x-show="!showAddForm">
                                 <td colspan="11" class="px-3 py-1">
@@ -188,7 +135,7 @@
                                           hx-swap="beforebegin"
                                           hx-on::after-request="this.reset(); this.dispatchEvent(new CustomEvent('item-added', {bubbles:true}))">
                                         <input type="hidden" name="section" value="{{ section }}">
-                                        <input type="hidden" name="target" value="items">
+                                        <input type="hidden" name="target" value="raw_items">
                                         <div>
                                             <label class="block text-xs font-medium text-gray-600 mb-1">Name</label>
                                             <input type="text" name="name" required placeholder="Item name"
@@ -231,51 +178,21 @@
                 </table>
             </div>
         </div>
-
-        <!-- Notes Section -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Notes</h3>
-            <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      rows="4"
-                      placeholder="Add any additional notes or comments here..."></textarea>
+        {% else %}
+        <div class="bg-white rounded-lg shadow-sm p-6 text-center text-gray-500">
+            No raw items available. Upload an Excel file to see the extracted line items.
         </div>
-    </div>
-
-    <!-- Mapping Tab -->
-    <div x-show="activeTab === 'mapping'" x-cloak>
-        {% include "partials/mapping_debug.html" %}
-    </div>
-
-    <!-- Extracted Data Tab -->
-    <div x-show="activeTab === 'debug'" x-cloak>
-        {% include "partials/extracted_debug.html" %}
+        {% endif %}
     </div>
 
     <!-- Difficulty Config Tab -->
     <div x-show="activeTab === 'difficulty'" x-cloak>
-        {% include "partials/difficulty_config.html" %}
+        <div id="difficulty-config-panel"
+             hx-get="/bid2/difficulty-config"
+             hx-trigger="totals-updated from:body"
+             hx-swap="innerHTML">
+            {% include "partials/difficulty_config_raw.html" %}
+        </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('[BidForm] Initialized');
-    });
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        // Ctrl/Cmd + S to save (export)
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault();
-            window.location.href = '/bid/export?format=json';
-        }
-        // Ctrl/Cmd + P to print
-        if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-            e.preventDefault();
-            window.location.href = '/print';
-        }
-    });
-</script>
 {% endblock %}

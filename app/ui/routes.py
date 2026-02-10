@@ -222,6 +222,42 @@ async def bid_form_page(request: Request):
     return templates.TemplateResponse("bid_form.html", context)
 
 
+@router.get("/bid2", response_class=HTMLResponse)
+async def bid_form2_page(request: Request):
+    """Render the Bid Form 2 page (raw Excel line items)."""
+    state = get_current_state()
+
+    if not state:
+        from app.ui.excel_mapper import create_sample_bid_form
+        sample_state = create_sample_bid_form()
+        set_state("sample", sample_state)
+        state = sample_state
+
+    raw_sections = state.get_raw_sections()
+
+    context = get_template_context(
+        request,
+        page="bid2",
+        bid_state=state,
+        raw_sections=raw_sections,
+        difficulty_options=DIFFICULTY_LEVELS,
+    )
+
+    return templates.TemplateResponse("bid_form2.html", context)
+
+
+@router.get("/bid2/difficulty-config", response_class=HTMLResponse)
+async def get_bid2_difficulty_config(request: Request):
+    """Return the difficulty config partial for raw items (HTMX refresh)."""
+    state = get_current_state()
+    if not state:
+        raise HTTPException(status_code=404, detail="No active bid form")
+
+    context = get_template_context(request, bid_state=state)
+    html = templates.get_template("partials/difficulty_config_raw.html").render(context)
+    return HTMLResponse(html)
+
+
 # ========== HTMX Partial Update Routes ==========
 
 @router.get("/bid/totals", response_class=HTMLResponse)
@@ -433,6 +469,78 @@ async def update_item_multiplier(
     return response
 
 
+@router.post("/bid/item/{item_id}/exclude", response_class=HTMLResponse)
+async def toggle_item_excluded(
+    request: Request,
+    item_id: str,
+):
+    """Toggle excluded (soft-delete) state for an item and return updated row."""
+    state = get_current_state()
+    if not state:
+        raise HTTPException(status_code=404, detail="No active bid form")
+
+    if not state.toggle_excluded(item_id):
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    item = state.get_item(item_id)
+
+    context = get_template_context(
+        request,
+        item=item,
+        bid_state=state,
+        difficulty_options=DIFFICULTY_LEVELS
+    )
+
+    row_html = templates.get_template("partials/bid_row.html").render(context)
+    response = HTMLResponse(row_html)
+    response.headers["HX-Trigger"] = "totals-updated"
+    return response
+
+
+@router.post("/bid/item/add", response_class=HTMLResponse)
+async def add_item(
+    request: Request,
+    name: str = Form(...),
+    section: str = Form(...),
+    qty: str = Form(default="0"),
+    uom: str = Form(default="EA"),
+    unit_price: str = Form(default="0"),
+    target: str = Form(default="items"),
+):
+    """Add a new custom line item and return its row HTML."""
+    state = get_current_state()
+    if not state:
+        raise HTTPException(status_code=404, detail="No active bid form")
+
+    parsed_qty = parse_numeric_input(qty, "quantity")
+    parsed_price = parse_numeric_input(unit_price, "unit price")
+
+    new_item = LineItem(
+        section=section,
+        name=name.strip(),
+        qty=max(0, parsed_qty),
+        uom=uom.strip().upper(),
+        unit_price_base=max(0, parsed_price),
+    )
+
+    if target == "raw_items":
+        state.raw_items.append(new_item)
+    else:
+        state.add_item(new_item)
+
+    context = get_template_context(
+        request,
+        item=new_item,
+        bid_state=state,
+        difficulty_options=DIFFICULTY_LEVELS
+    )
+
+    row_html = templates.get_template("partials/bid_row.html").render(context)
+    response = HTMLResponse(row_html)
+    response.headers["HX-Trigger"] = "totals-updated"
+    return response
+
+
 @router.post("/bid/item/{item_id}/notes", response_class=HTMLResponse)
 async def update_item_notes(
     request: Request,
@@ -552,6 +660,8 @@ async def print_page(request: Request):
     alternates = []
 
     for item in state.items:
+        if item.excluded:
+            continue
         # Count units (look for unit count items)
         name_lower = item.name.lower()
         if 'unit' in name_lower and 'count' in name_lower:

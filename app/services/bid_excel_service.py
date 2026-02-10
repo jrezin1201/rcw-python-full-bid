@@ -219,9 +219,9 @@ def export_proposal_workbook(state: BidFormState) -> bytes:
 
     # Derived metrics
     unit_count = int(
-        sum(item.qty for item in state.items if "unit" in item.name.lower() and "count" in item.name.lower())
+        sum(item.qty for item in state.items if not item.excluded and "unit" in item.name.lower() and "count" in item.name.lower())
     )
-    total_sf = float(sum(item.qty for item in state.items if item.uom.upper() == "SF"))
+    total_sf = float(sum(item.qty for item in state.items if not item.excluded and item.uom.upper() == "SF"))
     _set_ws_value(ws, "B7", f"{unit_count} Units" if unit_count else ws["B7"].value)
     _set_ws_value(ws, "B8", state.project_info.project_city or ws["B8"].value)
     _set_ws_value(ws, "B9", round(total_sf, 2) if total_sf else ws["B9"].value)

@@ -1,4 +1,48 @@
-<tbody id="row-{{ item.id }}" x-data="{ notesOpen: false, rowOpen: {{ 'false' if item.qty == 0 and not item.notes else 'true' }} }">
+<tbody id="row-{{ item.id }}" x-data="{ notesOpen: false, rowOpen: {{ 'false' if item.qty == 0 and not item.notes and not item.excluded else 'true' }} }">
+
+{% if item.excluded %}
+<!-- Excluded row (greyed out, soft-deleted) -->
+<tr class="border-b border-gray-200 bg-gray-100 opacity-50">
+    <!-- Row Number -->
+    <td class="px-1 py-2 text-center text-xs text-gray-400 font-mono">
+        {{ row_num | default('?') }}
+    </td>
+
+    <!-- Spacer -->
+    <td class="px-1 py-2"></td>
+
+    <!-- Restore button -->
+    <td class="px-2 py-2 text-center">
+        <button type="button"
+                title="Restore item"
+                class="w-6 h-6 rounded flex items-center justify-center text-xs bg-green-100 text-green-600 hover:bg-green-200 hover:text-green-800"
+                hx-post="/bid/item/{{ item.id }}/exclude"
+                hx-target="#row-{{ item.id }}"
+                hx-swap="outerHTML">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a5 5 0 010 10H9m4-10l-4-4m4 4l-4 4"/>
+            </svg>
+        </button>
+    </td>
+
+    <!-- Item Name (strikethrough) -->
+    <td class="px-3 py-2">
+        <span class="font-semibold text-gray-400 line-through">{{ item.name }}</span>
+    </td>
+
+    <!-- Quantity -->
+    <td class="px-2 py-2 text-center text-sm text-gray-400">{{ format_number(item.qty) }}</td>
+
+    <!-- UOM -->
+    <td class="px-2 py-2 text-center text-sm text-gray-400">{{ item.uom }}</td>
+
+    <!-- Remaining columns -->
+    <td colspan="5" class="px-2 py-2 text-right text-sm text-gray-400 line-through">
+        {{ format_currency(item.row_total) }}
+    </td>
+</tr>
+
+{% else %}
 
 <!-- Collapsed row (shown when rowOpen is false) -->
 <tr x-show="!rowOpen" class="border-b border-gray-100 bg-gray-50 text-gray-400 cursor-pointer hover:bg-gray-100" @click="rowOpen = true">
@@ -63,9 +107,18 @@
         {% endif %}
     </td>
 
-    <!-- Checkbox -->
+    <!-- Exclude button (X) -->
     <td class="px-2 py-2 text-center">
-        <input type="checkbox" class="rounded text-blue-600" checked>
+        <button type="button"
+                title="Remove item"
+                class="w-6 h-6 rounded flex items-center justify-center text-xs bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600"
+                hx-post="/bid/item/{{ item.id }}/exclude"
+                hx-target="#row-{{ item.id }}"
+                hx-swap="outerHTML">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
     </td>
 
     <!-- Item Name -->
@@ -258,4 +311,6 @@
         </div>
     </td>
 </tr>
+
+{% endif %}
 </tbody>

@@ -52,6 +52,7 @@ class LineItem(BaseModel):
     toggle_mask: ToggleMask = Field(default_factory=ToggleMask)
     mult: float = Field(default=1.0, ge=0)  # Manual multiplier
     is_alternate: bool = False  # For ALT items
+    excluded: bool = False  # Soft-delete: greyed out, excluded from totals
     notes: Optional[str] = None
 
     @computed_field
@@ -137,7 +138,7 @@ class BidFormState(BaseModel):
     @property
     def grand_total(self) -> float:
         """Calculate grand total across all items."""
-        return sum(item.row_total for item in self.items)
+        return sum(item.row_total for item in self.items if not item.excluded)
 
     @computed_field
     @property
@@ -151,13 +152,14 @@ class BidFormState(BaseModel):
                 sections[item.section] = []
             sections[item.section].append(item)
 
-        # Calculate totals
+        # Calculate totals (exclude soft-deleted items)
         totals = []
         for section_name, section_items in sections.items():
+            active = [i for i in section_items if not i.excluded]
             totals.append(SectionTotals(
                 section_name=section_name,
-                item_count=len(section_items),
-                total=sum(item.row_total for item in section_items)
+                item_count=len(active),
+                total=sum(item.row_total for item in active)
             ))
 
         return sorted(totals, key=lambda x: x.section_name)
@@ -196,7 +198,7 @@ class BidFormState(BaseModel):
     @property
     def raw_grand_total(self) -> float:
         """Calculate grand total across raw items."""
-        return sum(item.row_total for item in self.raw_items)
+        return sum(item.row_total for item in self.raw_items if not item.excluded)
 
     def update_item_qty(self, item_id: str, new_qty: float) -> bool:
         """Update quantity for a specific item."""
@@ -235,6 +237,14 @@ class BidFormState(BaseModel):
         item = self.get_item(item_id)
         if item:
             item.set_difficulty_add(level, amount)
+            return True
+        return False
+
+    def toggle_excluded(self, item_id: str) -> bool:
+        """Toggle excluded state for an item (soft delete/restore)."""
+        item = self.get_item(item_id)
+        if item:
+            item.excluded = not item.excluded
             return True
         return False
 

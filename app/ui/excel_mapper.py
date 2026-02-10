@@ -478,7 +478,7 @@ def create_sample_bid_form() -> BidFormState:
     """
     Create a blank bid form from the catalog with all items at qty=0.
     """
-    catalog = BidCatalog()
+    catalog = BidCatalog.load()
     items = []
 
     for section in catalog.get_sections():

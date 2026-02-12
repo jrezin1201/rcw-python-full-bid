@@ -1,0 +1,73 @@
+{% for spec in section_spec_items %}
+<tr class="border-b border-gray-100 {{ 'bg-red-50' if spec.excluded else 'hover:bg-gray-50' }}">
+    <td class="px-4 py-2 text-center text-xs text-gray-400">{{ loop.index }}</td>
+    <td class="px-2 py-2 text-center">
+        <form hx-post="/spec/item/exclude"
+              hx-target="#spec-body-{{ section_name | replace(' ', '-') | replace('/', '-') }}"
+              hx-swap="innerHTML">
+            <input type="hidden" name="section" value="{{ section_name }}">
+            <input type="hidden" name="index" value="{{ loop.index0 }}">
+            <button type="submit"
+                    class="w-6 h-6 rounded text-xs font-bold transition {{ 'bg-red-800 text-white' if spec.excluded else 'bg-gray-200 text-gray-500 hover:bg-gray-300' }}"
+                    title="{{ 'Include' if spec.excluded else 'Exclude' }}">
+                E
+            </button>
+        </form>
+    </td>
+    <td class="px-4 py-2 text-sm {{ 'text-gray-400 line-through' if spec.excluded else 'text-gray-900' }}">
+        {{ spec.name }}
+        {% if spec.excluded %}
+        <span class="ml-2 text-red-800 font-semibold text-xs uppercase no-underline inline-block" style="text-decoration: none;">Exclude</span>
+        {% endif %}
+    </td>
+    <td class="px-4 py-2 text-center w-12">
+        <form hx-post="/spec/item/delete"
+              hx-target="#spec-body-{{ section_name | replace(' ', '-') | replace('/', '-') }}"
+              hx-swap="innerHTML">
+            <input type="hidden" name="section" value="{{ section_name }}">
+            <input type="hidden" name="index" value="{{ loop.index0 }}">
+            <button type="submit"
+                    class="text-red-400 hover:text-red-600 transition"
+                    title="Delete">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </form>
+    </td>
+</tr>
+{% endfor %}
+
+<!-- Add Item Row -->
+<tr class="bg-gray-50" x-data="{ showAdd: false }">
+    <td colspan="4" class="px-4 py-2">
+        <div x-show="!showAdd">
+            <button type="button" @click="showAdd = true"
+                    class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Add Spec Item
+            </button>
+        </div>
+        <div x-show="showAdd" x-cloak>
+            <form class="flex items-center gap-2"
+                  hx-post="/spec/item/add"
+                  hx-target="#spec-body-{{ section_name | replace(' ', '-') | replace('/', '-') }}"
+                  hx-swap="innerHTML"
+                  @htmx:after-request="showAdd = false">
+                <input type="hidden" name="section" value="{{ section_name }}">
+                <input type="text" name="name" required placeholder="Spec item description"
+                       class="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                <button type="submit"
+                        class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                    Add
+                </button>
+                <button type="button" @click="showAdd = false"
+                        class="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300">
+                    Cancel
+                </button>
+            </form>
+        </div>
+    </td>
+</tr>

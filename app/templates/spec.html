@@ -1,0 +1,242 @@
+{% extends "layout.html" %}
+
+{% block title %}Spec Form - {{ bid_state.project_name }}{% endblock %}
+{% block page_title %}Spec Form{% endblock %}
+
+{% block header %}
+<div class="flex justify-between items-center">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-900">Spec Form</h2>
+        <p class="text-sm text-gray-600 mt-1">{{ bid_state.project_name }}</p>
+    </div>
+    <div class="flex gap-2">
+        <a href="/spec/print"
+           class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition">
+            Print
+        </a>
+        <a href="/spec/export?format=xlsx"
+           class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+            Export XLSX
+        </a>
+        <a href="/spec/export?format=pdf"
+           class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition">
+            Export PDF
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <div class="bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center gap-4 text-sm font-mono">
+        <span class="text-gray-400">SPEC FORM:</span>
+        <span>Sections: <strong class="text-blue-400">{{ ordered_section_totals|length }}</strong></span>
+        <span class="text-gray-600">|</span>
+        <span>Grand Total: <strong class="text-yellow-400">{{ format_currency(bid_state.grand_total) }}</strong></span>
+    </div>
+
+    {% for section_total in ordered_section_totals %}
+    {% set section_name = section_total.section_name %}
+    {% set section_spec_items = bid_state.spec_items.get(section_name, []) %}
+    {% set section_label = bid_state.spec_section_labels.get(section_name, '') %}
+    {% set section_id = section_name | replace(' ', '-') | replace('/', '-') %}
+    <div class="bg-white rounded-lg shadow-sm">
+        <!-- Section Header -->
+        <div id="spec-header-{{ section_id }}" class="section-header text-white px-4 py-3 rounded-t-lg flex justify-between items-center">
+            <div class="flex items-center gap-3 min-w-0">
+                <span class="text-xs text-gray-400 font-mono shrink-0">{{ loop.index }}</span>
+                <span class="font-semibold text-sm shrink-0">{{ section_name }}</span>
+                <span class="text-xs text-gray-400 shrink-0">({{ section_total.item_count }} items)</span>
+
+                {% if section_label %}
+                <span class="ml-2 px-4 py-1 bg-yellow-400 text-gray-900 font-bold text-xs uppercase rounded-full tracking-wide shrink-0">{{ section_label }}</span>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center gap-3 shrink-0" x-data="{
+                mode: '{{ 'preset' if section_label == 'Flat One Tone' else ('custom' if section_label else 'blank') }}',
+                customText: '{{ section_label if section_label and section_label != 'Flat One Tone' else '' }}'
+            }">
+                <select
+                    class="bg-gray-700 text-white text-xs rounded px-2 py-1 border border-gray-600 focus:ring-1 focus:ring-blue-500"
+                    @change="
+                        if ($event.target.value === '') {
+                            mode = 'blank';
+                            customText = '';
+                            $refs.labelForm.querySelector('[name=label]').value = '';
+                            htmx.trigger($refs.labelForm, 'submit');
+                        } else if ($event.target.value === 'Flat One Tone') {
+                            mode = 'preset';
+                            customText = '';
+                            $refs.labelForm.querySelector('[name=label]').value = 'Flat One Tone';
+                            htmx.trigger($refs.labelForm, 'submit');
+                        } else if ($event.target.value === '__custom__') {
+                            mode = 'custom';
+                            $nextTick(() => $refs.customInput.focus());
+                        }
+                    "
+                >
+                    <option value="" {{ 'selected' if not section_label }}>-- Label --</option>
+                    <option value="Flat One Tone" {{ 'selected' if section_label == 'Flat One Tone' }}>Flat One Tone</option>
+                    <option value="__custom__" {{ 'selected' if section_label and section_label != 'Flat One Tone' }}>Custom...</option>
+                </select>
+
+                <template x-if="mode === 'custom'">
+                    <div class="flex items-center gap-1">
+                        <input type="text" x-ref="customInput" x-model="customText" placeholder="Enter label"
+                               class="bg-gray-700 text-white text-xs rounded px-2 py-1 border border-gray-600 w-32 focus:ring-1 focus:ring-blue-500"
+                               @keydown.enter.prevent="
+                                   $refs.labelForm.querySelector('[name=label]').value = customText;
+                                   htmx.trigger($refs.labelForm, 'submit');
+                               ">
+                        <button type="button"
+                                class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                                @click="
+                                    $refs.labelForm.querySelector('[name=label]').value = customText;
+                                    htmx.trigger($refs.labelForm, 'submit');
+                                ">Set</button>
+                    </div>
+                </template>
+
+                <form x-ref="labelForm" class="hidden"
+                      hx-post="/spec/section/label"
+                      hx-target="#spec-header-{{ section_id }}"
+                      hx-swap="innerHTML">
+                    <input type="hidden" name="section" value="{{ section_name }}">
+                    <input type="hidden" name="label" value="">
+                </form>
+
+                <span class="font-semibold text-sm text-yellow-400">{{ format_currency(section_total.total) }}</span>
+            </div>
+        </div>
+
+        <!-- Spec Items for this Section -->
+        <table class="w-full">
+            <thead>
+                <tr class="bg-gray-50 text-gray-600 text-xs border-b border-gray-200">
+                    <th class="px-4 py-2 text-center w-12">#</th>
+                    <th class="px-2 py-2 text-center w-10"></th>
+                    <th class="px-4 py-2 text-left">SPEC ITEM</th>
+                    <th class="px-4 py-2 text-center w-12"></th>
+                </tr>
+            </thead>
+            <tbody id="spec-body-{{ section_id }}">
+                {% for spec in section_spec_items %}
+                <tr class="border-b border-gray-100 {{ 'bg-red-50' if spec.excluded else 'hover:bg-gray-50' }}">
+                    <td class="px-4 py-2 text-center text-xs text-gray-400">{{ loop.index }}</td>
+                    <td class="px-2 py-2 text-center">
+                        <form hx-post="/spec/item/exclude"
+                              hx-target="#spec-body-{{ section_id }}"
+                              hx-swap="innerHTML">
+                            <input type="hidden" name="section" value="{{ section_name }}">
+                            <input type="hidden" name="index" value="{{ loop.index0 }}">
+                            <button type="submit"
+                                    class="w-6 h-6 rounded text-xs font-bold transition {{ 'bg-red-800 text-white' if spec.excluded else 'bg-gray-200 text-gray-500 hover:bg-gray-300' }}"
+                                    title="{{ 'Include' if spec.excluded else 'Exclude' }}">
+                                E
+                            </button>
+                        </form>
+                    </td>
+                    <td class="px-4 py-2 text-sm {{ 'text-gray-400 line-through' if spec.excluded else 'text-gray-900' }}">
+                        {{ spec.name }}
+                        {% if spec.excluded %}
+                        <span class="ml-2 text-red-800 font-semibold text-xs uppercase no-underline inline-block" style="text-decoration: none;">Exclude</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2 text-center w-12">
+                        <form hx-post="/spec/item/delete"
+                              hx-target="#spec-body-{{ section_id }}"
+                              hx-swap="innerHTML">
+                            <input type="hidden" name="section" value="{{ section_name }}">
+                            <input type="hidden" name="index" value="{{ loop.index0 }}">
+                            <button type="submit"
+                                    class="text-red-400 hover:text-red-600 transition"
+                                    title="Delete">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                <!-- Add Item Row -->
+                <tr class="bg-gray-50" x-data="{ showAdd: false }">
+                    <td colspan="4" class="px-4 py-2">
+                        <div x-show="!showAdd">
+                            <button type="button" @click="showAdd = true"
+                                    class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                Add Spec Item
+                            </button>
+                        </div>
+                        <div x-show="showAdd" x-cloak>
+                            <form class="flex items-center gap-2"
+                                  hx-post="/spec/item/add"
+                                  hx-target="#spec-body-{{ section_id }}"
+                                  hx-swap="innerHTML"
+                                  @htmx:after-request="showAdd = false">
+                                <input type="hidden" name="section" value="{{ section_name }}">
+                                <input type="text" name="name" required placeholder="Spec item description"
+                                       class="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                                <button type="submit"
+                                        class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                                    Add
+                                </button>
+                                <button type="button" @click="showAdd = false"
+                                        class="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300">
+                                    Cancel
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    {% endfor %}
+
+    <!-- Normal Exclusions -->
+    <div class="bg-white rounded-lg shadow-sm border border-orange-200">
+        <div class="bg-orange-100 px-4 py-3 rounded-t-lg flex justify-between items-center">
+            <span class="font-semibold text-sm text-orange-800">NORMAL EXCLUSIONS</span>
+            <span class="text-xs text-orange-600">{{ bid_state.spec_exclusions|length }} items</span>
+        </div>
+        <div class="bg-orange-50/50 px-4 py-3" id="spec-exclusions-body">
+            {% set exclusions = bid_state.spec_exclusions %}
+            {% include "partials/spec_exclusions_body.html" %}
+        </div>
+    </div>
+
+    <!-- Add Alts Section -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="bg-gradient-to-r from-amber-700 to-amber-800 text-white px-4 py-3 rounded-t-lg flex justify-between items-center">
+            <span class="font-semibold text-sm">ADD ALTS</span>
+            <span class="text-xs text-amber-200">Excluded spec items appear here</span>
+        </div>
+        <div id="spec-add-alts"
+             hx-get="/spec/add-alts"
+             hx-trigger="add-alts-updated from:body"
+             hx-swap="innerHTML">
+            {% include "partials/spec_add_alts.html" %}
+        </div>
+    </div>
+
+    <!-- Materials Included in Bid -->
+    <div class="bg-white rounded-lg shadow-sm border border-green-200">
+        <div class="bg-green-100 px-4 py-3 rounded-t-lg flex justify-between items-center">
+            <span class="font-semibold text-sm text-green-800">MATERIALS INCLUDED IN BID</span>
+            <span class="text-xs text-green-600">{{ materials_brand }}</span>
+        </div>
+        <div class="py-3" id="spec-materials-body">
+            {% include "partials/spec_materials_body.html" %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

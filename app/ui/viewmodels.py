@@ -95,6 +95,19 @@ class LineItem(BaseModel):
         self.mult = max(0, new_mult)
 
 
+class SpecItem(BaseModel):
+    """A single spec line item with exclude support."""
+    name: str
+    excluded: bool = False
+
+
+class MaterialItem(BaseModel):
+    """A single material line item with optional yellow highlight."""
+    name: str
+    value: str = ""
+    highlight: bool = False
+
+
 class SectionTotals(BaseModel):
     """Totals for a section."""
     section_name: str
@@ -114,10 +127,14 @@ class ProjectInfo(BaseModel):
 
     # Project details
     project_city: Optional[str] = None
+    units_text: Optional[str] = None
 
     # Plan dates
+    plans_date: Optional[str] = None
     arch_date: Optional[str] = None
     landscape_date: Optional[str] = None
+    interior_design_date: Optional[str] = None
+    owner_specs_date: Optional[str] = None
 
 
 class BidFormState(BaseModel):
@@ -134,6 +151,20 @@ class BidFormState(BaseModel):
 
     # Project info for proposals
     project_info: ProjectInfo = Field(default_factory=ProjectInfo)
+
+    # Spec items per section: section_name -> list of SpecItem
+    spec_items: Dict[str, List[SpecItem]] = Field(default_factory=dict)
+
+    # Spec section labels: section_name -> label string (e.g. "Flat One Tone")
+    spec_section_labels: Dict[str, str] = Field(default_factory=dict)
+
+    # Normal exclusions: single list for the whole bid
+    spec_exclusions: List[str] = Field(default_factory=list)
+
+    # Materials included in bid
+    materials_brand: str = "VISTA PAINTS"
+    materials_sections: Dict[str, List[MaterialItem]] = Field(default_factory=dict)
+    materials_section_order: List[str] = Field(default_factory=list)
 
     @computed_field
     @property
@@ -194,12 +225,6 @@ class BidFormState(BaseModel):
     def get_raw_items_by_section(self, section: str) -> List[LineItem]:
         """Get raw items in a specific section, preserving Excel order."""
         return [item for item in self.raw_items if item.section == section]
-
-    @computed_field
-    @property
-    def raw_grand_total(self) -> float:
-        """Calculate grand total across raw items."""
-        return sum(item.row_total for item in self.raw_items if not item.excluded)
 
     def update_item_qty(self, item_id: str, new_qty: float) -> bool:
         """Update quantity for a specific item."""

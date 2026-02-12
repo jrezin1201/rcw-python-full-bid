@@ -1,0 +1,65 @@
+<div class="flex items-center gap-3 min-w-0">
+    <span class="text-xs text-gray-400 font-mono shrink-0"></span>
+    <span class="font-semibold text-sm shrink-0">{{ section_name }}</span>
+    <span class="text-xs text-gray-400 shrink-0">({{ section_total.item_count }} items)</span>
+
+    {% if section_label %}
+    <span class="ml-2 px-4 py-1 bg-yellow-400 text-gray-900 font-bold text-xs uppercase rounded-full tracking-wide shrink-0">{{ section_label }}</span>
+    {% endif %}
+</div>
+
+<div class="flex items-center gap-3 shrink-0" x-data="{
+    mode: '{{ 'preset' if section_label == 'Flat One Tone' else ('custom' if section_label else 'blank') }}',
+    customText: '{{ section_label if section_label and section_label != 'Flat One Tone' else '' }}'
+}">
+    <select
+        class="bg-gray-700 text-white text-xs rounded px-2 py-1 border border-gray-600 focus:ring-1 focus:ring-blue-500"
+        @change="
+            if ($event.target.value === '') {
+                mode = 'blank';
+                customText = '';
+                $refs.labelForm.querySelector('[name=label]').value = '';
+                htmx.trigger($refs.labelForm, 'submit');
+            } else if ($event.target.value === 'Flat One Tone') {
+                mode = 'preset';
+                customText = '';
+                $refs.labelForm.querySelector('[name=label]').value = 'Flat One Tone';
+                htmx.trigger($refs.labelForm, 'submit');
+            } else if ($event.target.value === '__custom__') {
+                mode = 'custom';
+                $nextTick(() => $refs.customInput.focus());
+            }
+        "
+    >
+        <option value="" {{ 'selected' if not section_label }}>-- Label --</option>
+        <option value="Flat One Tone" {{ 'selected' if section_label == 'Flat One Tone' }}>Flat One Tone</option>
+        <option value="__custom__" {{ 'selected' if section_label and section_label != 'Flat One Tone' }}>Custom...</option>
+    </select>
+
+    <template x-if="mode === 'custom'">
+        <div class="flex items-center gap-1">
+            <input type="text" x-ref="customInput" x-model="customText" placeholder="Enter label"
+                   class="bg-gray-700 text-white text-xs rounded px-2 py-1 border border-gray-600 w-32 focus:ring-1 focus:ring-blue-500"
+                   @keydown.enter.prevent="
+                       $refs.labelForm.querySelector('[name=label]').value = customText;
+                       htmx.trigger($refs.labelForm, 'submit');
+                   ">
+            <button type="button"
+                    class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                    @click="
+                        $refs.labelForm.querySelector('[name=label]').value = customText;
+                        htmx.trigger($refs.labelForm, 'submit');
+                    ">Set</button>
+        </div>
+    </template>
+
+    <form x-ref="labelForm" class="hidden"
+          hx-post="/spec/section/label"
+          hx-target="#spec-header-{{ section_id }}"
+          hx-swap="innerHTML">
+        <input type="hidden" name="section" value="{{ section_name }}">
+        <input type="hidden" name="label" value="">
+    </form>
+
+    <span class="font-semibold text-sm text-yellow-400">{{ format_currency(section_total.total) }}</span>
+</div>

@@ -1,26 +1,35 @@
 {% extends "layout.html" %}
 
+{% block title %}Proposal - {{ bid_state.project_name }}{% endblock %}
+{% block page_title %}Print Preview{% endblock %}
+
 {% block content %}
 <style>
+    @page {
+        size: letter;
+        margin: 0.5in;
+    }
     @media print {
         body {
-            font-size: 9pt;
             background: white;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
         .no-print { display: none !important; }
+        /* Hide sidebar and nav chrome for print */
+        body > div > div:first-child,  /* sidebar */
+        header, .bg-blue-600 { display: none !important; }
+        body > div > div:last-child { margin-left: 0 !important; }
+        main { padding: 0 !important; }
         .print-page {
             max-width: 100%;
             margin: 0;
-            padding: 0.25in;
+            padding: 0;
             box-shadow: none;
             border: none;
         }
         .page-break { page-break-before: always; }
         .avoid-break { page-break-inside: avoid; }
-        table { font-size: 8pt; }
-        .section-scope { page-break-inside: avoid; }
     }
     @media screen {
         .print-page {
@@ -31,86 +40,168 @@
             border: 1px solid #e5e7eb;
         }
     }
-    .proposal-table td, .proposal-table th {
-        padding: 4px 8px;
-        border: 1px solid #d1d5db;
+    /* Proposal typography */
+    .proposal {
+        font-family: Cambria, 'Palatino Linotype', Georgia, serif;
+        font-size: 11pt;
+        color: #000;
+        line-height: 1.4;
     }
-    .scope-section {
-        margin-bottom: 12px;
-    }
-    .scope-title {
+    .proposal .label {
         font-weight: bold;
         font-size: 11pt;
-        background: #1f2937;
-        color: white;
-        padding: 4px 8px;
+    }
+    .proposal .section-title {
+        font-weight: bold;
+        font-size: 12pt;
+        margin-top: 12px;
         margin-bottom: 4px;
     }
-    .scope-description {
-        font-size: 9pt;
-        padding-left: 8px;
+    .proposal .scope-item {
+        font-size: 11pt;
+        padding-left: 4px;
+        margin-bottom: 1px;
     }
-    .scope-exclusion {
-        font-size: 8pt;
-        color: #4b5563;
-        padding-left: 8px;
+    .proposal .exclusion-item {
+        font-size: 10pt;
+        font-style: italic;
+        color: #FF0000;
+        padding-left: 4px;
+    }
+    .proposal .pricing-header {
+        font-weight: bold;
+        font-size: 14pt;
+        text-align: center;
+        border-left: 1px solid #000;
+        border-right: 1px solid #000;
+        padding: 4px;
+    }
+    .proposal table.pricing-table {
+        border-collapse: collapse;
+        width: auto;
+        margin: 0 auto;
+    }
+    .proposal table.pricing-table td {
+        padding: 3px 16px;
+        font-size: 11pt;
+    }
+    .proposal .excl-title {
+        font-weight: bold;
+        font-size: 12pt;
+        color: #FF0000;
+    }
+    .proposal .excl-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px 32px;
+        font-size: 11pt;
+    }
+    .proposal .alt-header {
+        font-weight: bold;
+        text-align: center;
+        border-bottom: 1px solid #000;
+        padding-bottom: 2px;
+        margin-bottom: 4px;
+    }
+    .proposal .mat-title {
+        font-weight: bold;
+        font-size: 12pt;
+    }
+    .proposal .net-wrap {
+        font-style: italic;
+        color: #FF0000;
+        text-align: center;
+        font-size: 11pt;
+    }
+    .proposal .highlight-yellow {
+        background-color: #FFFF00;
+        font-weight: bold;
+    }
+    .proposal .sig-line {
+        border-bottom: 1px solid #000;
+        height: 28px;
+        margin-top: 4px;
     }
 </style>
 
-<div class="print-page p-6" id="print-content">
-    <!-- HEADER SECTION -->
-    <div class="avoid-break mb-4">
-        <table class="w-full text-sm" style="border-collapse: collapse;">
+<div class="print-page p-8 proposal" id="print-content">
+
+    <!-- HEADER (Developer/Address/City + Date/Contact/Phone/Email) -->
+    <div class="avoid-break" style="margin-bottom: 16px;">
+        <table style="width: 100%; border-collapse: collapse;">
             <tr>
-                <td class="align-top" style="width: 50%;">
-                    <table class="text-sm">
-                        <tr><td class="font-semibold pr-2">Developer:</td><td>{{ project_info.developer or '[Developer Name]' }}</td></tr>
-                        <tr><td class="font-semibold pr-2">Address:</td><td>{{ project_info.address or '[Address]' }}</td></tr>
-                        <tr><td class="font-semibold pr-2">City:</td><td>{{ project_info.city or '[City, State ZIP]' }}</td></tr>
+                <td style="width: 50%; vertical-align: top;">
+                    <table>
+                        <tr>
+                            <td class="label" style="padding-right: 8px;">Developer:</td>
+                            <td>{{ project_info.developer or '' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label" style="padding-right: 8px;">Address:</td>
+                            <td>{{ project_info.address or '' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label" style="padding-right: 8px;">City:</td>
+                            <td>{{ project_info.city or '' }}</td>
+                        </tr>
                     </table>
                 </td>
-                <td class="align-top" style="width: 50%;">
-                    <table class="text-sm">
-                        <tr><td class="font-semibold pr-2">Date:</td><td>{{ today_date }}</td></tr>
-                        <tr><td class="font-semibold pr-2">Contact:</td><td>{{ project_info.contact or '[Contact Name]' }}</td></tr>
-                        <tr><td class="font-semibold pr-2">Phone:</td><td>{{ project_info.phone or '[Phone]' }}</td></tr>
-                        <tr><td class="font-semibold pr-2">Email:</td><td>{{ project_info.email or '[Email]' }}</td></tr>
+                <td style="width: 50%; vertical-align: top;">
+                    <table style="margin-left: auto;">
+                        <tr>
+                            <td class="label" style="padding-right: 8px;">Date:</td>
+                            <td style="text-align: right;">{{ today_date }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label" style="padding-right: 8px;">Contact:</td>
+                            <td style="text-align: right; font-weight: bold;">{{ project_info.contact or '' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label" style="padding-right: 8px;">Phone:</td>
+                            <td style="text-align: right; font-weight: bold;">{{ project_info.phone or '' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label" style="padding-right: 8px;">Email:</td>
+                            <td style="text-align: right;">{{ project_info.email or '' }}</td>
+                        </tr>
                     </table>
                 </td>
             </tr>
         </table>
     </div>
 
-    <!-- PROJECT INFO -->
-    <div class="avoid-break mb-4 border border-gray-300">
-        <table class="w-full text-sm" style="border-collapse: collapse;">
-            <tr class="border-b border-gray-300">
-                <td class="font-bold p-2 bg-gray-100 w-20">PROJECT</td>
-                <td class="p-2">{{ bid_state.project_name }}</td>
-                <td class="font-bold p-2 bg-gray-100 w-32">PLANS</td>
-                <td class="p-2"></td>
-                <td class="font-bold p-2 bg-gray-100">DATED</td>
-            </tr>
-            <tr class="border-b border-gray-300">
-                <td class="font-bold p-2 bg-gray-100">UNITS</td>
-                <td class="p-2">{{ unit_count }} Residential Units</td>
-                <td class="font-bold p-2 bg-gray-100">ARCHITECTURAL</td>
-                <td class="p-2"></td>
-                <td class="p-2">{{ project_info.arch_date or '' }}</td>
-            </tr>
-            <tr class="border-b border-gray-300">
-                <td class="font-bold p-2 bg-gray-100">CITY</td>
-                <td class="p-2">{{ project_info.project_city or '' }}</td>
-                <td class="font-bold p-2 bg-gray-100">LANDSCAPE</td>
-                <td class="p-2"></td>
-                <td class="p-2">{{ project_info.landscape_date or 'Excluded' }}</td>
+    <!-- PROJECT INFO TABLE -->
+    <div class="avoid-break" style="margin-bottom: 16px;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td class="label" style="width: 70px; padding: 3px 6px;">PROJECT</td>
+                <td style="padding: 3px 6px;">{{ bid_state.project_name or '' }}</td>
+                <td class="label" style="padding: 3px 6px;">PLANS</td>
+                <td class="label" style="padding: 3px 6px; text-align: right;">DATED</td>
             </tr>
             <tr>
-                <td class="font-bold p-2 bg-gray-100">SF</td>
-                <td class="p-2">{{ "%.2f"|format(total_sf) if total_sf else '' }}</td>
-                <td class="font-bold p-2 bg-gray-100">9900 SPEC</td>
-                <td class="p-2"></td>
-                <td class="p-2">N/A</td>
+                <td class="label" style="padding: 3px 6px;">UNITS</td>
+                <td style="padding: 3px 6px;">{{ unit_count }} Residential Units</td>
+                <td style="padding: 3px 6px;">ARCHITECTURAL</td>
+                <td style="padding: 3px 6px; text-align: right;">{{ project_info.arch_date or '' }}</td>
+            </tr>
+            <tr>
+                <td class="label" style="padding: 3px 6px;">CITY</td>
+                <td style="padding: 3px 6px;">{{ project_info.project_city or '' }}</td>
+                <td style="padding: 3px 6px;">LANDSCAPE</td>
+                <td style="padding: 3px 6px; text-align: right;">
+                    {% if project_info.landscape_date %}
+                        {{ project_info.landscape_date }}
+                    {% else %}
+                        <span style="color: #FF0000;">Excluded</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td class="label" style="padding: 3px 6px;">SF</td>
+                <td style="padding: 3px 6px;">{{ "%.2f"|format(total_sf) if total_sf else '' }}</td>
+                <td style="padding: 3px 6px; font-size: 10pt;">OWNER SPECS</td>
+                <td style="padding: 3px 6px; text-align: right;">NA</td>
             </tr>
         </table>
     </div>
@@ -118,149 +209,143 @@
     <!-- SCOPE SECTIONS -->
     {% for section_name in sections %}
     {% set all_section_items = sections_data[section_name] %}
-    {% set active_items = all_section_items | rejectattr('excluded') | selectattr('qty') | list %}
+    {% set active_items = all_section_items | rejectattr('excluded') | rejectattr('is_exclusion') | rejectattr('is_alternate') | selectattr('qty') | list %}
     {% set exclusion_items = all_section_items | selectattr('is_exclusion') | list %}
     {% if active_items or exclusion_items %}
-    <div class="section-scope avoid-break mb-3">
-        <div class="scope-title">{{ section_name|upper }}</div>
-        {% if active_items %}
-        <div class="scope-description">
-            {% for item in active_items %}
-            <p>{{ item.name }}</p>
-            {% endfor %}
-        </div>
-        {% endif %}
-        {% if exclusion_items %}
-        <div class="mt-1" style="color: #991b1b;">
-            {% for item in exclusion_items %}
-            <p style="font-style: italic;">Excludes {{ item.name }}</p>
-            {% endfor %}
-        </div>
-        {% endif %}
+    <div class="avoid-break" style="margin-bottom: 8px;">
+        <div class="section-title">{{ section_name|upper }}</div>
+        {% for item in active_items %}
+        <div class="scope-item">{{ item.name }}</div>
+        {% endfor %}
+        {% for item in exclusion_items %}
+        <div class="exclusion-item">Excludes {{ item.name }}</div>
+        {% endfor %}
     </div>
     {% endif %}
     {% endfor %}
 
     <!-- PRICING SECTION -->
-    <div class="avoid-break mb-4 mt-6">
-        <div class="scope-title">PRICING</div>
-        <table class="proposal-table w-full mt-2 text-sm">
-            <thead>
-                <tr class="bg-gray-100">
-                    <th class="text-left p-2" style="width: 70%;">Section</th>
-                    <th class="text-right p-2">Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for section in bid_state.section_totals %}
-                {% if section.total > 0 %}
-                <tr>
-                    <td class="p-2">{{ section.section_name }}</td>
-                    <td class="text-right p-2">{{ "${:,.0f}".format(section.total) }}</td>
-                </tr>
-                {% endif %}
-                {% endfor %}
-            </tbody>
-            <tfoot>
-                <tr class="font-bold bg-gray-200">
-                    <td class="p-2">Total</td>
-                    <td class="text-right p-2">{{ "${:,.0f}".format(bid_state.grand_total) }}</td>
-                </tr>
-            </tfoot>
+    <div class="avoid-break" style="margin-top: 20px; margin-bottom: 16px;">
+        <div class="pricing-header">PRICING</div>
+        <table class="pricing-table">
+            <tr>
+                <td></td>
+                <td style="font-weight: bold; text-align: center;">Amount</td>
+            </tr>
+            {% for section in bid_state.section_totals %}
+            {% if section.total > 0 %}
+            <tr>
+                <td>{{ section.section_name|capitalize }}</td>
+                <td style="text-align: right;">{{ "${:,.2f}".format(section.total) }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            <tr style="font-weight: bold;">
+                <td>Total</td>
+                <td style="text-align: right;">{{ "${:,.2f}".format(bid_state.grand_total) }}</td>
+            </tr>
         </table>
-        <p class="text-xs text-gray-600 mt-1">Pricing Net Wrap Liability Insurance</p>
+        <div class="net-wrap" style="margin-top: 8px;">Pricing Net Wrap Liability Insurance</div>
     </div>
 
-    <!-- EXCLUSIONS SECTION -->
-    <div class="avoid-break mb-4">
-        <div class="scope-title">EXCLUSIONS</div>
-        <div class="grid grid-cols-2 gap-4 mt-2 text-xs">
+    <!-- EXCLUSIONS -->
+    <div class="avoid-break" style="margin-bottom: 16px;">
+        <div style="text-align: center; margin-bottom: 6px;">
+            <span class="excl-title">EXCLUSIONS</span>
+        </div>
+        <div class="excl-grid">
             <div>
-                <p>9900 Specifications</p>
-                <p>0 VOC Paints & Systems</p>
-                <p>Scaffolding & Lifts</p>
-                <p>Saturday & Weekend Work</p>
-                <p>Water Proofing Membrane</p>
-                <p>ALL Exterior Caulking</p>
-                <p>Power & Pressure Washing</p>
-                <p>Signing Unmodified Scaffolding</p>
+                <p class="highlight-yellow">9900 Specifications</p>
+                <p>0 VOC Paints &amp; Systems</p>
+                <p>Scaffolding &amp; Lifts</p>
+                <p>Saturday &amp; Weekend Work</p>
+                <p>Water Proofing Membranes</p>
+                <p>ALL Exterior Caulking: Done By Other</p>
+                <p>Power &amp; Pressure Washing</p>
+                <p>Signing Unmodified Scaffold Agreements</p>
             </div>
             <div>
                 <p>Masked Hinges</p>
                 <p>ALL Stand Pipes</p>
                 <p>Wall Coverings</p>
-                <p>Paid Parking: Parking To Be Provided</p>
-                <p>Caulking Windows: By Window Installer</p>
-                <p>Not Responsible For Color Consistency</p>
-                <p>Payment & Performance Bond</p>
-                <p>Excess & Umbrella Coverage</p>
+                <p>Paid Parking: Parking To Be Provided By Contractor</p>
+                <p>Caulking Windows: By Drywall Contractor</p>
+                <p>Not Responsible For Rusting If Metal Is Not Metalized</p>
+                <p>Payment &amp; Performance Bonds</p>
+                <p>Excess &amp; Umbrella Coverages</p>
             </div>
         </div>
     </div>
 
-    <!-- ADD ALTERNATES SECTION -->
+    <!-- ADD ALTERNATES -->
     {% if alternates|length > 0 %}
-    <div class="avoid-break mb-4">
-        <div class="scope-title">ADD ALTERNATES</div>
-        <table class="proposal-table w-full mt-2 text-sm">
-            <tbody>
-                {% for alt in alternates %}
-                <tr>
-                    <td class="p-2" style="width: 70%;">{{ alt.name }}</td>
-                    <td class="text-right p-2">{{ "${:,.0f}".format(alt.row_total) }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+    <div class="avoid-break" style="margin-bottom: 16px;">
+        <div class="alt-header">ADD ALTERNATES</div>
+        <table style="width: 60%; margin: 0 auto; border-collapse: collapse;">
+            {% for alt in alternates %}
+            <tr>
+                <td style="padding: 3px 8px;">{{ alt.name }}</td>
+                <td style="padding: 3px 8px; text-align: right;">{{ "${:,.2f}".format(alt.row_total) }}</td>
+            </tr>
+            {% endfor %}
         </table>
     </div>
     {% endif %}
 
     <!-- ADDITIONAL WORK RATES -->
-    <div class="avoid-break mb-4">
-        <div class="scope-title">ADDITIONAL WORK</div>
-        <table class="text-sm mt-2">
-            <tr><td class="pr-4">Regular Time:</td><td class="font-semibold">$73.00/HR</td></tr>
-            <tr><td class="pr-4">1/2 Time OT Work:</td><td class="font-semibold">$37.00/HR</td></tr>
+    <div class="avoid-break" style="margin-bottom: 16px;">
+        <table>
+            <tr>
+                <td class="label" style="padding-right: 24px;">ADDITIONAL WORK CHARGED AT:</td>
+                <td style="text-align: right;">$73.00/HR</td>
+            </tr>
+            <tr>
+                <td class="label" style="padding-right: 24px;">1/2 Time OT Work</td>
+                <td style="text-align: right;">$37.00/HR</td>
+            </tr>
         </table>
     </div>
 
-    <!-- MATERIALS SECTION -->
-    <div class="avoid-break mb-4">
-        <div class="scope-title">MATERIALS INCLUDED IN BID</div>
-        <table class="text-sm mt-2">
-            <tr class="font-semibold"><td colspan="2">Units</td></tr>
-            <tr><td class="pl-4 pr-8">Flat</td><td>Breezewall</td></tr>
-            <tr><td class="pl-4 pr-8">Enamel</td><td>V-Pro</td></tr>
-            <tr class="font-semibold"><td colspan="2">Common Area</td></tr>
-            <tr><td class="pl-4 pr-8">Flat</td><td>Breezewall</td></tr>
-            <tr><td class="pl-4 pr-8">Enamel</td><td>V-Pro</td></tr>
-            <tr class="font-semibold"><td colspan="2">Exterior</td></tr>
-            <tr><td class="pl-4 pr-8">Doors</td><td>Protec</td></tr>
-            <tr><td class="pl-4 pr-8">Balcony Rails</td><td>Protec</td></tr>
-            <tr><td class="pl-4 pr-8">Wood</td><td>Coverall</td></tr>
+    <!-- MATERIALS INCLUDED IN BID -->
+    <div class="avoid-break" style="margin-bottom: 20px;">
+        <div class="mat-title" style="margin-bottom: 6px;">MATERIALS INCLUDED IN BID: VISTA PAINTS</div>
+        <table>
+            <tr><td class="mat-title" colspan="2" style="padding: 2px 0;">Units</td></tr>
+            <tr><td style="padding-left: 16px; padding-right: 32px;">Flat</td><td>Breezewall</td></tr>
+            <tr><td style="padding-left: 16px; padding-right: 32px;">Enamel</td><td>V-Pro</td></tr>
+            <tr><td class="mat-title" colspan="2" style="padding: 2px 0;">Common Area</td></tr>
+            <tr><td style="padding-left: 16px; padding-right: 32px;">Flat</td><td>Breezewall</td></tr>
+            <tr><td style="padding-left: 16px; padding-right: 32px;">Enamel</td><td>V-Pro</td></tr>
+            <tr><td class="mat-title" colspan="2" style="padding: 2px 0;">Exterior</td></tr>
+            <tr><td style="padding-left: 16px; padding-right: 32px;">Doors</td><td>Protec</td></tr>
+            <tr><td style="padding-left: 16px; padding-right: 32px;">Balcony Rails</td><td>Protec</td></tr>
+            <tr><td style="padding-left: 16px; padding-right: 32px;">Wood</td><td>Coverall</td></tr>
         </table>
     </div>
 
     <!-- SIGNATURE SECTION -->
-    <div class="avoid-break mt-8 pt-4 border-t border-gray-300">
-        <p class="text-xs text-gray-600 mb-4">This proposal is valid for 30 days from the date above.</p>
-        <div class="grid grid-cols-2 gap-8">
-            <div>
-                <p class="text-xs text-gray-500 mb-1">Authorized Signature - RCW Painting</p>
-                <div class="border-b border-gray-400 h-8"></div>
-                <p class="text-xs text-gray-600 mt-1">Date: _____________</p>
-            </div>
-            <div>
-                <p class="text-xs text-gray-500 mb-1">Acceptance - Customer</p>
-                <div class="border-b border-gray-400 h-8"></div>
-                <p class="text-xs text-gray-600 mt-1">Date: _____________</p>
-            </div>
-        </div>
+    <div class="avoid-break" style="margin-top: 32px;">
+        <p style="font-size: 10pt; margin-bottom: 16px;">This proposal is valid for 30 days from the date above.</p>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="width: 48%; vertical-align: top;">
+                    <p style="font-size: 10pt; margin-bottom: 2px;">Authorized Signature - RCW Painting</p>
+                    <div class="sig-line"></div>
+                    <p style="font-size: 10pt; margin-top: 4px;">Date: _____________</p>
+                </td>
+                <td style="width: 4%;"></td>
+                <td style="width: 48%; vertical-align: top;">
+                    <p style="font-size: 10pt; margin-bottom: 2px;">Acceptance - Customer</p>
+                    <div class="sig-line"></div>
+                    <p style="font-size: 10pt; margin-top: 4px;">Date: _____________</p>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <!-- FOOTER -->
-    <div class="mt-6 pt-2 border-t text-center text-xs text-gray-500">
-        <p>RCW Painting | Generated {{ today_date }}</p>
+    <div style="margin-top: 24px; text-align: center; font-size: 9pt; color: #6b7280; border-top: 1px solid #d1d5db; padding-top: 8px;">
+        RCW Painting | Generated {{ today_date }}
     </div>
 </div>
 
@@ -271,7 +356,7 @@
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
         </svg>
-        Print Proposal
+        Print / Save PDF
     </button>
     <a href="/bid" class="px-6 py-3 bg-gray-600 text-white rounded-lg shadow-lg hover:bg-gray-700 transition inline-flex items-center">
         Back to Bid Form

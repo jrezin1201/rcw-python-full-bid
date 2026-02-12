@@ -9,20 +9,38 @@ from pathlib import Path
 from datetime import datetime, timezone
 
 from openpyxl import Workbook, load_workbook
-from openpyxl.styles import Font, PatternFill, Alignment
-
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from app.ui.viewmodels import BidFormState, LineItem, ToggleMask, ProjectInfo
 
 INTERNAL_MARKER = "__RCW_INTERNAL_BID_V1__"
-PROPOSAL_TEMPLATE_PATH = Path("data/templates/proposal_template.xlsx")
+
+# -- Shared proposal styles --
+_CAMBRIA = "Cambria"
+_CURRENCY_FMT = '_("$"* #,##0.00_);_("$"* \\(#,##0.00\\);_("$"* "-"??_);_(@_)'
+_DATE_FMT = "mm-dd-yy"
+_THIN = Side(style="thin")
+
+_font_label = Font(name=_CAMBRIA, bold=True, size=11, color="000000")
+_font_normal = Font(name=_CAMBRIA, bold=False, size=11, color="000000")
+_font_section = Font(name=_CAMBRIA, bold=True, size=12, color="000000")
+_font_exclusion = Font(name=_CAMBRIA, italic=True, size=10, color="FF0000")
+_font_pricing_hdr = Font(name=_CAMBRIA, bold=True, size=14, color="000000")
+_font_bold = Font(name=_CAMBRIA, bold=True, size=11, color="000000")
+_font_red_bold = Font(name=_CAMBRIA, bold=True, size=12, color="FF0000")
+_fill_yellow = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+_align_left = Alignment(horizontal="left", vertical="center")
+_align_right = Alignment(horizontal="right", vertical="center")
+_align_center = Alignment(horizontal="center", vertical="center")
 
 
 def is_internal_bid_workbook(file_path: str) -> bool:
     """Detect whether a workbook is an editable internal bid export."""
     wb = load_workbook(file_path, data_only=False)
     try:
-        ws = wb[wb.sheetnames[0]]
-        return ws["A1"].value == INTERNAL_MARKER
+        if "_rcw_data" in wb.sheetnames:
+            ws = wb["_rcw_data"]
+            return ws["A1"].value == INTERNAL_MARKER
+        return False
     finally:
         wb.close()
 
@@ -249,58 +267,139 @@ def export_internal_bid_workbook(state: BidFormState) -> bytes:
             ws.cell(row, 8).font = normal_font
             row += 1
 
+    # -- Hidden data sheet for round-trip import --
+    _write_data_sheet(wb, state)
+
     out = BytesIO()
     wb.save(out)
     return out.getvalue()
+
+
+def _write_data_sheet(wb: Workbook, state: BidFormState) -> None:
+    """Write a hidden '_rcw_data' sheet with full structured data for re-import."""
+    ds = wb.create_sheet("_rcw_data")
+    ds.sheet_state = "hidden"
+
+    # Row 1: marker
+    ds["A1"] = INTERNAL_MARKER
+
+    # Row 2: project name
+    ds["A2"] = "project_name"
+    ds["B2"] = state.project_name or ""
+
+    # Rows 3-11: project info
+    info = state.project_info
+    for r, (key, val) in enumerate([
+        ("developer", info.developer),
+        ("address", info.address),
+        ("city", info.city),
+        ("contact", info.contact),
+        ("phone", info.phone),
+        ("email", info.email),
+        ("project_city", info.project_city),
+        ("arch_date", info.arch_date),
+        ("landscape_date", info.landscape_date),
+    ], start=3):
+        ds.cell(r, 1).value = key
+        ds.cell(r, 2).value = val or ""
+
+    # Row 13: column headers
+    headers = [
+        "section", "name", "qty", "uom", "base_price", "difficulty",
+        "add_1", "add_2", "add_3", "add_4", "add_5",
+        "tax", "labor", "materials", "equipment", "subcontractor",
+        "mult", "excluded", "is_exclusion", "notes", "is_alternate",
+    ]
+    for c, h in enumerate(headers, start=1):
+        ds.cell(13, c).value = h
+
+    # Row 14+: item data
+    for r, item in enumerate(state.raw_items, start=14):
+        ds.cell(r, 1).value = item.section
+        ds.cell(r, 2).value = item.name
+        ds.cell(r, 3).value = float(item.qty)
+        ds.cell(r, 4).value = item.uom
+        ds.cell(r, 5).value = float(item.unit_price_base)
+        ds.cell(r, 6).value = item.difficulty
+        for lvl in range(1, 6):
+            ds.cell(r, 6 + lvl).value = float(item.difficulty_adders.get(lvl, 0.0))
+        ds.cell(r, 12).value = item.toggle_mask.tax
+        ds.cell(r, 13).value = item.toggle_mask.labor
+        ds.cell(r, 14).value = item.toggle_mask.materials
+        ds.cell(r, 15).value = item.toggle_mask.equipment
+        ds.cell(r, 16).value = item.toggle_mask.subcontractor
+        ds.cell(r, 17).value = float(item.mult)
+        ds.cell(r, 18).value = item.excluded
+        ds.cell(r, 19).value = item.is_exclusion
+        ds.cell(r, 20).value = item.notes or ""
+        ds.cell(r, 21).value = item.is_alternate
 
 
 def import_internal_bid_workbook(file_path: str) -> BidFormState:
     """Import state from an editable internal workbook export."""
     wb = load_workbook(file_path, data_only=False)
     try:
-        ws = wb[wb.sheetnames[0]]
-        if ws["A1"].value != INTERNAL_MARKER:
+        if "_rcw_data" not in wb.sheetnames:
+            raise ValueError("Not a supported internal workbook format")
+        ds = wb["_rcw_data"]
+        if ds["A1"].value != INTERNAL_MARKER:
             raise ValueError("Not a supported internal workbook format")
 
+        project_name = _string(ds["B2"].value) or Path(file_path).stem
+
+        # Read project info from rows 3-11
+        info_fields = {}
+        for r in range(3, 12):
+            key = _string(ds.cell(r, 1).value)
+            val = _string(ds.cell(r, 2).value)
+            if key:
+                info_fields[key] = val
+
         project_info = ProjectInfo(
-            developer=_string(ws["B3"].value),
-            address=_string(ws["B4"].value),
-            city=_string(ws["B5"].value),
-            contact=_string(ws["B6"].value),
-            phone=_string(ws["B7"].value),
-            email=_string(ws["B8"].value),
+            developer=info_fields.get("developer"),
+            address=info_fields.get("address"),
+            city=info_fields.get("city"),
+            contact=info_fields.get("contact"),
+            phone=info_fields.get("phone"),
+            email=info_fields.get("email"),
+            project_city=info_fields.get("project_city"),
+            arch_date=info_fields.get("arch_date"),
+            landscape_date=info_fields.get("landscape_date"),
         )
 
+        # Read items from row 14+
         items: list[LineItem] = []
-        row = 11
+        row = 14
         while True:
-            section = ws.cell(row, 1).value
-            name = ws.cell(row, 2).value
+            section = ds.cell(row, 1).value
+            name = ds.cell(row, 2).value
             if not section and not name:
                 break
 
-            qty = _float(ws.cell(row, 3).value)
-            uom = _string(ws.cell(row, 4).value) or "EA"
-            base_price = _float(ws.cell(row, 5).value)
-            difficulty = int(_float(ws.cell(row, 6).value) or 1)
+            qty = _float(ds.cell(row, 3).value)
+            uom = _string(ds.cell(row, 4).value) or "EA"
+            base_price = _float(ds.cell(row, 5).value)
+            difficulty = int(_float(ds.cell(row, 6).value) or 1)
             adders = {
-                1: _float(ws.cell(row, 7).value),
-                2: _float(ws.cell(row, 8).value),
-                3: _float(ws.cell(row, 9).value),
-                4: _float(ws.cell(row, 10).value),
-                5: _float(ws.cell(row, 11).value),
+                1: _float(ds.cell(row, 7).value),
+                2: _float(ds.cell(row, 8).value),
+                3: _float(ds.cell(row, 9).value),
+                4: _float(ds.cell(row, 10).value),
+                5: _float(ds.cell(row, 11).value),
             }
 
             toggle_mask = ToggleMask(
-                tax=_bool(ws.cell(row, 12).value, True),
-                labor=_bool(ws.cell(row, 13).value, True),
-                materials=_bool(ws.cell(row, 14).value, True),
-                equipment=_bool(ws.cell(row, 15).value, False),
-                subcontractor=_bool(ws.cell(row, 16).value, False),
+                tax=_bool(ds.cell(row, 12).value, True),
+                labor=_bool(ds.cell(row, 13).value, True),
+                materials=_bool(ds.cell(row, 14).value, True),
+                equipment=_bool(ds.cell(row, 15).value, False),
+                subcontractor=_bool(ds.cell(row, 16).value, False),
             )
-            mult = _float(ws.cell(row, 17).value, 1.0)
-            notes = _string(ws.cell(row, 20).value)
-            is_alt = _bool(ws.cell(row, 21).value, False)
+            mult = _float(ds.cell(row, 17).value, 1.0)
+            excluded = _bool(ds.cell(row, 18).value, False)
+            is_exclusion = _bool(ds.cell(row, 19).value, False)
+            notes = _string(ds.cell(row, 20).value)
+            is_alt = _bool(ds.cell(row, 21).value, False)
 
             items.append(
                 LineItem(
@@ -314,13 +413,14 @@ def import_internal_bid_workbook(file_path: str) -> BidFormState:
                     difficulty_adders=adders,
                     toggle_mask=toggle_mask,
                     mult=mult,
+                    excluded=excluded,
+                    is_exclusion=is_exclusion,
                     notes=notes,
                     is_alternate=is_alt,
                 )
             )
             row += 1
 
-        project_name = _string(ws["B2"].value) or Path(file_path).stem
         return BidFormState(
             project_name=project_name,
             raw_items=items,
@@ -334,121 +434,320 @@ def import_internal_bid_workbook(file_path: str) -> BidFormState:
 
 def export_proposal_workbook(state: BidFormState) -> bytes:
     """
-    Export client-facing proposal workbook using Sheet1 from template.
+    Export client-facing proposal workbook built from scratch (no template).
+    Layout mirrors the reference proposal XLSX.
     """
-    if PROPOSAL_TEMPLATE_PATH.exists():
-        wb = load_workbook(PROPOSAL_TEMPLATE_PATH)
-    else:
-        wb = Workbook()
-        wb.active.title = "Sheet1"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Sheet1"
 
-    ws = wb["Sheet1"] if "Sheet1" in wb.sheetnames else wb[wb.sheetnames[0]]
+    # -- Column widths --
+    for letter, w in [("A", 10.5), ("B", 10), ("C", 15), ("D", 16),
+                      ("E", 15.5), ("F", 14), ("G", 9), ("H", 9)]:
+        ws.column_dimensions[letter].width = w
 
-    # Header metadata
-    _set_ws_value(ws, "B1", state.project_info.developer or ws["B1"].value)
-    _set_ws_value(ws, "B2", state.project_info.address or ws["B2"].value)
-    _set_ws_value(ws, "B3", state.project_info.city or ws["B3"].value)
-    _set_ws_value(ws, "F1", datetime.now(timezone.utc).date().isoformat())
-    _set_ws_value(ws, "F2", state.project_info.contact or ws["F2"].value)
-    _set_ws_value(ws, "F3", state.project_info.phone or ws["F3"].value)
-    _set_ws_value(ws, "F4", state.project_info.email or ws["F4"].value)
-    _set_ws_value(ws, "B6", state.project_name or ws["B6"].value)
+    info = state.project_info
+    today = datetime.now(timezone.utc).date()
 
     # Derived metrics
-    unit_count = int(
-        sum(item.qty for item in state.raw_items if not item.excluded and "unit" in item.name.lower() and "count" in item.name.lower())
+    unit_count = int(sum(
+        i.qty for i in state.raw_items
+        if not i.excluded and "unit" in i.name.lower() and "count" in i.name.lower()
+    ))
+    total_sf = sum(
+        i.qty for i in state.raw_items if not i.excluded and i.uom.upper() == "SF"
     )
-    total_sf = float(sum(item.qty for item in state.raw_items if not item.excluded and item.uom.upper() == "SF"))
-    _set_ws_value(ws, "B7", f"{unit_count} Units" if unit_count else ws["B7"].value)
-    _set_ws_value(ws, "B8", state.project_info.project_city or ws["B8"].value)
-    _set_ws_value(ws, "B9", round(total_sf, 2) if total_sf else ws["B9"].value)
 
-    # Write scope items and exclusions into each section's row range
-    scope_sections = {
-        "units": {"start": 13, "end": 26},
-        "stairs": {"start": 29, "end": 36},
-        "corridors": {"start": 39, "end": 53},
-        "amenity": {"start": 56, "end": 66},
-        "exterior": {"start": 69, "end": 84},
-        "garage": {"start": 87, "end": 90},
-        "landscape": {"start": 92, "end": 95},
-    }
+    # ── Helper: write merged row ──
+    def _merged_text(row: int, text: str, font=_font_normal, align=_align_left):
+        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=8)
+        c = ws.cell(row, 1)
+        c.value = text
+        c.font = font
+        c.alignment = align
 
-    scope_font = Font(italic=False)
-    exclusion_font = Font(italic=True, color="FF0000")
+    # ── HEADER (rows 1-4) ──
+    def _hdr(row, col, val, font=_font_label):
+        c = ws.cell(row, col)
+        c.value = val
+        c.font = font
 
-    for section_key, row_range in scope_sections.items():
-        # Clear existing content in the range
-        for r in range(row_range["start"], row_range["end"] + 1):
-            try:
-                ws[f"A{r}"] = None
-            except AttributeError:
-                pass
+    _hdr(1, 1, "Developer:")
+    ws.merge_cells("B1:D1")
+    ws.cell(1, 2).value = info.developer or ""
+    ws.cell(1, 2).font = _font_normal
+    ws.cell(1, 2).alignment = _align_left
+    _hdr(1, 5, "Date:")
+    ws.merge_cells("F1:H1")
+    ws.cell(1, 6).value = today
+    ws.cell(1, 6).font = _font_normal
+    ws.cell(1, 6).number_format = _DATE_FMT
+    ws.cell(1, 6).alignment = _align_right
 
-        # Find matching items by section name (case-insensitive)
-        section_items = []
-        for sec_name in state.get_raw_sections():
-            if sec_name.lower() == section_key:
-                section_items = state.get_raw_items_by_section(sec_name)
-                break
+    _hdr(2, 1, "Address:")
+    ws.merge_cells("B2:D2")
+    ws.cell(2, 2).value = info.address or ""
+    ws.cell(2, 2).font = _font_normal
+    ws.cell(2, 2).alignment = _align_left
+    _hdr(2, 5, "Contact: ")
+    ws.merge_cells("F2:H2")
+    ws.cell(2, 6).value = info.contact or ""
+    ws.cell(2, 6).font = _font_bold
+    ws.cell(2, 6).alignment = _align_right
 
-        active = [i for i in section_items if not i.excluded and i.qty > 0]
+    _hdr(3, 1, "City:")
+    ws.merge_cells("B3:D3")
+    ws.cell(3, 2).value = info.city or ""
+    ws.cell(3, 2).font = _font_normal
+    ws.cell(3, 2).alignment = _align_left
+    _hdr(3, 5, "Phone:")
+    ws.merge_cells("F3:H3")
+    ws.cell(3, 6).value = info.phone or ""
+    ws.cell(3, 6).font = _font_bold
+    ws.cell(3, 6).alignment = _align_right
+
+    _hdr(4, 5, "Email: ")
+    ws.merge_cells("F4:H4")
+    ws.cell(4, 6).value = info.email or ""
+    ws.cell(4, 6).font = _font_normal
+    ws.cell(4, 6).alignment = _align_right
+
+    # ── PROJECT INFO (rows 6-10) ──
+    _hdr(6, 1, "PROJECT")
+    ws.merge_cells("B6:D6")
+    ws.cell(6, 2).value = state.project_name or ""
+    ws.cell(6, 2).font = _font_normal
+    ws.cell(6, 2).alignment = _align_left
+    ws.merge_cells("E6:F6")
+    ws.cell(6, 5).value = "PLANS"
+    ws.cell(6, 5).font = _font_label
+    ws.cell(6, 5).alignment = _align_center
+    ws.merge_cells("G6:H6")
+    ws.cell(6, 7).value = "DATED"
+    ws.cell(6, 7).font = _font_label
+    ws.cell(6, 7).alignment = _align_center
+
+    _hdr(7, 1, "UNITS")
+    ws.merge_cells("B7:D7")
+    ws.cell(7, 2).value = f"{unit_count} Residential Units" if unit_count else ""
+    ws.cell(7, 2).font = _font_normal
+    ws.cell(7, 2).alignment = _align_left
+    ws.merge_cells("E7:F7")
+    ws.cell(7, 5).value = "ARCHITECTURAL"
+    ws.cell(7, 5).font = _font_normal
+    ws.cell(7, 5).alignment = _align_left
+    ws.merge_cells("G7:H7")
+    ws.cell(7, 7).value = info.arch_date or ""
+    ws.cell(7, 7).font = _font_normal
+    ws.cell(7, 7).alignment = _align_center
+
+    _hdr(8, 1, "CITY")
+    ws.merge_cells("B8:D8")
+    ws.cell(8, 2).value = info.project_city or ""
+    ws.cell(8, 2).font = _font_normal
+    ws.cell(8, 2).alignment = _align_left
+    ws.merge_cells("E8:F8")
+    ws.cell(8, 5).value = "LANDSCAPE"
+    ws.cell(8, 5).font = _font_normal
+    ws.cell(8, 5).alignment = _align_left
+    ws.merge_cells("G8:H8")
+    landscape_val = info.landscape_date or "Excluded"
+    ws.cell(8, 7).value = landscape_val
+    ws.cell(8, 7).font = Font(name=_CAMBRIA, size=11, color="FF0000") if landscape_val == "Excluded" else _font_normal
+    ws.cell(8, 7).alignment = _align_center
+
+    ws.merge_cells("E9:F9")
+    ws.cell(9, 5).value = "INTERIOR DESIGN"
+    ws.cell(9, 5).font = _font_normal
+    ws.cell(9, 5).alignment = _align_left
+    ws.merge_cells("G9:H9")
+    ws.cell(9, 7).value = "NA"
+    ws.cell(9, 7).font = _font_normal
+    ws.cell(9, 7).alignment = _align_center
+
+    ws.merge_cells("E10:F10")
+    ws.cell(10, 5).value = "OWNER SPECS"
+    ws.cell(10, 5).font = Font(name=_CAMBRIA, size=10)
+    ws.cell(10, 5).alignment = _align_left
+    ws.merge_cells("G10:H10")
+    ws.cell(10, 7).value = "NA"
+    ws.cell(10, 7).font = _font_normal
+    ws.cell(10, 7).alignment = _align_center
+
+    # ── SCOPE SECTIONS (dynamic rows starting at 12) ──
+    row = 12
+    section_totals_map = {s.section_name.lower(): s.total for s in state.section_totals}
+
+    for section_name in state.get_raw_sections():
+        section_items = state.get_raw_items_by_section(section_name)
+        active = [i for i in section_items if not i.excluded and not i.is_exclusion and i.qty > 0 and not i.is_alternate]
         exclusions = [i for i in section_items if i.is_exclusion]
 
-        r = row_range["start"]
+        if not active and not exclusions:
+            continue
+
+        # Section header
+        ws.cell(row, 1).value = section_name.upper()
+        ws.cell(row, 1).font = _font_section
+        ws.row_dimensions[row].height = 15.6
+        row += 1
+
+        # Active scope items (merged A:H)
         for item in active:
-            if r > row_range["end"]:
-                break
-            try:
-                ws[f"A{r}"] = item.name
-                ws[f"A{r}"].font = scope_font
-            except AttributeError:
-                pass
-            r += 1
+            _merged_text(row, item.name)
+            row += 1
+
+        # Exclusions
         for item in exclusions:
-            if r > row_range["end"]:
-                break
-            try:
-                ws[f"A{r}"] = f"Excludes {item.name}"
-                ws[f"A{r}"].font = exclusion_font
-            except AttributeError:
-                pass
-            r += 1
+            ws.cell(row, 1).value = f"Excludes {item.name}"
+            ws.cell(row, 1).font = _font_exclusion
+            ws.cell(row, 1).alignment = _align_left
+            row += 1
 
-    section_totals = {s.section_name.lower(): s.total for s in state.section_totals}
-    pricing_rows = [
-        (98, "units"),
-        (99, "corridors"),
-        (100, "stairs"),
-        (101, "amenity"),
-        (102, "exterior"),
-        (103, "garage"),
-        (104, "landscape"),
+        # Blank spacer
+        row += 1
+
+    # ── PRICING SECTION ──
+    pricing_start = row
+    ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=8)
+    ws.cell(row, 1).value = "PRICING"
+    ws.cell(row, 1).font = _font_pricing_hdr
+    ws.cell(row, 1).alignment = _align_center
+    ws.row_dimensions[row].height = 17.4
+    # Borders on pricing header
+    for c in range(1, 9):
+        cell = ws.cell(row, c)
+        cell.border = Border(
+            left=_THIN if c == 1 else None,
+            right=_THIN if c == 8 else None,
+        )
+    row += 1
+
+    # Amount header
+    ws.cell(row, 5).value = "Amount"
+    ws.cell(row, 5).font = _font_bold
+    ws.cell(row, 5).alignment = _align_center
+    row += 1
+
+    # Section pricing rows
+    for section_name in state.get_raw_sections():
+        subtotal = section_totals_map.get(section_name.lower(), 0.0)
+        if subtotal <= 0:
+            continue
+        ws.cell(row, 4).value = section_name.capitalize()
+        ws.cell(row, 4).font = _font_normal
+        ws.cell(row, 5).value = round(subtotal, 2)
+        ws.cell(row, 5).number_format = _CURRENCY_FMT
+        ws.cell(row, 5).font = _font_normal
+        row += 1
+
+    # Total row
+    ws.cell(row, 4).value = "Total"
+    ws.cell(row, 4).font = _font_bold
+    ws.cell(row, 5).value = round(float(state.grand_total), 2)
+    ws.cell(row, 5).number_format = _CURRENCY_FMT
+    ws.cell(row, 5).font = _font_bold
+    row += 1
+
+    # Net wrap note
+    row += 1
+    ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=7)
+    ws.cell(row, 1).value = "Pricing Net Wrap Liability Insurance"
+    ws.cell(row, 1).font = Font(name=_CAMBRIA, italic=True, size=11, color="FF0000")
+    ws.cell(row, 1).alignment = _align_center
+    row += 2
+
+    # ── EXCLUSIONS LIST ──
+    ws.cell(row, 4).value = "EXCLUSIONS"
+    ws.cell(row, 4).font = _font_red_bold
+    row += 1
+
+    exclusion_pairs = [
+        ("9900 Specifications", "Masked Hinges"),
+        ("0 VOC Paints & Systems", "ALL Stand Pipes"),
+        ("Scaffolding & Lifts", "Wall Coverings"),
+        ("Saturday & Weekend Work", "Paid Parking: Parking To Be Provided By Contractor"),
+        ("Water Proofing Membranes", "Caulking Windows: By Drywall Contractor"),
+        ("ALL Exterior Caulking: Done By Other", "Not Responsible For Rusting If Metal Is Not Metalized"),
+        ("Power & Pressure Washing", "Payment & Performance Bonds"),
+        ("Signing Unmodified Scaffold Agreements", "Excess & Umbrella Coverages"),
     ]
-    for row, section_key in pricing_rows:
-        _set_ws_value(ws, f"E{row}", round(float(section_totals.get(section_key, 0.0)), 2))
-        ws[f"E{row}"].number_format = '"$"#,##0.00'
-    # Use actual grand total so standalone/unmapped priced rows remain included.
-    _set_ws_value(ws, "E105", round(float(state.grand_total), 2))
-    ws["E105"].number_format = '"$"#,##0.00'
+    for left, right in exclusion_pairs:
+        ws.cell(row, 1).value = left
+        ws.cell(row, 1).font = _font_normal
+        ws.cell(row, 5).value = right
+        ws.cell(row, 5).font = _font_normal
+        row += 1
+    # Highlight 9900 spec
+    spec_row = row - len(exclusion_pairs)
+    ws.cell(spec_row, 1).font = _font_bold
+    ws.cell(spec_row, 1).fill = _fill_yellow
 
-    # Add alternates list
-    for r in range(121, 220):
-        for col in ("A", "D"):
-            try:
-                ws[f"{col}{r}"] = None
-            except AttributeError:
-                # Skip merged/read-only cells in template regions.
-                pass
-    alt_row = 121
-    for item in [i for i in state.raw_items if i.is_alternate]:
-        ws[f"A{alt_row}"] = item.name
-        try:
-            ws[f"D{alt_row}"] = round(float(item.row_total), 2)
-            ws[f"D{alt_row}"].number_format = '"$"#,##0.00'
-        except AttributeError:
-            pass
-        alt_row += 1
+    row += 1
+
+    # ── ADD ALTERNATES ──
+    alternates = [i for i in state.raw_items if i.is_alternate]
+    if alternates:
+        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=6)
+        ws.cell(row, 1).value = "ADD ALTERNATES"
+        ws.cell(row, 1).font = _font_bold
+        ws.cell(row, 1).alignment = _align_center
+        # Bottom border
+        for c in range(1, 7):
+            ws.cell(row, c).border = Border(bottom=_THIN)
+        row += 1
+
+        for item in alternates:
+            ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=3)
+            ws.cell(row, 1).value = item.name
+            ws.cell(row, 1).font = _font_normal
+            ws.merge_cells(start_row=row, start_column=4, end_row=row, end_column=6)
+            ws.cell(row, 4).value = round(float(item.row_total), 2)
+            ws.cell(row, 4).number_format = _CURRENCY_FMT
+            ws.cell(row, 4).font = _font_normal
+            row += 1
+
+        row += 1
+
+    # ── ADDITIONAL WORK RATES ──
+    ws.cell(row, 1).value = "ADDITIONAL WORK CHARGED AT:"
+    ws.cell(row, 1).font = _font_bold
+    ws.cell(row, 4).value = "$73.00/HR"
+    ws.cell(row, 4).font = _font_normal
+    ws.cell(row, 4).alignment = _align_right
+    row += 1
+
+    ws.cell(row, 1).value = "1/2 Time OT Work"
+    ws.cell(row, 1).font = _font_bold
+    ws.cell(row, 4).value = "$37.00/HR"
+    ws.cell(row, 4).font = _font_normal
+    ws.cell(row, 4).alignment = _align_right
+    row += 2
+
+    # ── MATERIALS ──
+    ws.cell(row, 1).value = "MATERIALS INCLUDED IN BID: VISTA PAINTS"
+    ws.cell(row, 1).font = _font_section
+    row += 1
+
+    mat_sections = [
+        ("Units", [("Flat", "Breezewall"), ("Enamel", "V-Pro")]),
+        ("Common Area", [("Flat", "Breezewall"), ("Enamel", "V-Pro")]),
+        ("Exterior", [("Doors", "Protec"), ("Balcony Rails", "Protec"), ("Wood", "Coverall")]),
+    ]
+    for mat_title, items in mat_sections:
+        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=2)
+        ws.cell(row, 1).value = mat_title
+        ws.cell(row, 1).font = _font_section
+        ws.cell(row, 1).alignment = _align_left
+        row += 1
+        for label, product in items:
+            ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=2)
+            ws.cell(row, 1).value = label
+            ws.cell(row, 1).font = _font_normal
+            ws.cell(row, 1).alignment = _align_left
+            ws.cell(row, 3).value = product
+            ws.cell(row, 3).font = _font_normal
+            row += 1
 
     out = BytesIO()
     wb.save(out)
@@ -486,16 +785,3 @@ def _bool(value, default: bool) -> bool:
     return default
 
 
-def _set_ws_value(ws, cell_ref: str, value) -> None:
-    """Set a worksheet value, redirecting to merged-cell anchor when needed."""
-    try:
-        ws[cell_ref] = value
-        return
-    except AttributeError:
-        pass
-
-    for merged_range in ws.merged_cells.ranges:
-        if cell_ref in merged_range:
-            anchor = ws.cell(merged_range.min_row, merged_range.min_col).coordinate
-            ws[anchor] = value
-            return

@@ -48,16 +48,6 @@
             font-weight: 600;
         }
 
-        /* Toggle button styles */
-        .toggle-active {
-            background-color: #10b981;
-            color: white;
-        }
-        .toggle-inactive {
-            background-color: #374151;
-            color: #9ca3af;
-        }
-
         /* Table styles */
         .bid-table {
             border-collapse: separate;
@@ -130,16 +120,23 @@
                         </div>
                     </a>
 
-                    <a href="/logic" class="block px-4 py-3 rounded-lg hover:bg-gray-800 transition {% if page == 'logic' %}step-active{% endif %}">
+                    <a href="/spec" class="block px-4 py-3 rounded-lg hover:bg-gray-800 transition {% if page == 'spec' %}step-active{% endif %}">
                         <div class="flex items-center">
                             <span class="mr-3">3</span>
-                            <span>Logic</span>
+                            <span>Spec Form</span>
+                        </div>
+                    </a>
+
+                    <a href="/logic" class="block px-4 py-3 rounded-lg hover:bg-gray-800 transition {% if page == 'logic' %}step-active{% endif %}">
+                        <div class="flex items-center">
+                            <span class="mr-3">4</span>
+                            <span>Logic & Instructions</span>
                         </div>
                     </a>
 
                     <a href="/print" class="block px-4 py-3 rounded-lg hover:bg-gray-800 transition {% if page == 'print' %}step-active{% endif %}">
                         <div class="flex items-center">
-                            <span class="mr-3">4</span>
+                            <span class="mr-3">5</span>
                             <span>Print</span>
                         </div>
                     </a>

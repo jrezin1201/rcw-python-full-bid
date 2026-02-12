@@ -1,0 +1,231 @@
+{% extends "layout.html" %}
+
+{% block title %}Spec Form - Print - {{ bid_state.project_name }}{% endblock %}
+{% block page_title %}Spec Form Print{% endblock %}
+
+{% block content %}
+<style>
+    @page {
+        size: letter;
+        margin: 0.5in;
+    }
+    @media print {
+        body {
+            background: white;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .no-print { display: none !important; }
+        body > div > div:first-child,
+        header, .bg-blue-600 { display: none !important; }
+        body > div > div:last-child { margin-left: 0 !important; }
+        main { padding: 0 !important; }
+        .print-page {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+            border: none;
+        }
+        .page-break { page-break-before: always; }
+        .avoid-break { page-break-inside: avoid; }
+    }
+    @media screen {
+        .print-page {
+            max-width: 8.5in;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+    }
+    .spec-print {
+        font-family: Cambria, 'Palatino Linotype', Georgia, serif;
+        font-size: 11pt;
+        color: #000;
+        line-height: 1.4;
+    }
+    .spec-print .address-header {
+        font-weight: bold;
+        font-size: 11pt;
+        text-align: center;
+        text-decoration: underline;
+        margin-bottom: 16px;
+    }
+    .spec-print .section-title {
+        font-weight: bold;
+        font-size: 12pt;
+        margin-top: 12px;
+        margin-bottom: 2px;
+    }
+    .spec-print .spec-item {
+        font-size: 11pt;
+        padding-left: 0;
+        margin-bottom: 1px;
+    }
+    .spec-print .exclude-item {
+        font-size: 10pt;
+        font-style: italic;
+        color: #FF0000;
+    }
+    .spec-print .pricing-header {
+        font-weight: bold;
+        font-size: 14pt;
+        text-align: center;
+        padding: 4px;
+        margin-top: 20px;
+    }
+    .spec-print table.pricing-table {
+        border-collapse: collapse;
+        width: auto;
+        margin: 0 auto;
+    }
+    .spec-print table.pricing-table td {
+        padding: 3px 8px;
+        font-size: 11pt;
+    }
+    .spec-print .net-wrap {
+        font-style: italic;
+        color: #FF0000;
+        text-align: center;
+        font-size: 11pt;
+        margin-top: 8px;
+    }
+    .spec-print .add-alts-header {
+        font-weight: bold;
+        font-size: 12pt;
+        text-align: center;
+        border-bottom: 1px solid #000;
+        padding-bottom: 2px;
+        margin-top: 20px;
+        margin-bottom: 6px;
+    }
+</style>
+
+<div class="print-page p-8 spec-print">
+
+    <!-- Project Address -->
+    <div class="address-header">{{ project_address }}</div>
+
+    <!-- Scope Sections with Spec Items -->
+    {% for section_total in ordered_section_totals %}
+    {% set section_name = section_total.section_name %}
+    {% set section_spec_items = bid_state.spec_items.get(section_name, []) %}
+    {% set included = section_spec_items | rejectattr('excluded') | list %}
+    {% set excluded = section_spec_items | selectattr('excluded') | list %}
+    {% if included or excluded %}
+    <div class="avoid-break">
+        <div class="section-title">{{ section_name|upper }}</div>
+        {% for spec in included %}
+        <div class="spec-item">{{ spec.name }}</div>
+        {% endfor %}
+        {% for spec in excluded %}
+        <div class="exclude-item">Excludes {{ spec.name }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <!-- Pricing Table -->
+    <div class="avoid-break">
+        <div class="pricing-header">PRICING</div>
+        <table class="pricing-table">
+            <tr>
+                <td></td>
+                <td></td>
+                <td style="font-weight: bold; text-align: center;">Amount</td>
+            </tr>
+            {% for section_total in ordered_section_totals %}
+            {% if section_total.total > 0 %}
+            <tr>
+                <td>{{ section_total.section_name }}</td>
+                <td style="text-align: left; padding-right: 2px;">$</td>
+                <td style="text-align: right;">{{ "{:,.2f}".format(section_total.total) }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            <tr style="font-weight: bold; border-top: 1px solid #000;">
+                <td>Total</td>
+                <td style="text-align: left; padding-right: 2px;">$</td>
+                <td style="text-align: right;">{{ "{:,.2f}".format(bid_state.grand_total) }}</td>
+            </tr>
+        </table>
+        <div class="net-wrap">Pricing Net Wrap Liability Insurance</div>
+    </div>
+
+    <!-- Normal Exclusions -->
+    {% if bid_state.spec_exclusions %}
+    <div class="avoid-break" style="margin-top: 16px; margin-bottom: 16px;">
+        <div style="text-align: center; margin-bottom: 6px;">
+            <span style="font-weight: bold; font-size: 12pt; color: #FF0000;">EXCLUSIONS</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px 32px; font-size: 11pt;">
+            {% for excl in bid_state.spec_exclusions %}
+            <div>{{ excl }}</div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Add Alts -->
+    {% if add_alts %}
+    <div class="avoid-break">
+        <div class="add-alts-header">ADD ALTERNATES</div>
+        <table style="width: 60%; margin: 0 auto; border-collapse: collapse;">
+            {% for alt in add_alts %}
+            <tr>
+                <td style="padding: 3px 8px; font-size: 11pt;">{{ alt.name }} {{ alt.section }}</td>
+            </tr>
+            {% endfor %}
+            <tr style="font-weight: bold; border-top: 1px solid #000;">
+                <td style="padding: 3px 8px; font-size: 11pt;">ADDITIONAL WORK CHARGED AT:</td>
+                <td style="padding: 3px 8px; font-size: 11pt; text-align: right;">$73.00/HR</td>
+            </tr>
+            <tr>
+                <td style="padding: 3px 8px; font-size: 11pt;">1/2 Time OT Work</td>
+                <td style="padding: 3px 8px; font-size: 11pt; text-align: right;">$37.00/HR</td>
+            </tr>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Materials Included In Bid -->
+    {% if materials_section_order %}
+    <div class="avoid-break" style="margin-top: 16px;">
+        <div style="font-weight: bold; font-size: 11pt; margin-bottom: 4px;">MATERIALS INCLUDED IN BID: {{ materials_brand }}</div>
+        <table style="width: 80%; border-collapse: collapse; font-size: 11pt;">
+            {% for section_name in materials_section_order %}
+            {% set mat_items = materials_sections.get(section_name, []) %}
+            <tr><td colspan="3" style="font-weight: bold; padding: 6px 0 2px;">{{ section_name }}</td></tr>
+            {% for item in mat_items %}
+            <tr>
+                <td style="border: 1px solid #000; padding: 2px 6px;">{{ item.name }}</td>
+                <td style="border: 1px solid #000; padding: 2px 6px; width: 30%;">{{ item.value }}</td>
+                <td style="border: 1px solid #000; padding: 2px 6px; width: 20%;"></td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <div style="margin-top: 24px; text-align: center; font-size: 9pt; color: #6b7280; border-top: 1px solid #d1d5db; padding-top: 8px;">
+        RCW Painting | Spec Form | Generated {{ today_date }}
+    </div>
+</div>
+
+<!-- Print Controls -->
+<div class="fixed bottom-8 right-8 no-print flex gap-2">
+    <button onclick="window.print()"
+            class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+        </svg>
+        Print / Save PDF
+    </button>
+    <a href="/spec" class="px-6 py-3 bg-gray-600 text-white rounded-lg shadow-lg hover:bg-gray-700 transition inline-flex items-center">
+        Back to Spec Form
+    </a>
+</div>
+{% endblock %}

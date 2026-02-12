@@ -30,7 +30,7 @@ def set_state(bid_id: str, state: BidFormState) -> None:
     _bid_forms[bid_id] = state
     _current_bid_id = bid_id
     state.modified_at = datetime.now(timezone.utc).isoformat()
-    logger.info(f"Stored bid form {bid_id} with {len(state.items)} items")
+    logger.info(f"Stored bid form {bid_id} with {len(state.raw_items)} items")
 
 
 def get_state(bid_id: Optional[str] = None) -> Optional[BidFormState]:

@@ -1,137 +1,463 @@
 {% extends "layout.html" %}
 
-{% block title %}Logic - {{ bid_state.project_name }}{% endblock %}
+{% block title %}Logic & Instructions - {{ bid_state.project_name }}{% endblock %}
+
+{% block page_title %}Logic & Instructions{% endblock %}
 
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-4 max-w-5xl mx-auto">
+
+    <!-- ===== HEADER CARD (not collapsible) ===== -->
     <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between flex-wrap gap-4">
             <div>
-                <h2 class="text-2xl font-bold text-gray-900">Pricing Logic</h2>
-                <p class="text-sm text-gray-600 mt-1">This page explains exactly how each line item total is calculated.</p>
+                <h2 class="text-2xl font-bold text-gray-900">Logic & Instructions</h2>
+                <p class="text-sm text-gray-600 mt-1">How-to guide and pricing reference for the bid form.</p>
+                <div class="flex flex-wrap gap-4 mt-3 text-sm text-gray-700">
+                    <span><span class="font-semibold">{{ priced_item_count }}</span> priced items</span>
+                    <span><span class="font-semibold">{{ sections_list|length }}</span> sections</span>
+                    <span class="font-semibold text-blue-700">{{ format_currency(grand_total) }} grand total</span>
+                </div>
             </div>
-            <a href="/bid" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Back to Bid Form</a>
+            <a href="/bid" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap">Back to Bid Form</a>
         </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-3">Single Source Formula</h3>
-        <div class="bg-gray-900 text-white rounded-lg p-4 font-mono text-sm overflow-x-auto">
-            row_total = qty * ((base_price + difficulty_add[level]) * toggle_multiplier * manual_multiplier)
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-sm">
-            <div class="bg-gray-50 rounded-lg p-4">
-                <p class="font-semibold text-gray-800 mb-2">Meaning</p>
-                <p class="text-gray-700">`difficulty_add[level]` is an absolute dollar add per UOM (not a percent).</p>
-                <p class="text-gray-700">Example: +$3.00 at level 2 and qty 50 adds $150.00 to that row before toggles/multiplier.</p>
-            </div>
-            <div class="bg-gray-50 rounded-lg p-4">
-                <p class="font-semibold text-gray-800 mb-2">Grand Total</p>
-                <p class="text-gray-700">`grand_total = sum(row_total for all line items)`</p>
-                <p class="text-xl font-bold text-gray-900 mt-2">{{ format_currency(grand_total) }}</p>
+    <!-- ===== 1. QUICK START GUIDE ===== -->
+    <div class="bg-white rounded-lg shadow-sm" x-data="{ open: true }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-900">1. Quick Start Guide</h3>
+            <svg :class="open ? 'rotate-180' : ''" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open" x-transition x-cloak class="px-6 pb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-blue-600 mb-1">1</div>
+                    <p class="font-semibold text-gray-900">Upload</p>
+                    <p class="text-sm text-gray-600 mt-1">Upload your takeoff Excel file on the home page. The system extracts quantities, UOMs, and item names.</p>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-blue-600 mb-1">2</div>
+                    <p class="font-semibold text-gray-900">Bid Form</p>
+                    <p class="text-sm text-gray-600 mt-1">Review extracted items on the Bid Form. Items are matched to the pricing catalog automatically.</p>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-blue-600 mb-1">3</div>
+                    <p class="font-semibold text-gray-900">Edit & Adjust</p>
+                    <p class="text-sm text-gray-600 mt-1">Edit quantities, prices, difficulty, and multipliers. Exclude items you don't need. Add notes.</p>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-blue-600 mb-1">4</div>
+                    <p class="font-semibold text-gray-900">Export / Print</p>
+                    <p class="text-sm text-gray-600 mt-1">Export to Internal XLSX, Proposal XLSX, or use Print view for a clean PDF.</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-3">Toggle Multiplier Rules</h3>
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[700px] text-sm">
-                <thead class="bg-gray-50 text-gray-600">
-                    <tr>
-                        <th class="px-3 py-2 text-left">Toggle</th>
-                        <th class="px-3 py-2 text-center">If ON</th>
-                        <th class="px-3 py-2 text-center">If OFF</th>
-                        <th class="px-3 py-2 text-left">Note</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    {% for rule in toggle_rules %}
-                    <tr>
-                        <td class="px-3 py-2 font-medium text-gray-900">{{ rule.name }}</td>
-                        <td class="px-3 py-2 text-center">{{ rule.on_effect }}</td>
-                        <td class="px-3 py-2 text-center">{{ rule.off_effect }}</td>
-                        <td class="px-3 py-2 text-gray-600">Applied in effective unit-price calculation.</td>
-                    </tr>
+    <!-- ===== 2. UNDERSTANDING THE BID FORM ===== -->
+    <div class="bg-white rounded-lg shadow-sm" x-data="{ open: false }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-900">2. Understanding the Bid Form</h3>
+            <svg :class="open ? 'rotate-180' : ''" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open" x-transition x-cloak class="px-6 pb-6 space-y-4">
+            <div>
+                <p class="font-semibold text-gray-800 mb-2">Sections</p>
+                <p class="text-sm text-gray-700">Items are grouped into sections pulled from the Excel file. Your current project has <span class="font-semibold">{{ sections_list|length }}</span> sections:</p>
+                <div class="flex flex-wrap gap-2 mt-2">
+                    {% for sec in sections_list %}
+                    <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-1 rounded">{{ sec }}</span>
                     {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-lg shadow-sm p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-3">Worked Examples (Live Data)</h3>
-        {% if logic_examples and logic_examples|length > 0 %}
-        <div class="space-y-4">
-            {% for ex in logic_examples %}
-            <div class="border border-gray-200 rounded-lg p-4">
-                <div class="flex items-center justify-between">
-                    <p class="font-semibold text-gray-900">{{ ex.section }} - {{ ex.name }}</p>
-                    <p class="text-sm text-gray-500">Qty: {{ format_number(ex.qty) }} {{ ex.uom }}</p>
-                </div>
-                <div class="mt-3 text-sm text-gray-700 font-mono overflow-x-auto">
-                    {{ format_number(ex.qty) }} * (({{ format_currency(ex.base_price) }} + {{ format_currency(ex.difficulty_add) }}) * {{ "%.4f"|format(ex.toggle_multiplier) }} * {{ format_number(ex.manual_multiplier) }})
-                    = {{ format_currency(ex.row_total) }}
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-3 text-sm">
-                    <div class="bg-gray-50 rounded p-2">
-                        <p class="text-gray-500">Base</p>
-                        <p class="font-semibold">{{ format_currency(ex.base_price) }}</p>
-                    </div>
-                    <div class="bg-gray-50 rounded p-2">
-                        <p class="text-gray-500">Difficulty</p>
-                        <p class="font-semibold">L{{ ex.difficulty_level }} (+{{ format_currency(ex.difficulty_add) }})</p>
-                    </div>
-                    <div class="bg-gray-50 rounded p-2">
-                        <p class="text-gray-500">Toggle Mult</p>
-                        <p class="font-semibold">{{ "%.4f"|format(ex.toggle_multiplier) }}</p>
-                    </div>
-                    <div class="bg-gray-50 rounded p-2">
-                        <p class="text-gray-500">Manual Mult</p>
-                        <p class="font-semibold">{{ format_number(ex.manual_multiplier) }}</p>
-                    </div>
-                    <div class="bg-blue-50 rounded p-2 border border-blue-100">
-                        <p class="text-blue-600">Row Total</p>
-                        <p class="font-semibold text-blue-900">{{ format_currency(ex.row_total) }}</p>
-                    </div>
                 </div>
             </div>
-            {% endfor %}
+            <div>
+                <p class="font-semibold text-gray-800 mb-2">Row Layout</p>
+                <p class="text-sm text-gray-700">Each row shows a single line item. Rows with <span class="font-semibold">qty = 0</span> start collapsed to reduce clutter &mdash; click the row to expand it. Rows with quantity are expanded by default.</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-800 mb-2">Column Reference</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 text-gray-600">
+                            <tr>
+                                <th class="px-3 py-2 text-left">Column</th>
+                                <th class="px-3 py-2 text-left">Description</th>
+                                <th class="px-3 py-2 text-center">Editable?</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-gray-700">
+                            <tr><td class="px-3 py-2 font-medium">#</td><td class="px-3 py-2">Row number within the section</td><td class="px-3 py-2 text-center">No</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">+/&minus;</td><td class="px-3 py-2">Expand/collapse the row details</td><td class="px-3 py-2 text-center">&mdash;</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">X</td><td class="px-3 py-2">Exclude item (soft-delete) &mdash; greyed out, removed from totals</td><td class="px-3 py-2 text-center">Click</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">ITEM</td><td class="px-3 py-2">Item name (from Excel or catalog match)</td><td class="px-3 py-2 text-center">Yes</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">QTY</td><td class="px-3 py-2">Quantity from takeoff</td><td class="px-3 py-2 text-center">Yes</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">UOM</td><td class="px-3 py-2">Unit of measure (EA, LF, SF, etc.)</td><td class="px-3 py-2 text-center">Yes</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">$/UNIT</td><td class="px-3 py-2">Effective unit price (base + difficulty adder)</td><td class="px-3 py-2 text-center">Yes (base)</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">DIFFICULTY</td><td class="px-3 py-2">Difficulty level 1&ndash;5 (adds to base price)</td><td class="px-3 py-2 text-center">Yes (buttons)</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">TOTAL</td><td class="px-3 py-2">Row total = qty &times; effective_price &times; multiplier</td><td class="px-3 py-2 text-center">No (computed)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-800 mb-2">Totals Panel</p>
+                <p class="text-sm text-gray-700">The sticky footer shows the grand total across all active (non-excluded) items. Section subtotals appear in each section header.</p>
+            </div>
         </div>
-        {% else %}
-        <p class="text-sm text-gray-600">No line items with quantity were found to build examples.</p>
-        {% endif %}
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-3">Section Totals</h3>
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[600px] text-sm">
-                <thead class="bg-gray-50 text-gray-600">
-                    <tr>
-                        <th class="px-3 py-2 text-left">Section</th>
-                        <th class="px-3 py-2 text-right">Items</th>
-                        <th class="px-3 py-2 text-right">Total</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    {% for s in section_totals %}
-                    <tr>
-                        <td class="px-3 py-2 font-medium text-gray-900">{{ s.section_name }}</td>
-                        <td class="px-3 py-2 text-right">{{ s.item_count }}</td>
-                        <td class="px-3 py-2 text-right font-semibold">{{ format_currency(s.total) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-                <tfoot>
-                    <tr class="bg-gray-900 text-white">
-                        <td class="px-3 py-2 font-semibold">Grand Total</td>
-                        <td class="px-3 py-2 text-right">{{ total_items }}</td>
-                        <td class="px-3 py-2 text-right font-semibold">{{ format_currency(grand_total) }}</td>
-                    </tr>
-                </tfoot>
-            </table>
+    <!-- ===== 3. HOW TO EDIT ITEMS ===== -->
+    <div class="bg-white rounded-lg shadow-sm" x-data="{ open: false }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-900">3. How to Edit Items</h3>
+            <svg :class="open ? 'rotate-180' : ''" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open" x-transition x-cloak class="px-6 pb-6 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="font-semibold text-gray-800 mb-1">Quantity</p>
+                    <p class="text-sm text-gray-700">Click the QTY field to type a new value. Press Enter or Tab to save. The row total updates instantly.</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="font-semibold text-gray-800 mb-1">Unit Price</p>
+                    <p class="text-sm text-gray-700">Click the $/UNIT field to edit the base price. This is the price before difficulty adders are applied.</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="font-semibold text-gray-800 mb-1">Item Name</p>
+                    <p class="text-sm text-gray-700">Click the item name to edit it. Useful for correcting auto-matched names or adding detail.</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="font-semibold text-gray-800 mb-1">UOM</p>
+                    <p class="text-sm text-gray-700">Click the UOM field to change the unit of measure (EA, LF, SF, SY, etc.).</p>
+                </div>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-800 mb-1">Adding Items & Sections</p>
+                <p class="text-sm text-gray-700">Use the "Add Item" button at the bottom of any section to add a blank line item. Use "Add Section" to create a new section group.</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-800 mb-1">Notes</p>
+                <p class="text-sm text-gray-700">Expand a row and click the notes area to add internal notes. Notes appear on the Internal XLSX export but not on the customer-facing Proposal.</p>
+            </div>
         </div>
     </div>
+
+    <!-- ===== 4. DIFFICULTY SYSTEM ===== -->
+    <div class="bg-white rounded-lg shadow-sm" x-data="{ open: false }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-900">4. Difficulty System</h3>
+            <svg :class="open ? 'rotate-180' : ''" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open" x-transition x-cloak class="px-6 pb-6 space-y-4">
+            <p class="text-sm text-gray-700">Each item has a difficulty level from <span class="font-semibold">1</span> (easiest) to <span class="font-semibold">5</span> (hardest). Difficulty adds an <span class="font-semibold">absolute dollar amount</span> per unit &mdash; not a percentage.</p>
+
+            <div class="bg-gray-900 text-white rounded-lg p-4 font-mono text-sm">
+                effective_price = base_price + difficulty_adders[level]
+            </div>
+
+            <div class="grid grid-cols-5 gap-2 text-center">
+                <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <div class="text-xl font-bold text-green-700">1</div>
+                    <p class="text-xs text-gray-600 mt-1">Easiest</p>
+                    <p class="text-xs text-gray-500">Lowest adder</p>
+                </div>
+                <div class="bg-lime-50 border border-lime-200 rounded-lg p-3">
+                    <div class="text-xl font-bold text-lime-700">2</div>
+                    <p class="text-xs text-gray-600 mt-1">Easy</p>
+                    <p class="text-xs text-gray-500">Low adder</p>
+                </div>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <div class="text-xl font-bold text-yellow-700">3</div>
+                    <p class="text-xs text-gray-600 mt-1">Medium</p>
+                    <p class="text-xs text-gray-500">Default</p>
+                </div>
+                <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                    <div class="text-xl font-bold text-orange-700">4</div>
+                    <p class="text-xs text-gray-600 mt-1">Hard</p>
+                    <p class="text-xs text-gray-500">High adder</p>
+                </div>
+                <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <div class="text-xl font-bold text-red-700">5</div>
+                    <p class="text-xs text-gray-600 mt-1">Hardest</p>
+                    <p class="text-xs text-gray-500">Highest adder</p>
+                </div>
+            </div>
+
+            <div class="text-sm text-gray-700 space-y-2">
+                <p><span class="font-semibold">How to change difficulty:</span> Click the numbered buttons (1&ndash;5) on any row. The active level is highlighted in yellow.</p>
+                <p><span class="font-semibold">Editing adders:</span> Expand a row with the + button, then edit the adder values for each difficulty level. Each adder is a dollar amount added to the base price per unit.</p>
+                <p><span class="font-semibold">Example:</span> If base price is $10.00/EA and difficulty 3 has an adder of $3.00, the effective price is $13.00/EA.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 5. EXCLUSIONS & ALTERNATES ===== -->
+    <div class="bg-white rounded-lg shadow-sm" x-data="{ open: false }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-900">5. Exclusions & Alternates</h3>
+            <svg :class="open ? 'rotate-180' : ''" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open" x-transition x-cloak class="px-6 pb-6 space-y-4">
+            <p class="text-sm text-gray-700">Items can be in one of three states:</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="border-2 border-green-200 bg-green-50 rounded-lg p-4">
+                    <p class="font-semibold text-green-800">Active</p>
+                    <p class="text-sm text-gray-700 mt-1">Normal state. Included in all totals and exports.</p>
+                </div>
+                <div class="border-2 border-gray-300 bg-gray-100 rounded-lg p-4">
+                    <p class="font-semibold text-gray-500">Excluded</p>
+                    <p class="text-sm text-gray-600 mt-1">Soft-deleted. Greyed out on the bid form, removed from totals. Click the <span class="font-mono">X</span> button to toggle.</p>
+                </div>
+                <div class="border-2 border-amber-200 bg-amber-50 rounded-lg p-4">
+                    <p class="font-semibold text-amber-800">Exclusion</p>
+                    <p class="text-sm text-gray-700 mt-1">Flagged as a proposal exclusion. Shows as "Excludes: [item]" on the printed proposal so the customer knows what's not included.</p>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p class="font-semibold text-blue-800">Alternates</p>
+                <p class="text-sm text-gray-700 mt-1">Items marked as alternates get an <span class="bg-blue-100 text-blue-800 text-xs font-medium px-1.5 py-0.5 rounded">ALT</span> badge and are listed separately on the proposal as optional add-ons.</p>
+            </div>
+
+            <div class="flex flex-wrap gap-4 text-sm text-gray-700">
+                <span>Currently excluded: <span class="font-semibold">{{ excluded_count }}</span></span>
+                <span>Proposal exclusions: <span class="font-semibold">{{ exclusion_count }}</span></span>
+                <span>Alternates: <span class="font-semibold">{{ alternate_count }}</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 6. PRICING FORMULA ===== -->
+    <div class="bg-white rounded-lg shadow-sm" x-data="{ open: true }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-900">6. Pricing Formula</h3>
+            <svg :class="open ? 'rotate-180' : ''" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open" x-transition x-cloak class="px-6 pb-6 space-y-4">
+            <div class="bg-gray-900 text-white rounded-lg p-4 font-mono text-sm overflow-x-auto">
+                row_total = qty &times; (base_price + difficulty_add[level]) &times; multiplier
+            </div>
+
+            <div class="space-y-3">
+                <p class="font-semibold text-gray-800">Step-by-step breakdown:</p>
+                <div class="flex items-start gap-3 text-sm text-gray-700">
+                    <span class="bg-gray-200 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs font-bold">1</span>
+                    <div><span class="font-semibold">Base price</span> &mdash; catalog price per unit for this item</div>
+                </div>
+                <div class="flex items-start gap-3 text-sm text-gray-700">
+                    <span class="bg-gray-200 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs font-bold">2</span>
+                    <div><span class="font-semibold">+ Difficulty adder</span> &mdash; absolute dollar amount added per unit based on difficulty level (1&ndash;5)</div>
+                </div>
+                <div class="flex items-start gap-3 text-sm text-gray-700">
+                    <span class="bg-gray-200 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs font-bold">3</span>
+                    <div><span class="font-semibold">&times; Multiplier</span> &mdash; optional per-item multiplier (default 1.0)</div>
+                </div>
+                <div class="flex items-start gap-3 text-sm text-gray-700">
+                    <span class="bg-gray-200 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs font-bold">4</span>
+                    <div><span class="font-semibold">&times; Quantity</span> &mdash; number of units from the takeoff</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-sm">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="font-semibold text-gray-800 mb-2">Key Detail</p>
+                    <p class="text-gray-700"><code class="bg-gray-200 px-1 rounded">difficulty_add[level]</code> is an absolute dollar add per UOM (not a percent).</p>
+                    <p class="text-gray-700 mt-1">Example: +$3.00 at level 2 and qty 50 adds $150.00 to that row.</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="font-semibold text-gray-800 mb-2">Grand Total</p>
+                    <p class="text-gray-700"><code class="bg-gray-200 px-1 rounded">grand_total = sum(row_total for all active items)</code></p>
+                    <p class="text-xl font-bold text-gray-900 mt-2">{{ format_currency(grand_total) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 7. WORKED EXAMPLES (LIVE DATA) ===== -->
+    <div class="bg-white rounded-lg shadow-sm" x-data="{ open: true }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-900">7. Worked Examples (Live Data)</h3>
+            <svg :class="open ? 'rotate-180' : ''" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open" x-transition x-cloak class="px-6 pb-6">
+            {% if logic_examples and logic_examples|length > 0 %}
+            <p class="text-sm text-gray-600 mb-4">Showing the first {{ logic_examples|length }} priced items from your bid with the formula applied step-by-step.</p>
+            <div class="space-y-4">
+                {% for ex in logic_examples %}
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <p class="font-semibold text-gray-900">{{ ex.section }} &mdash; {{ ex.name }}</p>
+                        <p class="text-sm text-gray-500">Qty: {{ format_number(ex.qty) }} {{ ex.uom }}</p>
+                    </div>
+                    <div class="mt-3 text-sm text-gray-700 font-mono overflow-x-auto">
+                        {{ format_number(ex.qty) }} &times; ({{ format_currency(ex.base_price) }} + {{ format_currency(ex.difficulty_add) }}) &times; {{ format_number(ex.manual_multiplier) }}
+                        = {{ format_currency(ex.row_total) }}
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3 text-sm">
+                        <div class="bg-gray-50 rounded p-2">
+                            <p class="text-gray-500">Base</p>
+                            <p class="font-semibold">{{ format_currency(ex.base_price) }}</p>
+                        </div>
+                        <div class="bg-gray-50 rounded p-2">
+                            <p class="text-gray-500">Difficulty</p>
+                            <p class="font-semibold">L{{ ex.difficulty_level }} (+{{ format_currency(ex.difficulty_add) }})</p>
+                        </div>
+                        <div class="bg-gray-50 rounded p-2">
+                            <p class="text-gray-500">Multiplier</p>
+                            <p class="font-semibold">{{ format_number(ex.manual_multiplier) }}</p>
+                        </div>
+                        <div class="bg-blue-50 rounded p-2 border border-blue-100">
+                            <p class="text-blue-600">Row Total</p>
+                            <p class="font-semibold text-blue-900">{{ format_currency(ex.row_total) }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-sm text-gray-600">No line items with quantity were found to build examples.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ===== 8. SECTION TOTALS ===== -->
+    <div class="bg-white rounded-lg shadow-sm" x-data="{ open: true }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-900">8. Section Totals</h3>
+            <svg :class="open ? 'rotate-180' : ''" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open" x-transition x-cloak class="px-6 pb-6">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 text-gray-600">
+                        <tr>
+                            <th class="px-3 py-2 text-left">Section</th>
+                            <th class="px-3 py-2 text-right">Items</th>
+                            <th class="px-3 py-2 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for s in section_totals %}
+                        <tr>
+                            <td class="px-3 py-2 font-medium text-gray-900">{{ s.section_name }}</td>
+                            <td class="px-3 py-2 text-right">{{ s.item_count }}</td>
+                            <td class="px-3 py-2 text-right font-semibold">{{ format_currency(s.total) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-gray-900 text-white">
+                            <td class="px-3 py-2 font-semibold">Grand Total</td>
+                            <td class="px-3 py-2 text-right">{{ total_items }}</td>
+                            <td class="px-3 py-2 text-right font-semibold">{{ format_currency(grand_total) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 9. EXPORTS & PRINT ===== -->
+    <div class="bg-white rounded-lg shadow-sm" x-data="{ open: false }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-900">9. Exports & Print</h3>
+            <svg :class="open ? 'rotate-180' : ''" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open" x-transition x-cloak class="px-6 pb-6 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <p class="font-semibold text-gray-900">Internal XLSX</p>
+                    </div>
+                    <p class="text-sm text-gray-700">Full detail export with all columns, difficulty levels, notes, and adders. For internal use by estimators.</p>
+                    <p class="text-xs text-gray-500 mt-2">Can be re-imported to restore a bid session.</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <p class="font-semibold text-gray-900">Proposal XLSX</p>
+                    </div>
+                    <p class="text-sm text-gray-700">Customer-facing spreadsheet with clean item names, quantities, and totals. No internal pricing details.</p>
+                    <p class="text-xs text-gray-500 mt-2">Includes exclusion list and alternates section.</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        <p class="font-semibold text-gray-900">Print / PDF</p>
+                    </div>
+                    <p class="text-sm text-gray-700">Print-optimized view accessible from the Print tab. Use your browser's print dialog (Ctrl+P) to save as PDF.</p>
+                    <p class="text-xs text-gray-500 mt-2">Includes project info header and section breakdown.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 10. PROJECT INFO ===== -->
+    <div class="bg-white rounded-lg shadow-sm" x-data="{ open: false }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-900">10. Project Info</h3>
+            <svg :class="open ? 'rotate-180' : ''" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open" x-transition x-cloak class="px-6 pb-6 space-y-4">
+            <p class="text-sm text-gray-700">Project info fields appear in the header area of the Bid Form. They are saved automatically as you type.</p>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 text-gray-600">
+                        <tr>
+                            <th class="px-3 py-2 text-left">Field</th>
+                            <th class="px-3 py-2 text-left">Description</th>
+                            <th class="px-3 py-2 text-center">Print</th>
+                            <th class="px-3 py-2 text-center">Proposal XLSX</th>
+                            <th class="px-3 py-2 text-center">Internal XLSX</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 text-gray-700">
+                        <tr>
+                            <td class="px-3 py-2 font-medium">Project Name</td>
+                            <td class="px-3 py-2">Name of the project/job</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 font-medium">Client Name</td>
+                            <td class="px-3 py-2">Customer or GC name</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 font-medium">Bid Date</td>
+                            <td class="px-3 py-2">Date the bid is due or submitted</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 font-medium">Estimator</td>
+                            <td class="px-3 py-2">Name of the person preparing the bid</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 font-medium">Notes</td>
+                            <td class="px-3 py-2">General project notes or scope description</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                            <td class="px-3 py-2 text-center text-green-600">&#10003;</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="text-sm text-gray-600">All fields auto-save as you type. Changes appear immediately on the Print page and in exports.</p>
+        </div>
+    </div>
+
 </div>
 {% endblock %}

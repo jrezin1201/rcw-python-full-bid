@@ -13,7 +13,7 @@ import uuid
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timezone
 
-from app.ui.viewmodels import BidFormState, LineItem, ToggleMask
+from app.ui.viewmodels import BidFormState, LineItem, ToggleMask, ProjectInfo
 from app.ui.catalog_service import BidCatalog
 from app.services.baycrest_normalizer import BaycrestNormalizer
 from app.services.takeoff_mapper import TakeoffMapper
@@ -340,14 +340,35 @@ def map_excel_with_catalog(
             notes=str(row.get('E', '') or '').strip() or None,
         ))
 
-    project_name = file_path.split("/")[-1].replace(".xlsx", "").replace(".xls", "")
+    # Extract header info for project metadata
+    header_info = result.get('header_info', {})
+
+    project_name = header_info.get('project_name') or \
+        file_path.split("/")[-1].replace(".xlsx", "").replace(".xls", "")
+
+    # Build ProjectInfo from header data
+    project_info = ProjectInfo(
+        developer=header_info.get('developer'),
+        address=header_info.get('address'),
+        city=header_info.get('city'),
+        contact=header_info.get('contact'),
+        phone=header_info.get('phone'),
+        email=header_info.get('email'),
+        project_city=header_info.get('project_city'),
+        units_text=header_info.get('units_text'),
+        arch_date=header_info.get('arch_date'),
+        landscape_date=header_info.get('landscape_date'),
+        interior_design_date=header_info.get('interior_design_date'),
+        owner_specs_date=header_info.get('owner_specs_date'),
+    )
 
     bid_state = BidFormState(
         project_name=project_name,
         items=items,
         raw_items=raw_items,
         created_at=datetime.now(timezone.utc).isoformat(),
-        source_file=file_path
+        source_file=file_path,
+        project_info=project_info,
     )
 
     logger.info(f"Created catalog-based bid form: {len(items)} items, {len(raw_items)} raw items, {len(warnings)} warnings")

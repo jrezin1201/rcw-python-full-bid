@@ -212,15 +212,94 @@ class BaycrestNormalizer:
 
             logger.info(f"Baycrest extraction complete: {stats}")
 
+            # Extract header/project info from top rows
+            header_info = self._extract_header_info(target_sheet)
+
             return {
                 'raw_rows': raw_rows,
                 'raw_data': raw_data,
-                'stats': stats
+                'stats': stats,
+                'header_info': header_info,
             }
 
         except Exception as e:
             logger.error(f"Error processing Baycrest file: {str(e)}")
             raise
+
+    def _extract_header_info(self, sheet) -> Dict[str, Optional[str]]:
+        """
+        Extract project header info from the top rows of the sheet.
+
+        Expected layout (rows 1-10):
+          Row 1: A=Developer:  B=value   E=Date:     F=value
+          Row 2: A=Address:    B=value   E=Contact:  F=value
+          Row 3: A=City:       B=value   E=Phone:    F=value
+          Row 4:                          E=Email:    F=value
+          Row 6: A=PROJECT     B=value   E=PLANS     G=DATED
+          Row 7: A=UNITS       B=value   E=ARCHITECTURAL  G=value
+          Row 8: A=CITY        B=value   E=LANDSCAPE      G=value
+          Row 9:                          E=INTERIOR DESIGN G=value
+          Row 10:                         E=OWNER SPECS     G=value
+        """
+        info: Dict[str, Optional[str]] = {}
+
+        def cell_str(row: int, col: int) -> Optional[str]:
+            v = self._get_cell_value(sheet.cell(row, col))
+            if v is None:
+                return None
+            s = str(v).strip()
+            return s if s else None
+
+        def label_match(row: int, col: int, *keywords: str) -> bool:
+            v = cell_str(row, col)
+            if not v:
+                return False
+            v_lower = v.lower().rstrip(": ")
+            return any(k in v_lower for k in keywords)
+
+        # Scan first 12 rows looking for known labels
+        for r in range(1, min(13, sheet.max_row + 1)):
+            a = cell_str(r, 1)
+            a_lower = (a or "").lower().rstrip(": ")
+
+            # Left column labels (A=label, B=value)
+            if a_lower == "developer":
+                info["developer"] = cell_str(r, 2)
+            elif a_lower == "address":
+                info["address"] = cell_str(r, 2)
+            elif a_lower == "city":
+                if "project_name" in info:
+                    info["project_city"] = cell_str(r, 2)
+                else:
+                    info["city"] = cell_str(r, 2)
+            elif a_lower == "project":
+                info["project_name"] = cell_str(r, 2)
+            elif a_lower == "units":
+                info["units_text"] = cell_str(r, 2)
+
+            # Right column labels (E=label, F or G=value)
+            e = cell_str(r, 5)
+            e_lower = (e or "").lower().rstrip(": ")
+
+            if e_lower == "date":
+                info["date"] = cell_str(r, 6)
+            elif e_lower == "contact":
+                info["contact"] = cell_str(r, 6)
+            elif e_lower == "phone":
+                info["phone"] = cell_str(r, 6)
+            elif e_lower == "email":
+                info["email"] = cell_str(r, 6)
+            elif e_lower == "architectural":
+                info["arch_date"] = cell_str(r, 7) or cell_str(r, 6)
+            elif e_lower == "landscape":
+                info["landscape_date"] = cell_str(r, 7) or cell_str(r, 6)
+            elif e_lower == "interior design":
+                info["interior_design_date"] = cell_str(r, 7) or cell_str(r, 6)
+            elif e_lower == "owner specs":
+                info["owner_specs_date"] = cell_str(r, 7) or cell_str(r, 6)
+
+        logger.info(f"Extracted header info: {list(info.keys())}")
+        return info
 
     def _get_cell_value(self, cell) -> Any:
         """Get cell value, handling None and empty strings."""

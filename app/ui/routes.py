@@ -4,6 +4,7 @@ Handles page rendering and HTMX partial updates.
 """
 
 import os
+import re
 import uuid
 import tempfile
 from pathlib import Path
@@ -37,6 +38,32 @@ router = APIRouter()
 
 # Setup templates
 templates = Jinja2Templates(directory="app/templates")
+
+
+def _fmt_date(value) -> str:
+    """Format date values for display — strips time, handles datetime objects and strings."""
+    if value is None:
+        return ""
+    from datetime import datetime as _dt, date as _d
+    if isinstance(value, _dt):
+        return value.strftime("%m/%d/%Y")
+    if isinstance(value, _d):
+        return value.strftime("%m/%d/%Y")
+    s = str(value).strip()
+    if not s:
+        return ""
+    # Strip trailing 00:00:00 from strings like "2023-12-22 00:00:00"
+    s = re.sub(r'\s+00:00:00$', '', s)
+    # Try to parse ISO date strings into MM/DD/YYYY
+    try:
+        parsed = _dt.strptime(s, "%Y-%m-%d")
+        return parsed.strftime("%m/%d/%Y")
+    except ValueError:
+        pass
+    return s
+
+
+templates.env.filters["fmt_date"] = _fmt_date
 
 # ========== Helper Functions ==========
 
@@ -1643,6 +1670,8 @@ async def print_page(request: Request):
         if item.is_alternate:
             alternates.append(item)
 
+    _ensure_materials(state)
+
     context = get_template_context(
         request,
         page="print",
@@ -1650,10 +1679,13 @@ async def print_page(request: Request):
         sections=sections,
         sections_data=sections_data,
         project_info=state.project_info,
-        today_date=datetime.now().strftime("%Y-%m-%d"),
+        today_date=datetime.now().strftime("%B %d, %Y"),
         unit_count=unit_count,
         total_sf=total_sf,
         alternates=alternates,
+        materials_sections=state.materials_sections,
+        materials_section_order=state.materials_section_order,
+        materials_brand=state.materials_brand,
     )
 
     return templates.TemplateResponse("print.html", context)

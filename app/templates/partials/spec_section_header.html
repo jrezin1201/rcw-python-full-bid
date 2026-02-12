@@ -1,10 +1,12 @@
-<div class="flex items-center gap-3 min-w-0">
-    <span class="text-xs text-gray-400 font-mono shrink-0"></span>
-    <span class="font-semibold text-sm shrink-0">{{ section_name }}</span>
-    <span class="text-xs text-gray-400 shrink-0">({{ section_total.item_count }} items)</span>
+<div class="flex items-center gap-2.5 min-w-0">
+    {% if section_index is defined %}
+    <span class="inline-flex h-6 w-6 items-center justify-center rounded-md bg-white border border-slate-200 text-xs font-semibold text-slate-700 shrink-0">{{ section_index }}</span>
+    {% endif %}
+    <span class="font-semibold text-sm text-slate-900 shrink-0">{{ section_name }}</span>
+    <span class="text-xs text-slate-500 shrink-0">{{ section_total.item_count }} items</span>
 
     {% if section_label %}
-    <span class="ml-2 px-4 py-1 bg-yellow-400 text-gray-900 font-bold text-xs uppercase rounded-full tracking-wide shrink-0">{{ section_label }}</span>
+    <span class="ml-1 px-2.5 py-0.5 bg-blue-50 text-blue-700 font-semibold text-[10px] uppercase rounded tracking-wide shrink-0 border border-blue-200">{{ section_label }}</span>
     {% endif %}
 </div>
 
@@ -13,7 +15,7 @@
     customText: '{{ section_label if section_label and section_label != 'Flat One Tone' else '' }}'
 }">
     <select
-        class="bg-gray-700 text-white text-xs rounded px-2 py-1 border border-gray-600 focus:ring-1 focus:ring-blue-500"
+        class="h-8 bg-white text-slate-700 text-sm rounded-md border border-slate-200 px-2 focus:ring-1 focus:ring-blue-500"
         @change="
             if ($event.target.value === '') {
                 mode = 'blank';
@@ -39,13 +41,13 @@
     <template x-if="mode === 'custom'">
         <div class="flex items-center gap-1">
             <input type="text" x-ref="customInput" x-model="customText" placeholder="Enter label"
-                   class="bg-gray-700 text-white text-xs rounded px-2 py-1 border border-gray-600 w-32 focus:ring-1 focus:ring-blue-500"
+                   class="h-8 bg-white text-slate-700 text-sm rounded-md border border-slate-200 px-2 w-28 focus:ring-1 focus:ring-blue-500"
                    @keydown.enter.prevent="
                        $refs.labelForm.querySelector('[name=label]').value = customText;
                        htmx.trigger($refs.labelForm, 'submit');
                    ">
             <button type="button"
-                    class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                    class="text-xs bg-slate-800 text-white px-2 py-1.5 rounded-md hover:bg-slate-700"
                     @click="
                         $refs.labelForm.querySelector('[name=label]').value = customText;
                         htmx.trigger($refs.labelForm, 'submit');
@@ -61,5 +63,5 @@
         <input type="hidden" name="label" value="">
     </form>
 
-    <span class="font-semibold text-sm text-yellow-400">{{ format_currency(section_total.total) }}</span>
+    <span class="w-28 text-right font-semibold text-sm text-slate-900 tabular-nums">{{ format_currency(section_total.total) }}</span>
 </div>

@@ -3,6 +3,33 @@
 {% block title %}Proposal - {{ bid_state.project_name }}{% endblock %}
 {% block page_title %}Print Preview{% endblock %}
 
+{% block header %}
+<div class="flex justify-between items-center">
+    <form action="/bid/clear" method="post"
+          onsubmit="return confirm('Clear the current bid and all data? This cannot be undone.')">
+        <button type="submit"
+                class="px-3 py-1.5 text-xs bg-white text-red-600 border border-red-200 rounded hover:bg-red-50 transition">
+            Clear Bid
+        </button>
+    </form>
+    <div class="flex items-center gap-2">
+        <h2 class="text-xl font-bold text-slate-900 mr-4">Print Preview</h2>
+        <button onclick="window.print()"
+                class="px-3 py-1.5 text-xs bg-white text-slate-600 border border-slate-200 rounded hover:bg-slate-50 transition">
+            Print
+        </button>
+        <a href="/spec/export?format=xlsx"
+           class="px-3 py-1.5 text-xs bg-white text-slate-600 border border-slate-200 rounded hover:bg-slate-50 transition">
+            Export XLSX
+        </a>
+        <a href="/spec/export?format=pdf"
+           class="px-3 py-1.5 text-xs bg-slate-800 text-white rounded hover:bg-slate-700 transition">
+            Export PDF
+        </a>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
 <style>
     @page {
@@ -32,10 +59,10 @@
     }
     @media screen {
         .print-page {
-            max-width: 8.5in;
+            max-width: 100%;
             min-height: 11in;
             margin: 0 auto;
-            padding: 0.75in;
+            padding: 0.5in 0.6in;
             background: white;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             border: 1px solid #e5e7eb;
@@ -52,10 +79,16 @@
         border-collapse: collapse;
     }
     .proposal .b { font-weight: bold; }
+    /* Shared half-width for aligned vertical dividers */
+    .proposal .half-left {
+        width: 50%;
+        border-right: 1.5px solid #000;
+    }
     /* Header info table */
     .proposal .info-table {
         width: 100%;
         border: 1.5px solid #000;
+        table-layout: fixed;
     }
     .proposal .info-table td {
         padding: 3px 8px;
@@ -65,10 +98,6 @@
     .proposal .info-table .lbl {
         font-weight: bold;
         white-space: nowrap;
-        width: 80px;
-    }
-    .proposal .info-left {
-        border-right: 1.5px solid #000;
     }
     .proposal .info-row {
         border-bottom: 1px solid #ccc;
@@ -77,6 +106,7 @@
     .proposal .proj-table {
         width: 100%;
         border: 1.5px solid #000;
+        table-layout: fixed;
     }
     .proposal .proj-table td {
         padding: 4px 8px;
@@ -85,7 +115,6 @@
     .proposal .proj-table .proj-lbl {
         font-weight: bold;
         white-space: nowrap;
-        width: 70px;
     }
     .proposal .proj-table .proj-val {
         /* value cells stretch */
@@ -94,15 +123,10 @@
         font-weight: bold;
         white-space: nowrap;
         text-align: left;
-        width: 130px;
     }
     .proposal .proj-table .proj-plan-val {
-        text-align: right;
+        text-align: center;
         white-space: nowrap;
-        width: 110px;
-    }
-    .proposal .proj-table .proj-divider {
-        border-right: 1.5px solid #000;
     }
     .proposal .proj-table tr {
         border-bottom: 1px solid #ccc;
@@ -118,6 +142,7 @@
         margin-bottom: 3px;
         border-bottom: 1px solid #000;
         padding-bottom: 2px;
+        padding-left: 4px;
     }
     .proposal .scope-item {
         font-size: 11pt;
@@ -172,6 +197,10 @@
         padding-bottom: 2px;
         margin-bottom: 6px;
     }
+    .proposal .excl-box {
+        border: 1.5px solid #C00;
+        padding: 6px 8px;
+    }
     .proposal .excl-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -189,23 +218,51 @@
         text-align: center;
         border-bottom: 1.5px solid #000;
         padding-bottom: 2px;
-        margin-bottom: 4px;
+        margin-bottom: 0;
+    }
+    .proposal table.alt-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .proposal table.alt-table td {
+        border: 1px solid #000;
+        padding: 3px 8px;
+        font-size: 11pt;
+    }
+    .proposal table.alt-table .alt-dollar {
+        width: 30px;
+        text-align: left;
+        padding-left: 8px;
+    }
+    .proposal table.alt-table .alt-amount {
+        width: 100px;
+        text-align: right;
     }
     /* Materials */
     .proposal .mat-title {
         font-weight: bold;
         font-size: 11pt;
+        margin-bottom: 0;
     }
-    .proposal .mat-section-title {
+    .proposal table.mat-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .proposal table.mat-table td {
+        border: 1px solid #000;
+        padding: 3px 8px;
+        font-size: 11pt;
+    }
+    .proposal table.mat-table .mat-section-title {
         font-weight: bold;
         font-size: 11pt;
-        padding: 3px 0 1px 0;
+        background: #f5f5f5;
     }
-    .proposal .mat-item td {
-        padding: 1px 0 1px 16px;
+    .proposal table.mat-table .mat-item td {
         font-size: 11pt;
+        padding: 2px 8px 2px 16px;
     }
-    .proposal .mat-item td:nth-child(2) {
+    .proposal table.mat-table .mat-item td:nth-child(2) {
         padding-left: 24px;
     }
     /* Signatures */
@@ -226,21 +283,27 @@
     <!-- HEADER: Developer/Address/City + Date/Contact/Phone/Email -->
     <div class="avoid-break" style="margin-bottom: 12px;">
         <table class="info-table">
+            <colgroup>
+                <col style="width: 12%;">
+                <col style="width: 30%;">
+                <col style="width: 13%;">
+                <col style="width: 45%;">
+            </colgroup>
             <tr class="info-row">
-                <td class="lbl info-left">Developer:</td>
-                <td class="info-left">{{ project_info.developer or '' }}</td>
+                <td class="lbl half-left">Developer:</td>
+                <td class="half-left">{{ project_info.developer or '' }}</td>
                 <td class="lbl">Date:</td>
                 <td>{{ today_date }}</td>
             </tr>
             <tr class="info-row">
-                <td class="lbl info-left">Address:</td>
-                <td class="info-left">{{ project_info.address or '' }}</td>
+                <td class="lbl half-left">Address:</td>
+                <td class="half-left">{{ project_info.address or '' }}</td>
                 <td class="lbl">Contact:</td>
                 <td>{{ project_info.contact or '' }}</td>
             </tr>
             <tr>
-                <td class="lbl info-left">City:</td>
-                <td class="info-left">{{ project_info.city or '' }}</td>
+                <td class="lbl half-left">City:</td>
+                <td class="half-left">{{ project_info.city or '' }}</td>
                 <td class="lbl">Phone:</td>
                 <td>{{ project_info.phone or '' }}</td>
             </tr>
@@ -250,21 +313,27 @@
     <!-- PROJECT INFO TABLE -->
     <div class="avoid-break" style="margin-bottom: 16px;">
         <table class="proj-table">
+            <colgroup>
+                <col style="width: 12%;">
+                <col style="width: 30%;">
+                <col style="width: 28%;">
+                <col style="width: 30%;">
+            </colgroup>
             <tr>
-                <td class="proj-lbl proj-divider">PROJECT</td>
-                <td class="proj-val proj-divider">{{ bid_state.project_name or '' }}</td>
+                <td class="proj-lbl half-left">PROJECT</td>
+                <td class="proj-val half-left">{{ bid_state.project_name or '' }}</td>
                 <td class="proj-plan-lbl">PLANS</td>
                 <td class="b" style="text-align: center;">DATED</td>
             </tr>
             <tr>
-                <td class="proj-lbl proj-divider">UNITS</td>
-                <td class="proj-val proj-divider">{{ project_info.units_text or '' }}</td>
+                <td class="proj-lbl half-left">UNITS</td>
+                <td class="proj-val half-left">{{ project_info.units_text or '' }}</td>
                 <td class="proj-plan-lbl">ARCHITECTURAL</td>
                 <td class="proj-plan-val">{{ (project_info.arch_date or '')|fmt_date }}</td>
             </tr>
             <tr>
-                <td class="proj-lbl proj-divider">CITY</td>
-                <td class="proj-val proj-divider">{{ project_info.project_city or '' }}</td>
+                <td class="proj-lbl half-left">CITY</td>
+                <td class="proj-val half-left">{{ project_info.project_city or '' }}</td>
                 <td class="proj-plan-lbl">LANDSCAPE</td>
                 <td class="proj-plan-val">
                     {% set ld = (project_info.landscape_date or '')|fmt_date %}
@@ -276,33 +345,39 @@
                 </td>
             </tr>
             <tr>
-                <td class="proj-lbl proj-divider"></td>
-                <td class="proj-val proj-divider"></td>
+                <td class="proj-lbl half-left"></td>
+                <td class="proj-val half-left"></td>
                 <td class="proj-plan-lbl">INTERIOR DESIGN</td>
                 <td class="proj-plan-val">{{ (project_info.interior_design_date or '')|fmt_date }}</td>
             </tr>
             <tr>
-                <td class="proj-lbl proj-divider"></td>
-                <td class="proj-val proj-divider"></td>
+                <td class="proj-lbl half-left"></td>
+                <td class="proj-val half-left"></td>
                 <td class="proj-plan-lbl" style="font-size: 10pt;">OWNER SPECS</td>
                 <td class="proj-plan-val">{{ (project_info.owner_specs_date or '')|fmt_date or 'NA' }}</td>
             </tr>
         </table>
     </div>
 
-    <!-- SCOPE SECTIONS -->
+    <!-- SCOPE SECTIONS (from spec form) -->
     {% for section_name in sections %}
-    {% set all_section_items = sections_data[section_name] %}
-    {% set active_items = all_section_items | rejectattr('excluded') | rejectattr('is_exclusion') | rejectattr('is_alternate') | selectattr('qty') | list %}
-    {% set exclusion_items = all_section_items | selectattr('is_exclusion') | list %}
-    {% if active_items or exclusion_items %}
+    {% set spec_section = spec_items.get(section_name, []) %}
+    {% set active_items = spec_section | rejectattr('excluded') | list %}
+    {% set excluded_items = spec_section | selectattr('excluded') | list %}
+    {% set section_label = spec_section_labels.get(section_name, '') %}
+    {% if active_items or excluded_items %}
     <div class="avoid-break" style="margin-bottom: 4px;">
-        <div class="section-title">{{ section_name|upper }}</div>
+        <div class="section-title" style="display: flex; justify-content: space-between; align-items: baseline;">
+            <span>{{ section_name|upper }}</span>
+            {% if section_label %}
+            <span class="highlight-yellow">{{ section_label }}</span>
+            {% endif %}
+        </div>
         {% for item in active_items %}
         <div class="scope-item">{{ item.name }}</div>
         {% endfor %}
-        {% for item in exclusion_items %}
-        <div class="exclusion-item">Excludes {{ item.name }}</div>
+        {% for item in excluded_items %}
+        <div class="exclusion-item">Excluded {{ item.name }}</div>
         {% endfor %}
     </div>
     {% endif %}
@@ -333,44 +408,22 @@
     </div>
 
     <!-- EXCLUSIONS -->
-    <div class="avoid-break" style="margin-bottom: 16px;">
+    {% if bid_state.spec_exclusions %}
+    <div class="avoid-break excl-box" style="margin-bottom: 16px;">
         <div class="excl-title">EXCLUSIONS</div>
         <div class="excl-grid">
+            {% set half = (bid_state.spec_exclusions|length + 1) // 2 %}
             <div>
-                <p class="highlight-yellow">9900 Specifications</p>
-                <p>0 VOC Paints &amp; Systems</p>
-                <p>Scaffolding &amp; Lifts</p>
-                <p>Saturday &amp; Weekend Work</p>
-                <p>Water Proofing Membranes</p>
-                <p>ALL Exterior Caulking: Done By Other</p>
-                <p>Power &amp; Pressure Washing</p>
-                <p>Signing Unmodified Scaffold Agreements</p>
+                {% for item in bid_state.spec_exclusions[:half] %}
+                <p>{{ item }}</p>
+                {% endfor %}
             </div>
             <div>
-                <p>Masked Hinges</p>
-                <p>ALL Stand Pipes</p>
-                <p>Wall Coverings</p>
-                <p>Paid Parking: Parking To Be Provided By Contractor</p>
-                <p>Caulking Windows: By Drywall Contractor</p>
-                <p>Not Responsible For Rusting If Metal Is Not Metalized</p>
-                <p>Payment &amp; Performance Bonds</p>
-                <p>Excess &amp; Umbrella Coverages</p>
+                {% for item in bid_state.spec_exclusions[half:] %}
+                <p>{{ item }}</p>
+                {% endfor %}
             </div>
         </div>
-    </div>
-
-    <!-- ADD ALTERNATES -->
-    {% if alternates|length > 0 %}
-    <div class="avoid-break" style="margin-bottom: 16px;">
-        <div class="alt-header">ADD ALTERNATES</div>
-        <table style="width: 60%; margin: 0 auto;">
-            {% for alt in alternates %}
-            <tr>
-                <td style="padding: 3px 8px;">{{ alt.name }}</td>
-                <td style="padding: 3px 8px; text-align: right;">{{ "${:,.2f}".format(alt.row_total) }}</td>
-            </tr>
-            {% endfor %}
-        </table>
     </div>
     {% endif %}
 
@@ -388,17 +441,40 @@
         </table>
     </div>
 
+    <!-- ADD ALTERNATES -->
+    {% if add_alts|length > 0 or alternates|length > 0 %}
+    <div class="avoid-break" style="margin-bottom: 16px;">
+        <div class="alt-header">ADD ALTERNATES</div>
+        <table class="alt-table">
+            {% for alt in add_alts %}
+            <tr>
+                <td>{{ alt.name }} at {{ alt.section }}</td>
+                <td class="alt-dollar">$</td>
+                <td class="alt-amount">{% if alt.price %}{{ "{:,.2f}".format(alt.price) }}{% endif %}</td>
+            </tr>
+            {% endfor %}
+            {% for alt in alternates %}
+            <tr>
+                <td>{{ alt.name }}</td>
+                <td class="alt-dollar">$</td>
+                <td class="alt-amount">{{ "{:,.2f}".format(alt.row_total) }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
     <!-- MATERIALS INCLUDED IN BID (dynamic) -->
     {% if materials_section_order %}
     <div class="avoid-break" style="margin-bottom: 20px;">
-        <div class="mat-title" style="margin-bottom: 4px;">MATERIALS INCLUDED IN BID: {{ materials_brand }}</div>
-        <table>
+        <div class="mat-title">MATERIALS INCLUDED IN BID: {{ materials_brand }}</div>
+        <table class="mat-table">
             {% for section_label in materials_section_order %}
             {% set mat_items = materials_sections.get(section_label, []) %}
             <tr><td class="mat-section-title" colspan="2">{{ section_label }}</td></tr>
             {% for item in mat_items %}
             <tr class="mat-item">
-                <td style="width: 140px;">{{ item.name }}</td>
+                <td style="width: 160px;">{{ item.name }}</td>
                 <td>{{ item.value }}</td>
             </tr>
             {% endfor %}

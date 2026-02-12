@@ -1,36 +1,38 @@
 {% if add_alts %}
 <table class="w-full">
     <thead>
-        <tr class="bg-gray-50 text-gray-600 text-xs border-b border-gray-200">
-            <th class="px-4 py-2 text-center w-12">#</th>
-            <th class="px-4 py-2 text-left">ADD ALT ITEM</th>
+        <tr class="bg-slate-50/50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+            <th class="px-4 py-1.5 text-center w-10">#</th>
+            <th class="px-4 py-1.5 text-left font-semibold">Add Alt Item</th>
+            <th class="px-4 py-1.5 text-right font-semibold w-28">Price</th>
         </tr>
     </thead>
     <tbody>
         {% for alt in add_alts %}
-        <tr class="border-b border-gray-100 hover:bg-gray-50">
-            <td class="px-4 py-2 text-center text-xs text-gray-400">{{ loop.index }}</td>
-            <td class="px-4 py-2 text-sm text-gray-900">{{ alt.name }} <span class="text-gray-500">{{ alt.section }}</span></td>
+        <tr class="odd:bg-white even:bg-slate-50/30 border-b border-slate-200/60 hover:bg-slate-50/70 transition-colors">
+            <td class="px-4 py-2 text-center text-[10px] text-slate-400 font-mono">{{ loop.index }}</td>
+            <td class="px-4 py-2 text-sm text-slate-800">{{ alt.name }} <span class="text-slate-400">{{ alt.section }}</span></td>
+            <td class="px-4 py-2 text-sm text-slate-800 text-right tabular-nums">{% if alt.price %}{{ "${:,.2f}".format(alt.price) }}{% endif %}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 {% else %}
-<div class="px-4 py-6 text-center text-sm text-gray-400">
+<div class="px-4 py-6 text-center text-xs text-slate-400">
     No excluded items. Click "E" on a spec item to add it here.
 </div>
 {% endif %}
 
 <!-- Additional Work Rates -->
-<div class="border-t border-gray-200 px-4 py-3">
+<div class="border-t border-slate-200 px-4 py-3">
     <table class="w-full">
         <tr class="font-bold">
-            <td class="py-1 text-sm text-gray-900">ADDITIONAL WORK CHARGED AT:</td>
-            <td class="py-1 text-sm text-gray-900 text-right">$73.00/HR</td>
+            <td class="py-1 text-sm text-slate-800">ADDITIONAL WORK CHARGED AT:</td>
+            <td class="py-1 text-sm text-slate-800 text-right">$73.00/HR</td>
         </tr>
         <tr>
-            <td class="py-1 text-sm text-gray-900">1/2 Time OT Work</td>
-            <td class="py-1 text-sm text-gray-900 text-right">$37.00/HR</td>
+            <td class="py-1 text-sm text-slate-700">1/2 Time OT Work</td>
+            <td class="py-1 text-sm text-slate-700 text-right">$37.00/HR</td>
         </tr>
     </table>
 </div>

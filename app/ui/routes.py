@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from io import BytesIO
 
 from fastapi import APIRouter, File, Form, Request, UploadFile, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response, StreamingResponse
 from fastapi.templating import Jinja2Templates
 
 from app.core.logging import get_logger
@@ -722,6 +722,66 @@ DEFAULT_EXCLUSIONS = [
 ]
 
 
+# Pricing for spec items when shown as Add Alts (keyed by "item name|section name")
+SPEC_ALT_PRICING = {
+    "True Prime Coat|Units": 3500.00,
+    "Eggshell Walls|Units": 8400.00,
+    "Two Tone|Units": 5950.00,
+    "Base Over Floor|Units": 1260.00,
+    "Mask Hinges|Units": 3000.00,
+    "Smooth Wall|Units": 6300.00,
+    "True Prime Coat|Corridor & Stairwells": 3240.00,
+    "Eggshell Walls|Corridor & Stairwells": 5400.00,
+    "Two Tone|Corridor & Stairwells": 3645.00,
+    "Smooth Wall|Corridor & Stairwells": 3375.00,
+    "Stucco Body|Exterior": 9690.00,
+    "Prime Coat at Stucco Body|Exterior": 5100.00,
+    "Stucco Accents at Balc|Exterior": 2750.00,
+    "Prime Stucco Accents at Balc|Exterior": 2000.00,
+    "Balcony Swing Doors|Exterior": 1250.00,
+    "Garage Walls Flat|Garage": 2850.00,
+    "Garage Columns|Garage": 320.00,
+}
+
+
+def _match_alt_price(item_name: str, section_name: str) -> Optional[float]:
+    """Find a price for a spec item by matching against SPEC_ALT_PRICING keys.
+
+    Matches bidirectionally: pricing key name in item name, OR item name in
+    pricing key name. Section match is preferred but not required.
+    """
+    # Exact key match first
+    key = f"{item_name}|{section_name}"
+    if key in SPEC_ALT_PRICING:
+        return SPEC_ALT_PRICING[key]
+    # Bidirectional name matching with section preference
+    name_lower = item_name.lower()
+    section_lower = section_name.lower()
+    best_match = None
+    best_has_section = False
+    for pricing_key, price in SPEC_ALT_PRICING.items():
+        pk_name, pk_section = pricing_key.split("|", 1)
+        pk_name_lower = pk_name.lower()
+        # Check name match in either direction
+        name_hit = pk_name_lower in name_lower or name_lower in pk_name_lower
+        if not name_hit:
+            # Try matching significant words (3+ chars)
+            pk_words = {w for w in pk_name_lower.split() if len(w) >= 3}
+            name_words = {w for w in name_lower.split() if len(w) >= 3}
+            common = pk_words & name_words
+            name_hit = len(common) >= 2 or (len(common) >= 1 and len(pk_words) == 1)
+        if not name_hit:
+            continue
+        section_hit = pk_section.lower() in section_lower or section_lower in pk_section.lower()
+        # Prefer section+name match over name-only
+        if section_hit and not best_has_section:
+            best_match = price
+            best_has_section = True
+        elif section_hit == best_has_section and best_match is None:
+            best_match = price
+    return best_match
+
+
 DEFAULT_MATERIALS = {
     "Units": [("Flat", False), ("Enamel", False)],
     "Common Area": [("Flat", False), ("Enamel", False)],
@@ -741,6 +801,10 @@ def _ensure_spec_items(state: BidFormState) -> None:
             state.spec_items[st.section_name] = [
                 SpecItem(name=n) for n in DEFAULT_SPEC_ITEMS
             ]
+        # Populate prices for items that don't have one yet
+        for spec in state.spec_items[st.section_name]:
+            if spec.price is None:
+                spec.price = _match_alt_price(spec.name, st.section_name)
     if not state.spec_exclusions:
         state.spec_exclusions = list(DEFAULT_EXCLUSIONS)
     _ensure_materials(state)
@@ -777,7 +841,7 @@ async def spec_form_page(request: Request):
     for section_name in raw_sections:
         for spec in state.spec_items.get(section_name, []):
             if spec.excluded:
-                add_alts.append({"name": spec.name, "section": section_name})
+                add_alts.append({"name": spec.name, "section": section_name, "price": spec.price})
 
     context = get_template_context(
         request,
@@ -839,6 +903,29 @@ async def delete_spec_item(
     return response
 
 
+@router.post("/spec/item/name", response_class=HTMLResponse)
+async def update_spec_item_name(
+    request: Request,
+    section: str = Form(...),
+    index: int = Form(...),
+    name: str = Form(...),
+):
+    """Update the name of a spec item."""
+    state = get_current_state()
+    if not state:
+        raise HTTPException(status_code=404, detail="No active bid form")
+
+    _ensure_spec_items(state)
+
+    items = state.spec_items.get(section, [])
+    if 0 <= index < len(items):
+        items[index].name = name.strip()
+
+    response = _render_spec_section_body(request, state, section)
+    response.headers["HX-Trigger"] = "add-alts-updated"
+    return response
+
+
 @router.post("/spec/item/exclude", response_class=HTMLResponse)
 async def toggle_spec_item_exclude(
     request: Request,
@@ -861,6 +948,33 @@ async def toggle_spec_item_exclude(
     return response
 
 
+@router.post("/spec/item/price", response_class=HTMLResponse)
+async def update_spec_item_price(
+    request: Request,
+    section: str = Form(...),
+    index: int = Form(...),
+    price: str = Form(default=""),
+):
+    """Update the price for a spec item."""
+    state = get_current_state()
+    if not state:
+        raise HTTPException(status_code=404, detail="No active bid form")
+
+    _ensure_spec_items(state)
+
+    items = state.spec_items.get(section, [])
+    if 0 <= index < len(items):
+        try:
+            cleaned = price.replace(",", "").replace("$", "").strip()
+            items[index].price = float(cleaned) if cleaned else None
+        except ValueError:
+            pass
+
+    response = _render_spec_section_body(request, state, section)
+    response.headers["HX-Trigger"] = "add-alts-updated"
+    return response
+
+
 @router.get("/spec/add-alts", response_class=HTMLResponse)
 async def get_spec_add_alts(request: Request):
     """Return the Add Alts panel content for HTMX refresh."""
@@ -875,7 +989,7 @@ async def get_spec_add_alts(request: Request):
     for section_name in state.get_raw_sections():
         for spec in state.spec_items.get(section_name, []):
             if spec.excluded:
-                add_alts.append({"name": spec.name, "section": section_name})
+                add_alts.append({"name": spec.name, "section": section_name, "price": spec.price})
 
     context = get_template_context(request, add_alts=add_alts)
     html = templates.get_template("partials/spec_add_alts.html").render(context)
@@ -1038,14 +1152,14 @@ async def toggle_material_highlight(
     return _render_materials_body(request, state)
 
 
-@router.post("/spec/material/value", response_class=HTMLResponse)
+@router.post("/spec/material/value")
 async def update_material_value(
     request: Request,
     section: str = Form(...),
     index: int = Form(...),
     value: str = Form(default=""),
 ):
-    """Update the value/description text for a material item."""
+    """Update the value/description text for a material item (save only, no re-render)."""
     state = get_current_state()
     if not state:
         raise HTTPException(status_code=404, detail="No active bid form")
@@ -1053,28 +1167,28 @@ async def update_material_value(
     items = state.materials_sections.get(section, [])
     if 0 <= index < len(items):
         items[index].value = value.strip()
-    return _render_materials_body(request, state)
+    return Response(status_code=204)
 
 
-@router.post("/spec/material/name", response_class=HTMLResponse)
+@router.post("/spec/material/name")
 async def update_material_name(
     request: Request,
     section: str = Form(...),
     index: int = Form(...),
     name: str = Form(...),
 ):
-    """Update the name of a material item."""
+    """Update the name of a material item (save only, no re-render)."""
     state = get_current_state()
     if not state:
         raise HTTPException(status_code=404, detail="No active bid form")
     _ensure_spec_items(state)
     trimmed = name.strip()
     if not trimmed:
-        return _render_materials_body(request, state)
+        return Response(status_code=204)
     items = state.materials_sections.get(section, [])
     if 0 <= index < len(items):
         items[index].name = trimmed
-    return _render_materials_body(request, state)
+    return Response(status_code=204)
 
 
 @router.post("/spec/material/section/add", response_class=HTMLResponse)
@@ -1131,7 +1245,7 @@ async def spec_print_page(request: Request):
     for section_name in raw_sections:
         for spec in state.spec_items.get(section_name, []):
             if spec.excluded:
-                add_alts.append({"name": spec.name, "section": section_name})
+                add_alts.append({"name": spec.name, "section": section_name, "price": spec.price})
 
     # Build project address line
     info = state.project_info
@@ -1206,22 +1320,56 @@ def _export_spec_xlsx(state: BidFormState) -> bytes:
     currency_fmt = '"$"#,##0.00'
     thin_top = Border(top=Side(style="thin"))
 
-    ws.column_dimensions["A"].width = 55
-    ws.column_dimensions["B"].width = 5
-    ws.column_dimensions["C"].width = 14
+    ws.column_dimensions["A"].width = 14
+    ws.column_dimensions["B"].width = 30
+    ws.column_dimensions["C"].width = 20
+    ws.column_dimensions["D"].width = 20
 
-    # Build address line
     info = state.project_info
-    address_parts = [p for p in [info.address, info.city] if p]
-    project_address = ", ".join(address_parts) if address_parts else state.project_name
+    today = datetime.now().strftime("%B %d, %Y")
 
-    # Project address header (centered, underlined)
+    font_hdr_lbl = Font(name="Cambria", bold=True, size=10)
+    font_hdr_val = Font(name="Cambria", size=10)
+    box_border = Border(
+        left=Side(style="thin"), right=Side(style="thin"),
+        top=Side(style="thin"), bottom=Side(style="thin"),
+    )
+
     row = 1
-    ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=3)
-    addr_cell = ws.cell(row=row, column=1, value=project_address)
-    addr_cell.font = font_title
-    addr_cell.alignment = Alignment(horizontal="center")
-    row += 2
+
+    # ── Header Table 1: Developer/Address/City | Date/Contact/Phone ──
+    hdr1_rows = [
+        ("DEVELOPER:", info.developer or "", "DATE:", today),
+        ("ADDRESS:", info.address or "", "CONTACT:", info.contact or ""),
+        ("CITY:", info.city or "", "PHONE:", info.phone or ""),
+    ]
+    for ll, lv, rl, rv in hdr1_rows:
+        for col, val, fnt in [(1, ll, font_hdr_lbl), (2, lv, font_hdr_val),
+                               (3, rl, font_hdr_lbl), (4, rv, font_hdr_val)]:
+            c = ws.cell(row=row, column=col, value=val)
+            c.font = fnt
+            c.border = box_border
+        row += 1
+
+    row += 1  # blank row
+
+    # ── Header Table 2: Project/Units/City | Plans dated ──
+    hdr2_rows = [
+        ("PROJECT", state.project_name or "", "PLANS", "DATED"),
+        ("UNITS", info.units_text or "", "ARCHITECTURAL", _fmt_date(info.arch_date)),
+        ("CITY", info.project_city or "", "LANDSCAPE", _fmt_date(info.landscape_date) or "Excluded"),
+        ("", "", "INTERIOR DESIGN", _fmt_date(info.interior_design_date)),
+        ("", "", "OWNER SPECS", _fmt_date(info.owner_specs_date) or "NA"),
+    ]
+    for ll, lv, rl, rv in hdr2_rows:
+        for col, val, fnt in [(1, ll, font_hdr_lbl), (2, lv, font_hdr_val),
+                               (3, rl, font_hdr_lbl), (4, rv, font_hdr_val)]:
+            c = ws.cell(row=row, column=col, value=val)
+            c.font = fnt
+            c.border = box_border
+        row += 1
+
+    row += 2  # blank rows before scope
 
     # Use raw section order
     totals_by_name = {st.section_name: st for st in state.section_totals}
@@ -1240,7 +1388,7 @@ def _export_spec_xlsx(state: BidFormState) -> bytes:
             continue
 
         for s in excluded:
-            add_alts.append({"name": s.name, "section": section_name})
+            add_alts.append({"name": s.name, "section": section_name, "price": s.price})
 
         # Section title
         ws.cell(row=row, column=1, value=section_name.upper()).font = font_section
@@ -1260,15 +1408,15 @@ def _export_spec_xlsx(state: BidFormState) -> bytes:
 
     # -- PRICING TABLE --
     row += 1
-    ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=3)
+    ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=4)
     pricing_cell = ws.cell(row=row, column=1, value="PRICING")
     pricing_cell.font = font_pricing_hdr
     pricing_cell.alignment = Alignment(horizontal="center")
     row += 1
 
     # Amount header
-    ws.cell(row=row, column=3, value="Amount").font = font_pricing_bold
-    ws.cell(row=row, column=3).alignment = Alignment(horizontal="right")
+    ws.cell(row=row, column=4, value="Amount").font = font_pricing_bold
+    ws.cell(row=row, column=4).alignment = Alignment(horizontal="right")
     row += 1
 
     # Section rows
@@ -1277,7 +1425,7 @@ def _export_spec_xlsx(state: BidFormState) -> bytes:
         if not st or st.total <= 0:
             continue
         ws.cell(row=row, column=1, value=section_name).font = font_pricing
-        total_cell = ws.cell(row=row, column=3, value=st.total)
+        total_cell = ws.cell(row=row, column=4, value=st.total)
         total_cell.font = font_pricing
         total_cell.number_format = currency_fmt
         total_cell.alignment = Alignment(horizontal="right")
@@ -1285,7 +1433,7 @@ def _export_spec_xlsx(state: BidFormState) -> bytes:
 
     # Total row
     ws.cell(row=row, column=1, value="Total").font = font_pricing_bold
-    grand_cell = ws.cell(row=row, column=3, value=state.grand_total)
+    grand_cell = ws.cell(row=row, column=4, value=state.grand_total)
     grand_cell.font = font_pricing_bold
     grand_cell.number_format = currency_fmt
     grand_cell.alignment = Alignment(horizontal="right")
@@ -1294,7 +1442,7 @@ def _export_spec_xlsx(state: BidFormState) -> bytes:
     row += 2
 
     # Net wrap
-    ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=3)
+    ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=4)
     nw_cell = ws.cell(row=row, column=1, value="Pricing Net Wrap Liability Insurance")
     nw_cell.font = font_net_wrap
     nw_cell.alignment = Alignment(horizontal="center")
@@ -1304,7 +1452,7 @@ def _export_spec_xlsx(state: BidFormState) -> bytes:
     if state.spec_exclusions:
         font_excl_hdr = Font(name="Cambria", bold=True, size=12, color="FF0000")
         font_excl_item = Font(name="Cambria", size=11)
-        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=3)
+        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=4)
         excl_cell = ws.cell(row=row, column=1, value="EXCLUSIONS")
         excl_cell.font = font_excl_hdr
         excl_cell.alignment = Alignment(horizontal="center")
@@ -1312,13 +1460,17 @@ def _export_spec_xlsx(state: BidFormState) -> bytes:
         for i in range(0, len(state.spec_exclusions), 2):
             ws.cell(row=row, column=1, value=state.spec_exclusions[i]).font = font_excl_item
             if i + 1 < len(state.spec_exclusions):
-                ws.cell(row=row, column=2, value=state.spec_exclusions[i + 1]).font = font_excl_item
+                ws.cell(row=row, column=3, value=state.spec_exclusions[i + 1]).font = font_excl_item
             row += 1
         row += 1
 
     # -- ADD ALTERNATES --
+    thin_border = Border(
+        left=Side(style="thin"), right=Side(style="thin"),
+        top=Side(style="thin"), bottom=Side(style="thin"),
+    )
     if add_alts:
-        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=3)
+        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=4)
         alt_cell = ws.cell(row=row, column=1, value="ADD ALTERNATES")
         alt_cell.font = font_alt_hdr
         alt_cell.alignment = Alignment(horizontal="center")
@@ -1326,16 +1478,32 @@ def _export_spec_xlsx(state: BidFormState) -> bytes:
         row += 1
 
         for alt in add_alts:
-            ws.cell(row=row, column=1, value=f"{alt['name']} {alt['section']}").font = font_normal
+            ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=2)
+            name_cell = ws.cell(row=row, column=1, value=f"{alt['name']} at {alt['section']}")
+            name_cell.font = font_normal
+            name_cell.border = thin_border
+            ws.cell(row=row, column=2).border = thin_border
+            dollar_cell = ws.cell(row=row, column=3, value="$")
+            dollar_cell.font = font_normal
+            dollar_cell.border = thin_border
+            price = alt.get("price")
+            amt_cell = ws.cell(row=row, column=4, value=price if price else None)
+            amt_cell.font = font_normal
+            amt_cell.border = thin_border
+            amt_cell.alignment = Alignment(horizontal="right")
+            if price:
+                amt_cell.number_format = '#,##0.00'
             row += 1
 
     # -- ADDITIONAL WORK RATES --
     font_bold_normal = Font(name="Cambria", size=11, bold=True)
+    ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=2)
     ws.cell(row=row, column=1, value="ADDITIONAL WORK CHARGED AT:").font = font_bold_normal
-    ws.cell(row=row, column=2, value="$73.00/HR").font = font_bold_normal
+    ws.cell(row=row, column=4, value="$73.00/HR").font = font_bold_normal
     row += 1
+    ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=2)
     ws.cell(row=row, column=1, value="1/2 Time OT Work").font = font_normal
-    ws.cell(row=row, column=2, value="$37.00/HR").font = font_normal
+    ws.cell(row=row, column=4, value="$37.00/HR").font = font_normal
     row += 2
 
     # -- MATERIALS INCLUDED IN BID --
@@ -1353,7 +1521,7 @@ def _export_spec_xlsx(state: BidFormState) -> bytes:
             ws.cell(row=row, column=1, value=section_label).font = font_bold_normal
             row += 1
             for item in mat_items:
-                for col in range(1, 4):
+                for col in range(1, 5):
                     cell = ws.cell(row=row, column=col)
                     cell.border = thin_border
                     cell.font = font_normal
@@ -1368,199 +1536,439 @@ def _export_spec_xlsx(state: BidFormState) -> bytes:
 
 
 def _export_spec_pdf(state: BidFormState) -> bytes:
-    """Build a PDF document for the spec form matching print layout."""
+    """Build a professional proposal PDF matching print layout."""
     from fpdf import FPDF
 
     pdf = FPDF(orientation="P", unit="mm", format="Letter")
-    pdf.set_auto_page_break(auto=True, margin=20)
+    pdf.set_auto_page_break(auto=True, margin=22)
+    pdf.set_margins(left=18, top=16, right=18)
     pdf.add_page()
 
     page_w = pdf.w - pdf.l_margin - pdf.r_margin
+    # Inset: content area inside margins with internal padding
+    pad = 3  # mm inner padding on each side
+    content_w = page_w - 2 * pad
+    content_x = pdf.l_margin + pad
 
-    # Build address line
     info = state.project_info
-    address_parts = [p for p in [info.address, info.city] if p]
-    project_address = ", ".join(address_parts) if address_parts else state.project_name
+    today = datetime.now().strftime("%B %d, %Y")
+    lw = 0.3  # default line width
 
-    # Project address (centered, underlined)
-    pdf.set_font("Helvetica", "BU", 11)
-    pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 8, project_address, new_x="LMARGIN", new_y="NEXT", align="C")
-    pdf.ln(4)
+    # ── Helper: draw a structured line ──
+    def hline(y, x1=None, x2=None, width=0.3):
+        pdf.set_line_width(width)
+        pdf.line(x1 or content_x, y, x2 or (content_x + content_w), y)
+        pdf.set_line_width(lw)
 
-    # Use raw section order
+    # ────────────────────────────────────────────────────
+    # 1. HEADER TABLE  (Developer/Address/City | Date/Contact/Phone)
+    # ────────────────────────────────────────────────────
+    half_w = content_w / 2
+    lbl_w = 22
+    val_w = half_w - lbl_w
+    row_h = 7
+    header_rows = [
+        ("DEVELOPER:", info.developer or "", "DATE:", today),
+        ("ADDRESS:", info.address or "", "CONTACT:", info.contact or ""),
+        ("CITY:", info.city or "", "PHONE:", info.phone or ""),
+    ]
+    start_y = pdf.get_y()
+    x0 = content_x
+    for i, (ll, lv, rl, rv) in enumerate(header_rows):
+        y = start_y + i * row_h
+        pdf.set_xy(x0, y)
+        pdf.set_font("Helvetica", "B", 9)
+        pdf.cell(lbl_w, row_h, ll)
+        pdf.set_font("Helvetica", "", 10)
+        pdf.cell(val_w, row_h, lv)
+        pdf.set_font("Helvetica", "B", 9)
+        pdf.cell(lbl_w, row_h, rl)
+        pdf.set_font("Helvetica", "", 10)
+        pdf.cell(val_w, row_h, rv)
+
+    total_h = len(header_rows) * row_h
+    # Outer box (0.75pt)
+    pdf.set_line_width(0.6)
+    pdf.rect(x0, start_y, content_w, total_h)
+    # Vertical divider between halves
+    pdf.line(x0 + half_w, start_y, x0 + half_w, start_y + total_h)
+    pdf.set_line_width(lw)
+    # Light horizontal lines between rows
+    pdf.set_draw_color(180, 180, 180)
+    for i in range(1, len(header_rows)):
+        y = start_y + i * row_h
+        pdf.line(x0, y, x0 + content_w, y)
+    pdf.set_draw_color(0, 0, 0)
+    pdf.set_y(start_y + total_h + 4)
+
+    # ────────────────────────────────────────────────────
+    # 2. PROJECT INFO TABLE  (Project/Units/City | Plans dated)
+    # ────────────────────────────────────────────────────
+    left_lbl = 17
+    left_val = half_w - left_lbl
+    right_lbl = 32
+    right_val = half_w - right_lbl
+    proj_rows = [
+        ("PROJECT", state.project_name or "", "PLANS", "DATED"),
+        ("UNITS", info.units_text or "", "ARCHITECTURAL", _fmt_date(info.arch_date)),
+        ("CITY", info.project_city or "", "LANDSCAPE", _fmt_date(info.landscape_date) or "Excluded"),
+        ("", "", "INTERIOR DESIGN", _fmt_date(info.interior_design_date)),
+        ("", "", "OWNER SPECS", _fmt_date(info.owner_specs_date) or "NA"),
+    ]
+    start_y = pdf.get_y()
+    for i, (ll, lv, rl, rv) in enumerate(proj_rows):
+        y = start_y + i * row_h
+        pdf.set_xy(x0, y)
+        pdf.set_font("Helvetica", "B", 9)
+        pdf.cell(left_lbl, row_h, ll)
+        pdf.set_font("Helvetica", "", 10)
+        pdf.cell(left_val, row_h, lv)
+        pdf.set_font("Helvetica", "B", 9)
+        pdf.cell(right_lbl, row_h, rl)
+        # "DATED" header is bold centered; landscape "Excluded" is red
+        if i == 0:
+            pdf.set_font("Helvetica", "B", 10)
+            pdf.cell(right_val, row_h, rv, align="C")
+        elif rl == "LANDSCAPE" and rv.lower() == "excluded":
+            pdf.set_font("Helvetica", "", 10)
+            pdf.set_text_color(204, 0, 0)
+            pdf.cell(right_val, row_h, rv, align="C")
+            pdf.set_text_color(0, 0, 0)
+        else:
+            pdf.set_font("Helvetica", "", 10)
+            pdf.cell(right_val, row_h, rv, align="C")
+
+    total_h = len(proj_rows) * row_h
+    pdf.set_line_width(0.6)
+    pdf.rect(x0, start_y, content_w, total_h)
+    pdf.line(x0 + half_w, start_y, x0 + half_w, start_y + total_h)
+    pdf.set_line_width(lw)
+    pdf.set_draw_color(180, 180, 180)
+    for i in range(1, len(proj_rows)):
+        y = start_y + i * row_h
+        pdf.line(x0, y, x0 + content_w, y)
+    pdf.set_draw_color(0, 0, 0)
+    pdf.set_y(start_y + total_h + 6)
+
+    # ────────────────────────────────────────────────────
+    # 3. SCOPE SECTIONS  (from spec items)
+    # ────────────────────────────────────────────────────
     totals_by_name = {st.section_name: st for st in state.section_totals}
     raw_sections = state.get_raw_sections()
-
-    # Collect add alts
     add_alts = []
 
-    # -- SCOPE SECTIONS --
     for section_name in raw_sections:
         items = state.spec_items.get(section_name, [])
         included = [s for s in items if not s.excluded]
         excluded = [s for s in items if s.excluded]
-
         if not included and not excluded:
             continue
-
         for s in excluded:
-            add_alts.append({"name": s.name, "section": section_name})
+            add_alts.append({"name": s.name, "section": section_name, "price": s.price})
 
-        # Check page space
-        needed = 8 + (len(included) + len(excluded)) * 6 + 4
+        # Page break check: title + first 3 items kept together
+        needed = 10 + min(len(included), 3) * 6 + 6
         if pdf.get_y() + needed > pdf.h - 25:
             pdf.add_page()
 
-        # Section title
-        pdf.set_font("Helvetica", "B", 12)
+        # 12pt space before section
+        pdf.ln(4)
+
+        # Section title: uppercase, bold, 11pt — with label if set
+        section_label = state.spec_section_labels.get(section_name, "")
+        pdf.set_font("Helvetica", "B", 11)
         pdf.set_text_color(0, 0, 0)
-        pdf.cell(0, 7, section_name.upper(), new_x="LMARGIN", new_y="NEXT")
-
-        # Included items
-        pdf.set_font("Helvetica", "", 11)
-        pdf.set_text_color(0, 0, 0)
-        for spec in included:
-            pdf.cell(0, 6, spec.name, new_x="LMARGIN", new_y="NEXT")
-
-        # Excluded items (red italic)
-        pdf.set_font("Helvetica", "I", 10)
-        pdf.set_text_color(255, 0, 0)
-        for spec in excluded:
-            pdf.cell(0, 6, f"Excludes {spec.name}", new_x="LMARGIN", new_y="NEXT")
-
+        pdf.set_x(content_x)
+        if section_label:
+            pdf.cell(content_w * 0.6, 7, section_name.upper())
+            # Yellow-highlighted label
+            pdf.set_fill_color(255, 255, 0)
+            pdf.set_font("Helvetica", "B", 10)
+            label_w = pdf.get_string_width(section_label) + 6
+            pdf.set_x(content_x + content_w - label_w)
+            pdf.cell(label_w, 7, section_label, fill=True,
+                     new_x="LMARGIN", new_y="NEXT")
+        else:
+            pdf.cell(content_w, 7, section_name.upper(), new_x="LMARGIN", new_y="NEXT")
+        # Thin rule across full width
+        hline(pdf.get_y(), width=0.5)
         pdf.ln(2)
 
-    # -- PRICING TABLE --
+        # Included items — indented
+        pdf.set_font("Helvetica", "", 10)
+        pdf.set_text_color(0, 0, 0)
+        for spec in included:
+            pdf.set_x(content_x + 4)
+            pdf.cell(content_w - 4, 5.5, spec.name, new_x="LMARGIN", new_y="NEXT")
+
+        # Excluded items — dark red italic
+        if excluded:
+            pdf.set_font("Helvetica", "I", 10)
+            pdf.set_text_color(170, 0, 0)
+            for spec in excluded:
+                pdf.set_x(content_x + 4)
+                pdf.cell(content_w - 4, 5.5, f"Excluded {spec.name}",
+                         new_x="LMARGIN", new_y="NEXT")
+            pdf.set_text_color(0, 0, 0)
+
+        pdf.ln(1)
+
+    # ────────────────────────────────────────────────────
+    # 4. PRICING TABLE  (boxed, structured)
+    # ────────────────────────────────────────────────────
     pdf.ln(4)
-    if pdf.get_y() + 60 > pdf.h - 25:
+    # Collect visible sections for sizing
+    visible_sections = [(s, totals_by_name[s]) for s in raw_sections
+                        if s in totals_by_name and totals_by_name[s].total > 0]
+    box_h = 10 + 7 + len(visible_sections) * 7 + 7 + 10  # header + col hdr + rows + total + net
+    if pdf.get_y() + box_h > pdf.h - 25:
         pdf.add_page()
 
-    # "PRICING" header
-    pdf.set_font("Helvetica", "B", 14)
-    pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 10, "PRICING", new_x="LMARGIN", new_y="NEXT", align="C")
+    col_name_w = 55
+    col_amt_w = 35
+    table_w = col_name_w + col_amt_w
+    table_x = content_x + (content_w - table_w) / 2
 
-    # Table layout - centered
-    col_name_w = 50
-    col_dollar_w = 8
-    col_amount_w = 30
-    table_w = col_name_w + col_dollar_w + col_amount_w
-    table_x = pdf.l_margin + (page_w - table_w) / 2
+    # Pricing box start
+    box_y = pdf.get_y()
 
-    # Amount header
-    pdf.set_font("Helvetica", "B", 11)
-    pdf.set_x(table_x)
-    pdf.cell(col_name_w, 7, "", border=0)
-    pdf.cell(col_dollar_w, 7, "", border=0)
-    pdf.cell(col_amount_w, 7, "Amount", border=0, align="C",
+    # "PRICING" header bar (gray bg)
+    pdf.set_fill_color(245, 245, 245)
+    pdf.set_font("Helvetica", "B", 13)
+    pdf.set_x(content_x)
+    pdf.cell(content_w, 10, "PRICING", align="C", fill=True,
              new_x="LMARGIN", new_y="NEXT")
+    hdr_bottom = pdf.get_y()
+
+    # Column header
+    pdf.set_font("Helvetica", "B", 10)
+    pdf.set_x(table_x)
+    pdf.cell(col_name_w, 7, "")
+    pdf.cell(col_amt_w, 7, "Amount", align="C", new_x="LMARGIN", new_y="NEXT")
+    hline(pdf.get_y(), table_x, table_x + table_w, 0.3)
 
     # Section rows
-    pdf.set_font("Helvetica", "", 11)
-    for section_name in raw_sections:
-        st = totals_by_name.get(section_name)
-        if not st or st.total <= 0:
-            continue
+    pdf.set_font("Helvetica", "", 10)
+    for section_name, st in visible_sections:
         pdf.set_x(table_x)
-        pdf.cell(col_name_w, 7, section_name, border=0)
-        pdf.cell(col_dollar_w, 7, "$", border=0, align="R")
-        pdf.cell(col_amount_w, 7, f"{st.total:,.2f}", border=0, align="R",
+        pdf.cell(col_name_w, 7, section_name)
+        pdf.cell(col_amt_w, 7, f"${st.total:,.2f}", align="R",
                  new_x="LMARGIN", new_y="NEXT")
 
-    # Total row (bold, with top border)
+    # Total row
+    hline(pdf.get_y(), table_x, table_x + table_w, 0.6)
     pdf.set_font("Helvetica", "B", 11)
-    y_before = pdf.get_y()
     pdf.set_x(table_x)
-    pdf.line(table_x, y_before, table_x + table_w, y_before)
-    pdf.cell(col_name_w, 7, "Total", border=0)
-    pdf.cell(col_dollar_w, 7, "$", border=0, align="R")
-    pdf.cell(col_amount_w, 7, f"{state.grand_total:,.2f}", border=0, align="R",
+    pdf.cell(col_name_w, 7, "Total")
+    pdf.cell(col_amt_w, 7, f"${state.grand_total:,.2f}", align="R",
              new_x="LMARGIN", new_y="NEXT")
 
     # Net wrap
-    pdf.ln(3)
-    pdf.set_font("Helvetica", "I", 11)
-    pdf.set_text_color(255, 0, 0)
-    pdf.cell(0, 7, "Pricing Net Wrap Liability Insurance",
+    pdf.ln(1)
+    pdf.set_font("Helvetica", "I", 9)
+    pdf.set_text_color(204, 0, 0)
+    pdf.set_x(content_x)
+    pdf.cell(content_w, 6, "Pricing Net Wrap Liability Insurance",
              new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.set_text_color(0, 0, 0)
 
-    # -- NORMAL EXCLUSIONS --
+    # Outer box around entire pricing block
+    box_bottom = pdf.get_y() + 2
+    pdf.set_line_width(0.6)
+    pdf.rect(content_x, box_y, content_w, box_bottom - box_y)
+    # Line below header bar
+    hline(hdr_bottom, width=0.6)
+    pdf.set_line_width(lw)
+    pdf.set_y(box_bottom + 4)
+
+    # ────────────────────────────────────────────────────
+    # 5. EXCLUSIONS  (boxed, two-column)
+    # ────────────────────────────────────────────────────
     if state.spec_exclusions:
-        pdf.ln(6)
-        needed_excl = 10 + (len(state.spec_exclusions) // 2 + 1) * 5
-        if pdf.get_y() + needed_excl > pdf.h - 25:
+        excl = state.spec_exclusions
+        rows_needed = (len(excl) + 1) // 2
+        needed_h = 12 + rows_needed * 5.5 + 4
+        if pdf.get_y() + needed_h > pdf.h - 25:
             pdf.add_page()
 
-        pdf.set_font("Helvetica", "B", 12)
-        pdf.set_text_color(255, 0, 0)
-        pdf.cell(0, 8, "EXCLUSIONS", new_x="LMARGIN", new_y="NEXT", align="C")
-        pdf.set_font("Helvetica", "", 11)
+        box_y = pdf.get_y()
+
+        # Title
+        pdf.set_font("Helvetica", "B", 11)
+        pdf.set_text_color(204, 0, 0)
+        pdf.set_x(content_x)
+        pdf.cell(content_w, 8, "EXCLUSIONS", new_x="LMARGIN", new_y="NEXT", align="C")
+        hline(pdf.get_y(), width=0.3)
         pdf.set_text_color(0, 0, 0)
-        half_w = page_w / 2
-        for i in range(0, len(state.spec_exclusions), 2):
-            pdf.cell(half_w, 5, state.spec_exclusions[i], border=0)
-            if i + 1 < len(state.spec_exclusions):
-                pdf.cell(half_w, 5, state.spec_exclusions[i + 1], border=0,
+        pdf.ln(1)
+
+        # Two-column items
+        pdf.set_font("Helvetica", "", 9)
+        col_w = content_w / 2
+        for i in range(0, len(excl), 2):
+            pdf.set_x(content_x + 3)
+            pdf.cell(col_w - 3, 5, excl[i])
+            if i + 1 < len(excl):
+                pdf.cell(col_w, 5, excl[i + 1],
                          new_x="LMARGIN", new_y="NEXT")
             else:
-                pdf.cell(half_w, 5, "", border=0,
-                         new_x="LMARGIN", new_y="NEXT")
+                pdf.cell(col_w, 5, "", new_x="LMARGIN", new_y="NEXT")
 
-    # -- ADD ALTERNATES --
+        box_bottom = pdf.get_y() + 2
+        pdf.set_line_width(0.6)
+        pdf.rect(content_x, box_y, content_w, box_bottom - box_y)
+        pdf.set_line_width(lw)
+        pdf.set_y(box_bottom + 4)
+
+    # ────────────────────────────────────────────────────
+    # 6. ADDITIONAL WORK RATES  (clean mini-table, no box)
+    # ────────────────────────────────────────────────────
+    if pdf.get_y() + 20 > pdf.h - 25:
+        pdf.add_page()
+
+    pdf.ln(2)
+    pdf.set_font("Helvetica", "B", 10)
+    pdf.set_x(content_x)
+    pdf.cell(content_w * 0.65, 7, "ADDITIONAL WORK CHARGED AT:")
+    pdf.set_font("Helvetica", "", 10)
+    pdf.cell(content_w * 0.35, 7, "$73.00/HR", align="R",
+             new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("Helvetica", "", 10)
+    pdf.set_x(content_x)
+    pdf.cell(content_w * 0.65, 7, "1/2 Time OT Work")
+    pdf.cell(content_w * 0.35, 7, "$37.00/HR", align="R",
+             new_x="LMARGIN", new_y="NEXT")
+
+    # ────────────────────────────────────────────────────
+    # 7. ADD ALTERNATES
+    # ────────────────────────────────────────────────────
     if add_alts:
-        pdf.ln(6)
-        if pdf.get_y() + 10 + len(add_alts) * 6 > pdf.h - 25:
-            pdf.add_page()
-
-        pdf.set_font("Helvetica", "B", 12)
-        pdf.set_text_color(0, 0, 0)
-        y_hdr = pdf.get_y() + 7
-        pdf.cell(0, 8, "ADD ALTERNATES", new_x="LMARGIN", new_y="NEXT", align="C")
-        pdf.line(pdf.l_margin, y_hdr, pdf.l_margin + page_w, y_hdr)
-
-        pdf.set_font("Helvetica", "", 11)
-        for alt in add_alts:
-            pdf.cell(0, 6, f"{alt['name']} {alt['section']}",
-                     new_x="LMARGIN", new_y="NEXT")
-
-    # -- ADDITIONAL WORK RATES --
-    pdf.ln(4)
-    pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(page_w * 0.7, 6, "ADDITIONAL WORK CHARGED AT:", border="T")
-    pdf.cell(page_w * 0.3, 6, "$73.00/HR", align="R", border="T",
-             new_x="LMARGIN", new_y="NEXT")
-    pdf.set_font("Helvetica", "", 11)
-    pdf.cell(page_w * 0.7, 6, "1/2 Time OT Work")
-    pdf.cell(page_w * 0.3, 6, "$37.00/HR", align="R",
-             new_x="LMARGIN", new_y="NEXT")
-
-    # -- MATERIALS INCLUDED IN BID --
-    if state.materials_section_order:
-        pdf.ln(6)
-        if pdf.get_y() + 80 > pdf.h - 25:
+        pdf.ln(4)
+        row_h = 6
+        if pdf.get_y() + 12 + len(add_alts) * row_h > pdf.h - 25:
             pdf.add_page()
 
         pdf.set_font("Helvetica", "B", 11)
         pdf.set_text_color(0, 0, 0)
-        pdf.cell(0, 7, f"MATERIALS INCLUDED IN BID: {state.materials_brand}",
+        pdf.set_x(content_x)
+        pdf.cell(content_w, 8, "ADD ALTERNATES", new_x="LMARGIN", new_y="NEXT", align="C")
+        hline(pdf.get_y(), width=0.5)
+
+        # Bordered table: name | $ | amount
+        name_w = content_w - 12 - 30  # remaining space for name
+        dollar_w = 12
+        amt_w = 30
+
+        pdf.set_font("Helvetica", "", 10)
+        for alt in add_alts:
+            y = pdf.get_y()
+            pdf.set_x(content_x)
+            section_tag = f" at {alt['section']}"
+            pdf.cell(name_w, row_h, alt["name"] + section_tag)
+            pdf.cell(dollar_w, row_h, "$")
+            price = alt.get("price")
+            pdf.cell(amt_w, row_h, f"{price:,.2f}" if price else "",
+                     align="R", new_x="LMARGIN", new_y="NEXT")
+            # Draw cell borders
+            pdf.set_line_width(0.3)
+            pdf.rect(content_x, y, name_w, row_h)
+            pdf.rect(content_x + name_w, y, dollar_w, row_h)
+            pdf.rect(content_x + name_w + dollar_w, y, amt_w, row_h)
+        pdf.set_line_width(lw)
+
+    # ────────────────────────────────────────────────────
+    # 8. MATERIALS INCLUDED IN BID  (structured subsections)
+    # ────────────────────────────────────────────────────
+    if state.materials_section_order:
+        pdf.ln(6)
+        if pdf.get_y() + 50 > pdf.h - 25:
+            pdf.add_page()
+
+        # Main title
+        pdf.set_font("Helvetica", "B", 11)
+        pdf.set_text_color(0, 0, 0)
+        pdf.set_x(content_x)
+        pdf.cell(content_w, 7, f"MATERIALS INCLUDED IN BID: {state.materials_brand}",
                  new_x="LMARGIN", new_y="NEXT")
 
-        col_w1 = page_w * 0.4
-        col_w2 = page_w * 0.3
-        col_w3 = page_w * 0.3
-        row_h = 6
+        mat_col1 = 55
+        mat_col2 = content_w - mat_col1
+        mat_row_h = 6
 
         for section_label in state.materials_section_order:
             mat_items = state.materials_sections.get(section_label, [])
-            pdf.set_font("Helvetica", "B", 11)
-            pdf.cell(0, row_h, section_label, new_x="LMARGIN", new_y="NEXT")
-            pdf.set_font("Helvetica", "", 11)
+            # Subsection title row — full width, light gray bg
+            y = pdf.get_y()
+            pdf.set_fill_color(245, 245, 245)
+            pdf.set_font("Helvetica", "B", 10)
+            pdf.set_x(content_x)
+            pdf.cell(content_w, mat_row_h, section_label, fill=True,
+                     new_x="LMARGIN", new_y="NEXT")
+            pdf.rect(content_x, y, content_w, mat_row_h)
+            # Item rows — bordered cells
+            pdf.set_font("Helvetica", "", 10)
             for item in mat_items:
-                pdf.cell(col_w1, row_h, item.name, border=1)
-                pdf.cell(col_w2, row_h, item.value or "", border=1)
-                pdf.cell(col_w3, row_h, "", border=1,
+                y = pdf.get_y()
+                pdf.set_x(content_x)
+                pdf.cell(mat_col1, mat_row_h, f"  {item.name}")
+                pdf.cell(mat_col2, mat_row_h, item.value or "",
                          new_x="LMARGIN", new_y="NEXT")
+                pdf.rect(content_x, y, mat_col1, mat_row_h)
+                pdf.rect(content_x + mat_col1, y, mat_col2, mat_row_h)
+
+    # ────────────────────────────────────────────────────
+    # 9. SIGNATURE SECTION
+    # ────────────────────────────────────────────────────
+    if pdf.get_y() + 45 > pdf.h - 25:
+        pdf.add_page()
+
+    pdf.ln(10)
+    pdf.set_font("Helvetica", "", 9)
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_x(content_x)
+    pdf.cell(content_w, 5, "This proposal is valid for 30 days from the date above.",
+             new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(4)
+
+    sig_w = content_w * 0.44
+    gap_w = content_w * 0.12
+
+    # Left signature block
+    sig_y = pdf.get_y()
+    pdf.set_font("Helvetica", "", 9)
+    pdf.set_x(content_x)
+    pdf.cell(sig_w, 5, "Authorized Signature - RCW Painting",
+             new_x="LMARGIN", new_y="NEXT")
+    line_y = pdf.get_y() + 10
+    pdf.line(content_x, line_y, content_x + sig_w, line_y)
+    pdf.set_y(line_y + 2)
+    pdf.set_x(content_x)
+    pdf.cell(sig_w, 5, "Date: _____________", new_x="LMARGIN", new_y="NEXT")
+
+    # Right signature block
+    right_x = content_x + sig_w + gap_w
+    pdf.set_xy(right_x, sig_y)
+    pdf.cell(sig_w, 5, "Acceptance - Customer",
+             new_x="LMARGIN", new_y="NEXT")
+    pdf.line(right_x, line_y, right_x + sig_w, line_y)
+    pdf.set_xy(right_x, line_y + 2)
+    pdf.cell(sig_w, 5, "Date: _____________", new_x="LMARGIN", new_y="NEXT")
+
+    pdf.set_y(line_y + 10)
+
+    # ────────────────────────────────────────────────────
+    # 10. FOOTER
+    # ────────────────────────────────────────────────────
+    pdf.set_draw_color(180, 180, 180)
+    hline(pdf.get_y(), width=0.3)
+    pdf.set_draw_color(0, 0, 0)
+    pdf.ln(2)
+    pdf.set_font("Helvetica", "", 8)
+    pdf.set_text_color(140, 140, 140)
+    pdf.set_x(content_x)
+    pdf.cell(content_w, 5, f"RCW Painting  |  {today}", align="C",
+             new_x="LMARGIN", new_y="NEXT")
+    pdf.set_text_color(0, 0, 0)
 
     buf = BytesIO()
     pdf.output(buf)
@@ -1672,6 +2080,13 @@ async def print_page(request: Request):
 
     _ensure_materials(state)
 
+    # Collect excluded spec items for Add Alts on proposal
+    add_alts = []
+    for section_name in sections:
+        for spec in state.spec_items.get(section_name, []):
+            if spec.excluded:
+                add_alts.append({"name": spec.name, "section": section_name, "price": spec.price})
+
     context = get_template_context(
         request,
         page="print",
@@ -1683,6 +2098,9 @@ async def print_page(request: Request):
         unit_count=unit_count,
         total_sf=total_sf,
         alternates=alternates,
+        add_alts=add_alts,
+        spec_items=state.spec_items,
+        spec_section_labels=state.spec_section_labels,
         materials_sections=state.materials_sections,
         materials_section_order=state.materials_section_order,
         materials_brand=state.materials_brand,

@@ -6,17 +6,13 @@
 {% block header %}
 <div class="flex justify-between items-center">
     <div>
-        <h2 class="text-2xl font-bold text-gray-900">Bid Form</h2>
-        <p class="text-sm text-gray-600 mt-1">{{ bid_state.project_name }}</p>
+        <h2 class="text-xl font-bold text-slate-900">Bid Form</h2>
+        <p class="text-xs text-slate-500 mt-0.5">{{ bid_state.project_name }}</p>
     </div>
     <div class="flex gap-2">
         <a href="/bid/export?format=internal_xlsx"
-           class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+           class="px-3 py-1.5 text-xs bg-white text-slate-600 border border-slate-200 rounded hover:bg-slate-50 transition">
             Export Internal XLSX
-        </a>
-        <a href="/bid/export?format=proposal_xlsx"
-           class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition">
-            Export Proposal XLSX
         </a>
     </div>
 </div>
@@ -33,15 +29,6 @@
             {% include "partials/project_info_form.html" %}
         </div>
 
-        <div class="bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center gap-4 text-sm font-mono">
-            <span class="text-gray-400">BID FORM:</span>
-            <span>Line Items: <strong class="text-green-400">{{ bid_state.raw_items|length }}</strong></span>
-            <span class="text-gray-600">|</span>
-            <span>Sections: <strong class="text-blue-400">{{ raw_sections|length }}</strong></span>
-            <span class="text-gray-600">|</span>
-            <span>Grand Total: <strong class="text-yellow-400">{{ format_currency(bid_state.grand_total) }}</strong></span>
-        </div>
-
         <!-- Totals Panel -->
         <div id="totals-panel"
              hx-get="/bid/totals"
@@ -51,23 +38,23 @@
         </div>
 
         {% if bid_state.raw_items %}
-        <div class="bg-white rounded-lg shadow-sm">
+        <div class="bg-white rounded-lg border border-slate-200">
             <div class="overflow-x-auto">
                 <table class="w-full bid-table min-w-[1100px]">
                     <thead>
-                        <tr class="bg-gray-800 text-white text-sm">
-                            <th class="px-1 py-3 text-center w-10 text-xs text-gray-400">#</th>
-                            <th class="px-1 py-3 text-center w-8"></th>
-                            <th class="px-2 py-3 text-center w-10"></th>
-                            <th class="px-3 py-3 text-left">ITEM</th>
-                            <th class="px-2 py-3 text-center w-24">QTY</th>
-                            <th class="px-2 py-3 text-center w-16">UOM</th>
-                            <th class="px-2 py-3 text-center w-24">$/UNIT</th>
-                            <th class="px-2 py-3 text-center">
-                                <div>DIFFICULTY</div>
-                                <div class="text-xs font-normal text-gray-400">1 2 3 4 5</div>
+                        <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                            <th class="px-1 py-2 text-center w-10 text-slate-400">#</th>
+                            <th class="px-1 py-2 text-center w-8"></th>
+                            <th class="px-2 py-2 text-center w-10"></th>
+                            <th class="px-3 py-2 text-left font-semibold">Item</th>
+                            <th class="px-2 py-2 text-center w-24 font-semibold">Qty</th>
+                            <th class="px-2 py-2 text-center w-16 font-semibold">UOM</th>
+                            <th class="px-2 py-2 text-center w-24 font-semibold">$/Unit</th>
+                            <th class="px-2 py-2 text-center font-semibold">
+                                <div>Difficulty</div>
+                                <div class="text-[10px] font-normal text-slate-400">1 2 3 4 5</div>
                             </th>
-                            <th class="px-3 py-3 text-right w-28">TOTAL</th>
+                            <th class="px-3 py-2 text-right w-28 font-semibold">Total</th>
                         </tr>
                     </thead>
                         {% set ns2 = namespace(row_num=0) %}
@@ -96,7 +83,7 @@
                                 <td colspan="9" class="px-3 py-1">
                                     <button type="button"
                                             @click="showAddForm = true"
-                                            class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                                            class="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                         </svg>
@@ -104,7 +91,7 @@
                                     </button>
                                 </td>
                             </tr>
-                            <tr x-show="showAddForm" class="bg-blue-50 border-b border-gray-200">
+                            <tr x-show="showAddForm" class="bg-slate-50 border-b border-slate-200">
                                 <td colspan="9" class="px-3 py-3">
                                     <form class="flex items-end gap-3 flex-wrap"
                                           hx-post="/bid/item/add"
@@ -114,32 +101,32 @@
                                         <input type="hidden" name="section" value="{{ section }}">
                                         <input type="hidden" name="target" value="raw_items">
                                         <div>
-                                            <label class="block text-xs font-medium text-gray-600 mb-1">Name</label>
+                                            <label class="block text-xs font-medium text-slate-600 mb-1">Name</label>
                                             <input type="text" name="name" required placeholder="Item name"
-                                                   class="px-2 py-1.5 text-sm border border-gray-300 rounded w-48 focus:ring-2 focus:ring-blue-500">
+                                                   class="px-2 py-1.5 text-sm border border-slate-300 rounded w-48 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-medium text-gray-600 mb-1">Qty</label>
+                                            <label class="block text-xs font-medium text-slate-600 mb-1">Qty</label>
                                             <input type="text" name="qty" value="0" placeholder="0"
-                                                   class="px-2 py-1.5 text-sm border border-gray-300 rounded w-20 text-center focus:ring-2 focus:ring-blue-500">
+                                                   class="px-2 py-1.5 text-sm border border-slate-300 rounded w-20 text-center focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-medium text-gray-600 mb-1">UOM</label>
+                                            <label class="block text-xs font-medium text-slate-600 mb-1">UOM</label>
                                             <input type="text" name="uom" value="EA" placeholder="EA"
-                                                   class="px-2 py-1.5 text-sm border border-gray-300 rounded w-16 text-center focus:ring-2 focus:ring-blue-500">
+                                                   class="px-2 py-1.5 text-sm border border-slate-300 rounded w-16 text-center focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-medium text-gray-600 mb-1">$/Unit</label>
+                                            <label class="block text-xs font-medium text-slate-600 mb-1">$/Unit</label>
                                             <input type="text" name="unit_price" value="0" placeholder="0.00"
-                                                   class="px-2 py-1.5 text-sm border border-gray-300 rounded w-24 text-center focus:ring-2 focus:ring-blue-500">
+                                                   class="px-2 py-1.5 text-sm border border-slate-300 rounded w-24 text-center focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                                         </div>
                                         <button type="submit"
-                                                class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                                                class="px-3 py-1.5 bg-slate-800 text-white text-sm rounded hover:bg-slate-700">
                                             Add
                                         </button>
                                         <button type="button"
                                                 @click="showAddForm = false"
-                                                class="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300">
+                                                class="px-3 py-1.5 bg-slate-100 text-slate-600 text-sm rounded hover:bg-slate-200">
                                             Cancel
                                         </button>
                                     </form>
@@ -149,7 +136,7 @@
 
                             <!-- Section spacer -->
                             <tbody>
-                            <tr><td colspan="9" class="h-2 bg-gray-100"></td></tr>
+                            <tr><td colspan="9" class="h-1.5 bg-slate-100"></td></tr>
                             </tbody>
                         {% endfor %}
 
@@ -159,7 +146,7 @@
                                 <td colspan="9" class="px-3 py-2">
                                     <button type="button"
                                             @click="showAddSection = true"
-                                            class="text-sm text-green-600 hover:text-green-800 font-medium flex items-center gap-1">
+                                            class="text-sm text-slate-500 hover:text-slate-700 font-medium flex items-center gap-1">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                         </svg>
@@ -167,7 +154,7 @@
                                     </button>
                                 </td>
                             </tr>
-                            <tr x-show="showAddSection" class="bg-green-50 border-b border-gray-200">
+                            <tr x-show="showAddSection" class="bg-slate-50 border-b border-slate-200">
                                 <td colspan="9" class="px-3 py-3">
                                     <form class="flex items-end gap-3"
                                           hx-post="/bid/section/add"
@@ -175,17 +162,17 @@
                                           hx-swap="beforebegin"
                                           hx-on::after-request="this.reset(); this.dispatchEvent(new CustomEvent('section-added', {bubbles:true}))">
                                         <div>
-                                            <label class="block text-xs font-medium text-gray-600 mb-1">Section Name</label>
+                                            <label class="block text-xs font-medium text-slate-600 mb-1">Section Name</label>
                                             <input type="text" name="name" required placeholder="e.g. Garage"
-                                                   class="px-2 py-1.5 text-sm border border-gray-300 rounded w-48 focus:ring-2 focus:ring-green-500">
+                                                   class="px-2 py-1.5 text-sm border border-slate-300 rounded w-48 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                                         </div>
                                         <button type="submit"
-                                                class="px-3 py-1.5 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                                                class="px-3 py-1.5 bg-slate-800 text-white text-sm rounded hover:bg-slate-700">
                                             Add Section
                                         </button>
                                         <button type="button"
                                                 @click="showAddSection = false"
-                                                class="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300">
+                                                class="px-3 py-1.5 bg-slate-100 text-slate-600 text-sm rounded hover:bg-slate-200">
                                             Cancel
                                         </button>
                                     </form>
@@ -196,7 +183,7 @@
             </div>
         </div>
         {% else %}
-        <div class="bg-white rounded-lg shadow-sm p-6 text-center text-gray-500">
+        <div class="bg-white rounded-lg border border-slate-200 p-6 text-center text-slate-500">
             No raw items available. Upload an Excel file to see the extracted line items.
         </div>
         {% endif %}

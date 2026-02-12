@@ -99,6 +99,7 @@ class SpecItem(BaseModel):
     """A single spec line item with exclude support."""
     name: str
     excluded: bool = False
+    price: Optional[float] = None
 
 
 class MaterialItem(BaseModel):

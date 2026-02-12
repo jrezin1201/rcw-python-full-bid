@@ -1,28 +1,42 @@
 {% set info = bid_state.project_info %}
-{% set pi = "bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none focus:bg-white px-1 py-0 text-xs" %}
+{% set pi = "bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:bg-white px-1 py-0 text-xs text-slate-700" %}
 
-<div class="bg-white rounded-lg shadow-sm px-4 py-3" id="project-info-panel">
+<div class="bg-white rounded-lg border border-slate-200 px-4 py-3" id="project-info-panel">
     <form hx-post="/bid/project-info"
           hx-trigger="change from:find input"
           hx-swap="none"
           class="max-w-2xl mx-auto">
 
         <!-- Top: Developer/Address/City + Date/Contact/Phone/Email -->
-        <table class="w-full text-xs border border-gray-300 mb-2">
-            <tr class="border-b border-gray-200">
-                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap w-[70px]">Developer:</td>
-                <td class="py-1 pr-2 border-r border-gray-300">
+        <style>
+            .pi-table { table-layout: fixed; }
+            .pi-table col.lbl-col { width: 13%; }
+            .pi-table col.val-col { width: 37%; }
+            .pi-table col.lbl-col-r { width: 18%; }
+            .pi-table col.val-col-r { width: 32%; }
+            .pi-table .divider { border-right: 1px solid #cbd5e1; }
+        </style>
+        <table class="w-full text-xs border border-slate-200 mb-2 pi-table">
+            <colgroup>
+                <col class="lbl-col">
+                <col class="val-col">
+                <col class="lbl-col-r">
+                <col class="val-col-r">
+            </colgroup>
+            <tr class="border-b border-slate-100">
+                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap divider">Developer:</td>
+                <td class="py-1 px-2 divider">
                     <input type="text" name="developer" value="{{ info.developer or '' }}"
                            placeholder="Insert Text" class="{{ pi }} w-full">
                 </td>
-                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap w-[60px]">Date:</td>
+                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap">Date:</td>
                 <td class="py-1 pr-2">
                     <span class="px-1 text-xs">{{ now_date }}</span>
                 </td>
             </tr>
-            <tr class="border-b border-gray-200">
-                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap">Address:</td>
-                <td class="py-1 pr-2 border-r border-gray-300">
+            <tr class="border-b border-slate-100">
+                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap divider">Address:</td>
+                <td class="py-1 px-2 divider">
                     <input type="text" name="address" value="{{ info.address or '' }}"
                            placeholder="Insert Text" class="{{ pi }} w-full">
                 </td>
@@ -32,9 +46,9 @@
                            placeholder="Insert Text" class="{{ pi }} w-full">
                 </td>
             </tr>
-            <tr class="border-b border-gray-200">
-                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap">City:</td>
-                <td class="py-1 pr-2 border-r border-gray-300">
+            <tr class="border-b border-slate-100">
+                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap divider">City:</td>
+                <td class="py-1 px-2 divider">
                     <input type="text" name="city" value="{{ info.city or '' }}"
                            placeholder="Insert Text" class="{{ pi }} w-full">
                 </td>
@@ -45,8 +59,8 @@
                 </td>
             </tr>
             <tr>
-                <td class="pl-2 pr-1 py-1"></td>
-                <td class="py-1 pr-2 border-r border-gray-300"></td>
+                <td class="pl-2 pr-1 py-1 divider"></td>
+                <td class="py-1 px-2 divider"></td>
                 <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap">Email:</td>
                 <td class="py-1 pr-2">
                     <input type="text" name="email" value="{{ info.email or '' }}"
@@ -56,53 +70,59 @@
         </table>
 
         <!-- Project details table -->
-        <table class="w-full text-xs border border-gray-300">
-            <tr class="border-b border-gray-200">
-                <td class="font-bold pl-2 pr-1 py-1 w-[70px] border-r border-gray-200">PROJECT</td>
-                <td class="px-2 py-1 border-r border-gray-200">
+        <table class="w-full text-xs border border-slate-200 pi-table">
+            <colgroup>
+                <col class="lbl-col">
+                <col class="val-col">
+                <col class="lbl-col-r">
+                <col class="val-col-r">
+            </colgroup>
+            <tr class="border-b border-slate-100">
+                <td class="font-bold pl-2 pr-1 py-1 divider">PROJECT</td>
+                <td class="px-2 py-1 divider">
                     <input type="text" name="project_name" value="{{ bid_state.project_name or '' }}"
                            placeholder="Insert Text" class="{{ pi }} w-full font-medium">
                 </td>
-                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap border-r border-gray-200">PLANS</td>
-                <td class="font-bold px-2 py-1 text-center w-[100px]">DATED</td>
+                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap">PLANS</td>
+                <td class="font-bold px-2 py-1 text-center">DATED</td>
             </tr>
-            <tr class="border-b border-gray-200">
-                <td class="font-bold pl-2 pr-1 py-1 border-r border-gray-200">UNITS</td>
-                <td class="px-2 py-1 border-r border-gray-200">
+            <tr class="border-b border-slate-100">
+                <td class="font-bold pl-2 pr-1 py-1 divider">UNITS</td>
+                <td class="px-2 py-1 divider">
                     <input type="text" name="units_text" value="{{ info.units_text or '' }}"
                            placeholder="Insert Text" class="{{ pi }} w-full">
                 </td>
-                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap border-r border-gray-200">ARCHITECTURAL</td>
+                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap">ARCHITECTURAL</td>
                 <td class="px-2 py-1">
                     <input type="text" name="arch_date" value="{{ (info.arch_date or '')|fmt_date }}"
                            placeholder="Insert Text" class="{{ pi }} w-full text-center">
                 </td>
             </tr>
-            <tr class="border-b border-gray-200">
-                <td class="font-bold pl-2 pr-1 py-1 border-r border-gray-200">CITY</td>
-                <td class="px-2 py-1 border-r border-gray-200">
+            <tr class="border-b border-slate-100">
+                <td class="font-bold pl-2 pr-1 py-1 divider">CITY</td>
+                <td class="px-2 py-1 divider">
                     <input type="text" name="project_city" value="{{ info.project_city or '' }}"
                            placeholder="Insert Text" class="{{ pi }} w-full">
                 </td>
-                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap border-r border-gray-200">LANDSCAPE</td>
+                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap">LANDSCAPE</td>
                 <td class="px-2 py-1">
                     <input type="text" name="landscape_date" value="{{ (info.landscape_date or '')|fmt_date }}"
                            placeholder="Insert Text" class="{{ pi }} w-full text-center">
                 </td>
             </tr>
-            <tr class="border-b border-gray-200">
-                <td class="pl-2 pr-1 py-1 border-r border-gray-200"></td>
-                <td class="px-2 py-1 border-r border-gray-200"></td>
-                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap border-r border-gray-200">INTERIOR DESIGN</td>
+            <tr class="border-b border-slate-100">
+                <td class="pl-2 pr-1 py-1 divider"></td>
+                <td class="px-2 py-1 divider"></td>
+                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap">INTERIOR DESIGN</td>
                 <td class="px-2 py-1">
                     <input type="text" name="interior_design_date" value="{{ (info.interior_design_date or '')|fmt_date }}"
                            placeholder="Insert Text" class="{{ pi }} w-full text-center">
                 </td>
             </tr>
             <tr>
-                <td class="pl-2 pr-1 py-1 border-r border-gray-200"></td>
-                <td class="px-2 py-1 border-r border-gray-200"></td>
-                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap border-r border-gray-200">OWNER SPECS</td>
+                <td class="pl-2 pr-1 py-1 divider"></td>
+                <td class="px-2 py-1 divider"></td>
+                <td class="font-bold pl-2 pr-1 py-1 whitespace-nowrap">OWNER SPECS</td>
                 <td class="px-2 py-1">
                     <input type="text" name="owner_specs_date" value="{{ (info.owner_specs_date or '')|fmt_date }}"
                            placeholder="Insert Text" class="{{ pi }} w-full text-center">

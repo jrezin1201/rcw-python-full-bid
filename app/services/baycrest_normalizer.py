@@ -87,6 +87,9 @@ class BaycrestNormalizer:
                 target_sheet = workbook.active
                 logger.warning(f"No matching sheet found, using first sheet: {target_sheet.title}")
 
+            # Extract header/project info first so we know which rows to skip
+            header_info, header_rows = self._extract_header_info(target_sheet)
+
             # Process the sheet
             raw_rows = []
             raw_data = []
@@ -123,6 +126,13 @@ class BaycrestNormalizer:
                 if is_empty:
                     decision.status = "IGNORED"
                     decision.add_reason("empty")
+                    stats_tracker.commit_row(decision)
+                    continue
+
+                # Skip rows identified as header/project info
+                if row_idx in header_rows:
+                    decision.status = "IGNORED"
+                    decision.add_reason("header_info")
                     stats_tracker.commit_row(decision)
                     continue
 
@@ -212,36 +222,38 @@ class BaycrestNormalizer:
 
             logger.info(f"Baycrest extraction complete: {stats}")
 
-            # Extract header/project info from top rows
-            header_info = self._extract_header_info(target_sheet)
-
             return {
                 'raw_rows': raw_rows,
                 'raw_data': raw_data,
                 'stats': stats,
                 'header_info': header_info,
+                'header_rows': header_rows,
             }
 
         except Exception as e:
             logger.error(f"Error processing Baycrest file: {str(e)}")
             raise
 
-    def _extract_header_info(self, sheet) -> Dict[str, Optional[str]]:
+    def _extract_header_info(self, sheet) -> Tuple[Dict[str, Optional[str]], set]:
         """
-        Extract project header info from the top rows of the sheet.
+        Extract project header info from the sheet.
 
-        Expected layout (rows 1-10):
-          Row 1: A=Developer:  B=value   E=Date:     F=value
-          Row 2: A=Address:    B=value   E=Contact:  F=value
-          Row 3: A=City:       B=value   E=Phone:    F=value
-          Row 4:                          E=Email:    F=value
-          Row 6: A=PROJECT     B=value   E=PLANS     G=DATED
-          Row 7: A=UNITS       B=value   E=ARCHITECTURAL  G=value
-          Row 8: A=CITY        B=value   E=LANDSCAPE      G=value
-          Row 9:                          E=INTERIOR DESIGN G=value
-          Row 10:                         E=OWNER SPECS     G=value
+        Scans the first 12 rows first, then the last 25 rows if key
+        fields weren't found. Handles two column layouts:
+          Layout 1 (top):    A=label B=value,  E=label F/G=value
+          Layout 2 (bottom): B=label C=value,  F=label G=value
+
+        Returns:
+            Tuple of (info dict, set of row numbers that are header rows)
         """
         info: Dict[str, Optional[str]] = {}
+        header_rows: set = set()
+
+        # Known header labels (left and right columns)
+        _LEFT_LABELS = {"developer", "address", "city", "project", "units"}
+        _RIGHT_LABELS = {"date", "contact", "phone", "email", "plans",
+                         "architectural", "landscape", "interior design",
+                         "owner specs", "dated"}
 
         def cell_str(row: int, col: int) -> Optional[str]:
             v = self._get_cell_value(sheet.cell(row, col))
@@ -250,56 +262,93 @@ class BaycrestNormalizer:
             s = str(v).strip()
             return s if s else None
 
-        def label_match(row: int, col: int, *keywords: str) -> bool:
-            v = cell_str(row, col)
-            if not v:
-                return False
-            v_lower = v.lower().rstrip(": ")
-            return any(k in v_lower for k in keywords)
+        def _scan_rows(row_range, label_col: int, value_col: int,
+                        right_label_col: int, right_value_col: int):
+            """Scan a range of rows using the given column layout."""
+            for r in row_range:
+                lbl = cell_str(r, label_col)
+                lbl_lower = (lbl or "").lower().rstrip(": ")
 
-        # Scan first 12 rows looking for known labels
-        for r in range(1, min(13, sheet.max_row + 1)):
-            a = cell_str(r, 1)
-            a_lower = (a or "").lower().rstrip(": ")
+                matched = False
 
-            # Left column labels (A=label, B=value)
-            if a_lower == "developer":
-                info["developer"] = cell_str(r, 2)
-            elif a_lower == "address":
-                info["address"] = cell_str(r, 2)
-            elif a_lower == "city":
-                if "project_name" in info:
-                    info["project_city"] = cell_str(r, 2)
-                else:
-                    info["city"] = cell_str(r, 2)
-            elif a_lower == "project":
-                info["project_name"] = cell_str(r, 2)
-            elif a_lower == "units":
-                info["units_text"] = cell_str(r, 2)
+                # Left column labels
+                if lbl_lower == "developer":
+                    info["developer"] = cell_str(r, value_col)
+                    matched = True
+                elif lbl_lower == "address":
+                    info["address"] = cell_str(r, value_col)
+                    matched = True
+                elif lbl_lower == "city":
+                    if "project_name" in info:
+                        info["project_city"] = cell_str(r, value_col)
+                    else:
+                        info["city"] = cell_str(r, value_col)
+                    matched = True
+                elif lbl_lower == "project":
+                    info["project_name"] = cell_str(r, value_col)
+                    matched = True
+                elif lbl_lower == "units":
+                    info["units_text"] = cell_str(r, value_col)
+                    matched = True
 
-            # Right column labels (E=label, F or G=value)
-            e = cell_str(r, 5)
-            e_lower = (e or "").lower().rstrip(": ")
+                # Right column labels
+                rlbl = cell_str(r, right_label_col)
+                rlbl_lower = (rlbl or "").lower().rstrip(": ")
 
-            if e_lower == "date":
-                info["date"] = cell_str(r, 6)
-            elif e_lower == "contact":
-                info["contact"] = cell_str(r, 6)
-            elif e_lower == "phone":
-                info["phone"] = cell_str(r, 6)
-            elif e_lower == "email":
-                info["email"] = cell_str(r, 6)
-            elif e_lower == "architectural":
-                info["arch_date"] = cell_str(r, 7) or cell_str(r, 6)
-            elif e_lower == "landscape":
-                info["landscape_date"] = cell_str(r, 7) or cell_str(r, 6)
-            elif e_lower == "interior design":
-                info["interior_design_date"] = cell_str(r, 7) or cell_str(r, 6)
-            elif e_lower == "owner specs":
-                info["owner_specs_date"] = cell_str(r, 7) or cell_str(r, 6)
+                # Plan date fields may have value in the next column over
+                plan_value = cell_str(r, right_value_col) or cell_str(r, right_value_col + 1)
 
-        logger.info(f"Extracted header info: {list(info.keys())}")
-        return info
+                if rlbl_lower == "date":
+                    info["date"] = cell_str(r, right_value_col)
+                    matched = True
+                elif rlbl_lower == "contact":
+                    info["contact"] = cell_str(r, right_value_col)
+                    matched = True
+                elif rlbl_lower == "phone":
+                    info["phone"] = cell_str(r, right_value_col)
+                    matched = True
+                elif rlbl_lower == "email":
+                    info["email"] = cell_str(r, right_value_col)
+                    matched = True
+                elif rlbl_lower == "architectural":
+                    info["arch_date"] = plan_value
+                    matched = True
+                elif rlbl_lower == "landscape":
+                    info["landscape_date"] = plan_value
+                    matched = True
+                elif rlbl_lower == "interior design":
+                    info["interior_design_date"] = plan_value
+                    matched = True
+                elif rlbl_lower == "owner specs":
+                    info["owner_specs_date"] = plan_value
+                    matched = True
+                elif rlbl_lower in _RIGHT_LABELS:
+                    matched = True
+
+                if matched:
+                    header_rows.add(r)
+
+        # Pass 1: scan first 12 rows with layout 1 (A=label, B=value, E=label, F/G=value)
+        top_range = range(1, min(13, sheet.max_row + 1))
+        _scan_rows(top_range, label_col=1, value_col=2,
+                   right_label_col=5, right_value_col=6)
+
+        # Pass 2: if key fields missing, scan last 25 rows with both layouts
+        if "developer" not in info and "project_name" not in info:
+            bottom_start = max(1, sheet.max_row - 24)
+            bottom_range = range(bottom_start, sheet.max_row + 1)
+
+            # Try layout 1 first (A/B, E/F)
+            _scan_rows(bottom_range, label_col=1, value_col=2,
+                       right_label_col=5, right_value_col=6)
+
+            # Try layout 2 (B/C, F/G) — labels shifted one column right
+            if "developer" not in info and "project_name" not in info:
+                _scan_rows(bottom_range, label_col=2, value_col=3,
+                           right_label_col=6, right_value_col=7)
+
+        logger.info(f"Extracted header info: {list(info.keys())} (header rows: {sorted(header_rows)})")
+        return info, header_rows
 
     def _get_cell_value(self, cell) -> Any:
         """Get cell value, handling None and empty strings."""

@@ -264,10 +264,14 @@ def map_excel_with_catalog(
     # Use raw Excel rows to build items in original order
     raw_items = []
     raw_rows = result.get('raw_rows', [])
+    header_rows = result.get('header_rows', set())
     current_section = "General"
     section_keywords = ["General", "Corridors", "Exterior", "Units", "Stairs", "Amenity", "Garage", "Landscape"]
 
     for row in raw_rows:
+        # Skip rows identified as header/project info
+        if row.get('row') in header_rows:
+            continue
         a_val = str(row.get('A', '') or '').strip()
         b_val = str(row.get('B', '') or '').strip()
         c_val = row.get('C')
@@ -342,6 +346,7 @@ def map_excel_with_catalog(
 
     # Extract header info for project metadata
     header_info = result.get('header_info', {})
+    logger.info(f"Header info extracted: {header_info}")
 
     project_name = header_info.get('project_name') or \
         file_path.split("/")[-1].replace(".xlsx", "").replace(".xls", "")

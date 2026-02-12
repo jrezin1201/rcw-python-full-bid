@@ -2,9 +2,9 @@
 
 {% if item.excluded %}
 <!-- Excluded row (greyed out, soft-deleted) -->
-<tr class="border-b border-gray-200 {{ 'bg-red-50' if item.is_exclusion else 'bg-gray-100 opacity-50' }}">
+<tr class="border-b border-slate-200 {{ 'bg-red-50' if item.is_exclusion else 'bg-slate-100 opacity-50' }}">
     <!-- Row Number -->
-    <td class="px-1 py-2 text-center text-xs text-gray-400 font-mono">
+    <td class="px-1 py-2 text-center text-xs text-slate-400 font-mono">
         {{ row_num | default('?') }}
     </td>
 
@@ -12,7 +12,7 @@
     <td class="px-1 py-2 text-center">
         <button type="button"
                 title="Restore item"
-                class="w-5 h-5 rounded flex items-center justify-center text-xs bg-green-100 text-green-600 hover:bg-green-200 hover:text-green-800"
+                class="w-5 h-5 rounded flex items-center justify-center text-xs bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700"
                 hx-post="/bid/item/{{ item.id }}/exclude"
                 hx-target="#row-{{ item.id }}"
                 hx-swap="outerHTML">
@@ -27,7 +27,7 @@
         <button type="button"
                 title="{{ 'Remove from exclusions' if item.is_exclusion else 'Add as exclusion on proposal' }}"
                 class="w-5 h-5 rounded flex items-center justify-center text-xs
-                       {% if item.is_exclusion %}bg-red-100 text-red-600 hover:bg-red-200{% else %}bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-400{% endif %}"
+                       {% if item.is_exclusion %}bg-red-100 text-red-600 hover:bg-red-200{% else %}bg-slate-100 text-slate-400 hover:bg-red-50 hover:text-red-400{% endif %}"
                 hx-post="/bid/item/{{ item.id }}/exclusion"
                 hx-target="#row-{{ item.id }}"
                 hx-swap="outerHTML">
@@ -40,18 +40,18 @@
         {% if item.is_exclusion %}
         <span class="font-medium text-red-800">Excludes {{ item.name }}</span>
         {% else %}
-        <span class="font-semibold text-gray-400 line-through">{{ item.name }}</span>
+        <span class="font-semibold text-slate-400 line-through">{{ item.name }}</span>
         {% endif %}
     </td>
 
     <!-- Quantity -->
-    <td class="px-2 py-2 text-center text-sm text-gray-400">{{ format_number(item.qty) }}</td>
+    <td class="px-2 py-2 text-center text-sm text-slate-400">{{ format_number(item.qty) }}</td>
 
     <!-- UOM -->
-    <td class="px-2 py-2 text-center text-sm text-gray-400">{{ item.uom }}</td>
+    <td class="px-2 py-2 text-center text-sm text-slate-400">{{ item.uom }}</td>
 
     <!-- Remaining columns -->
-    <td colspan="3" class="px-2 py-2 text-right text-sm text-gray-400 line-through">
+    <td colspan="3" class="px-2 py-2 text-right text-sm text-slate-400 line-through">
         {{ format_currency(item.row_total) }}
     </td>
 </tr>
@@ -59,7 +59,7 @@
 {% else %}
 
 <!-- Collapsed row (shown when rowOpen is false) -->
-<tr x-show="!rowOpen" class="border-b border-gray-100 {{ 'bg-red-50' if item.is_exclusion else 'bg-gray-50' }} text-gray-400 hover:bg-gray-100">
+<tr x-show="!rowOpen" class="border-b border-slate-100 {{ 'bg-red-50' if item.is_exclusion else 'bg-slate-50' }} text-slate-400 hover:bg-slate-100">
     <!-- Row Number -->
     <td class="px-1 py-1 text-center text-xs font-mono">
         {{ row_num | default('?') }}
@@ -69,7 +69,7 @@
     <td class="px-1 py-1 text-center">
         <button type="button"
                 @click.stop="rowOpen = true"
-                class="w-5 h-5 rounded flex items-center justify-center text-xs bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600">
+                class="w-5 h-5 rounded flex items-center justify-center text-xs bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600">
             <span class="leading-none">+</span>
         </button>
     </td>
@@ -79,7 +79,7 @@
         <button type="button"
                 title="{{ 'Remove from exclusions' if item.is_exclusion else 'Add as exclusion on proposal' }}"
                 class="w-5 h-5 rounded flex items-center justify-center text-xs
-                       {% if item.is_exclusion %}bg-red-100 text-red-600 hover:bg-red-200{% else %}bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-400{% endif %}"
+                       {% if item.is_exclusion %}bg-red-100 text-red-600 hover:bg-red-200{% else %}bg-slate-100 text-slate-400 hover:bg-red-50 hover:text-red-400{% endif %}"
                 hx-post="/bid/item/{{ item.id }}/exclusion"
                 hx-target="#row-{{ item.id }}"
                 hx-swap="outerHTML"
@@ -93,7 +93,7 @@
         {% if item.is_exclusion %}
         <span class="text-sm text-red-800 font-medium">Excludes {{ item.name }}</span>
         {% else %}
-        <span class="text-sm text-gray-400">{{ item.name }}</span>
+        <span class="text-sm text-slate-400">{{ item.name }}</span>
         {% endif %}
     </td>
 
@@ -108,9 +108,9 @@
 </tr>
 
 <!-- Full row (shown when rowOpen is true) -->
-<tr x-show="rowOpen" class="border-b border-gray-200 hover:bg-gray-50">
+<tr x-show="rowOpen" class="border-b border-slate-200/60 hover:bg-slate-50/50">
     <!-- Row Number -->
-    <td class="px-1 py-2 text-center text-xs text-gray-400 font-mono">
+    <td class="px-1 py-2 text-center text-xs text-slate-400 font-mono">
         {{ row_num | default('?') }}
     </td>
 
@@ -120,7 +120,7 @@
         <!-- For empty rows: collapse button that hides the whole row -->
         <button type="button"
                 @click="rowOpen = false; notesOpen = false"
-                class="w-6 h-6 rounded flex items-center justify-center text-sm bg-gray-100 text-gray-500 hover:bg-gray-200">
+                class="w-6 h-6 rounded flex items-center justify-center text-sm bg-slate-100 text-slate-500 hover:bg-slate-200">
             <span class="text-lg leading-none">&minus;</span>
         </button>
         {% else %}
@@ -128,7 +128,7 @@
         <button type="button"
                 @click="notesOpen = !notesOpen"
                 class="w-6 h-6 rounded flex items-center justify-center text-sm transition-colors
-                       {% if item.notes %}bg-blue-100 text-blue-600 hover:bg-blue-200{% else %}bg-gray-100 text-gray-500 hover:bg-gray-200{% endif %}"
+                       {% if item.notes %}bg-blue-100 text-blue-600 hover:bg-blue-200{% else %}bg-slate-100 text-slate-500 hover:bg-slate-200{% endif %}"
                 :class="notesOpen ? 'bg-blue-100 text-blue-600' : ''">
             <span x-show="!notesOpen" class="text-lg leading-none">+</span>
             <span x-show="notesOpen" class="text-lg leading-none">&minus;</span>
@@ -156,13 +156,13 @@
             <input type="text"
                    name="name"
                    value="{{ item.name }}"
-                   class="font-semibold text-gray-900 bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none focus:bg-white px-1 py-0.5 w-full"
+                   class="font-semibold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:bg-white px-1 py-0.5 w-full"
                    hx-post="/bid/item/{{ item.id }}/name"
                    hx-trigger="change"
                    hx-target="#row-{{ item.id }}"
                    hx-swap="outerHTML">
             {% if item.is_alternate %}
-            <span class="ml-2 px-1.5 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded flex-shrink-0">ALT</span>
+            <span class="ml-2 px-1.5 py-0.5 bg-slate-200 text-slate-600 text-xs rounded flex-shrink-0">ALT</span>
             {% endif %}
             {% if item.notes %}
             <svg class="w-4 h-4 ml-2 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -177,7 +177,7 @@
         <input type="text"
                name="qty"
                value="{{ format_number(item.qty) }}"
-               class="w-20 px-2 py-1.5 text-center border border-gray-300 rounded bg-gray-50 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white"
+               class="w-20 px-2 py-1 text-center border border-slate-300 rounded bg-white text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white"
                hx-post="/bid/item/{{ item.id }}/qty"
                hx-trigger="change"
                hx-target="#row-{{ item.id }}"
@@ -189,7 +189,7 @@
         <input type="text"
                name="uom"
                value="{{ item.uom }}"
-               class="w-14 px-1 py-0.5 text-center text-sm text-gray-600 bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none focus:bg-white"
+               class="w-14 px-1 py-0.5 text-center text-sm text-slate-500 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:bg-white"
                hx-post="/bid/item/{{ item.id }}/uom"
                hx-trigger="change"
                hx-target="#row-{{ item.id }}"
@@ -199,11 +199,11 @@
     <!-- Unit Price -->
     <td class="px-2 py-2 text-center">
         <div class="flex items-center justify-center">
-            <span class="mr-1 text-gray-600">$</span>
+            <span class="mr-1 text-slate-400 text-sm">$</span>
             <input type="text"
                    name="unit_price"
                    value="{{ format_currency_input(item.unit_price_base) }}"
-                   class="w-20 px-2 py-1.5 text-center border border-gray-300 rounded bg-gray-50 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white"
+                   class="w-20 px-2 py-1 text-center border border-slate-300 rounded bg-white text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white"
                    hx-post="/bid/item/{{ item.id }}/price"
                    hx-trigger="change"
                    hx-target="#row-{{ item.id }}"
@@ -221,9 +221,9 @@
                 <button type="button"
                         class="px-2 py-1 text-xs rounded border min-w-[45px]
                                {% if item.difficulty == d %}
-                               bg-yellow-400 text-gray-900 border-yellow-500 font-semibold
+                               bg-blue-50 text-blue-700 border-blue-200 font-semibold
                                {% else %}
-                               bg-white text-gray-600 border-gray-300 hover:bg-gray-100
+                               bg-white text-slate-400 border-slate-200 hover:bg-slate-50 hover:text-slate-600
                                {% endif %}"
                         hx-post="/bid/item/{{ item.id }}/difficulty"
                         hx-vals='{"difficulty": {{ d }}}'
@@ -236,7 +236,7 @@
             <button type="button"
                     @click="diffOpen = !diffOpen"
                     class="w-5 h-5 rounded flex items-center justify-center text-xs transition-colors"
-                    :class="diffOpen ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'">
+                    :class="diffOpen ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'"
                 <span x-show="!diffOpen" class="leading-none">+</span>
                 <span x-show="diffOpen" class="leading-none">&minus;</span>
             </button>
@@ -244,23 +244,23 @@
     </td>
 
     <!-- Row Total -->
-    <td class="px-3 py-2 text-right font-bold text-gray-900">
+    <td class="px-3 py-2 text-right font-bold text-slate-800">
         {{ format_currency(item.row_total) }}
     </td>
 </tr>
 
 <!-- Difficulty Adders Row (expandable) -->
-<tr x-show="rowOpen && diffOpen" class="bg-yellow-50 border-b border-gray-200">
+<tr x-show="rowOpen && diffOpen" class="bg-slate-50 border-b border-slate-200/60">
     <td colspan="7"></td>
     <td class="px-2 py-1.5">
         <div class="flex items-center gap-1 justify-center">
             {% for d in [1, 2, 3, 4, 5] %}
             <div class="flex items-center">
-                <span class="text-gray-400 text-xs mr-0.5">$</span>
+                <span class="text-slate-400 text-xs mr-0.5">$</span>
                 <input type="text"
                        name="amount"
                        value="{{ format_currency_input(item.difficulty_adders.get(d, 0)) }}"
-                       class="w-[45px] px-1 py-0.5 text-xs border border-gray-300 rounded bg-white text-center"
+                       class="w-[45px] px-1 py-0.5 text-xs border border-slate-300 rounded bg-white text-center"
                        hx-post="/bid/item/{{ item.id }}/difficulty-add"
                        hx-vals='{"level": {{ d }}}'
                        hx-trigger="change"
@@ -274,18 +274,18 @@
 </tr>
 
 <!-- Notes Row (expandable) -->
-<tr x-show="rowOpen && notesOpen" class="notes-row bg-blue-50 border-b border-gray-200">
+<tr x-show="rowOpen && notesOpen" class="notes-row bg-slate-50 border-b border-slate-200/60">
     <td colspan="9" class="px-4 py-3">
         <div class="flex items-start gap-3">
             <svg class="w-5 h-5 text-blue-500 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd"/>
             </svg>
             <div class="flex-1">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Notes for {{ item.name }}</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Notes for {{ item.name }}</label>
                 <textarea name="notes"
                           rows="2"
                           placeholder="Add notes about this line item..."
-                          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                          class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white"
                           hx-post="/bid/item/{{ item.id }}/notes"
                           hx-trigger="change"
                           hx-target="#row-{{ item.id }}"
